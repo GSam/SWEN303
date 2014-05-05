@@ -12,9 +12,9 @@ var text=svg
 var allGames = {};
 d3.csv('2008-Table1.csv', function(e){
 	console.log(e);
-	for (var i = 0; i < e.length; i++) {
+	/*for (var i = 0; i < e.length; i++) {
 		console.log(e[i].Score);
-	}
+	}*/
 	allGames['2008'] = e;
 	d3.csv('2009-Table1.csv', function(e){
 		allGames['2009'] = e;
@@ -25,7 +25,7 @@ d3.csv('2008-Table1.csv', function(e){
 				d3.csv('2012-Table1.csv', function(e){
 					allGames['2012'] = e;
 
-
+					console.log(allGames);
 				});
 
 			});
