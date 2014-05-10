@@ -81,5 +81,15 @@ for table in tables:
 
 print "DONE WESTPAC"
 
+for table in tables:
+    f = open(table, 'r')
+    text = f.read()
+    f.close()
+    text = text.replace("Westpac Arena, Christchurch", "CBS Canterbury Arena, Christchurch")
+    f = open(table, 'w')
+    f.write(text)
+    f.close()
+
+print "DONE WESTPAC2"
 
 
