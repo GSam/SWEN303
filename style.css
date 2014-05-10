@@ -1,1 +1,34 @@
-text{font-size:36px;}
+/*text{font-size:36px;}*/
+
+#chart rect {
+  fill: steelblue;
+}
+
+#chart text {
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
+#chart rect:hover {
+  fill: brown;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
