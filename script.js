@@ -11,64 +11,102 @@ var text=svg
 
 var allGames = {};
 var allTeams = {};
+var allVenues = {};
+
 var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Switfts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':false, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
 
 d3.csv('2008-Table1.csv', function(e){
 	console.log(e);
 	/*for (var i = 0; i < e.length; i++) {
 		console.log(e[i].Score);
-	}*/
-	allGames['2008'] = e;
-	e.forEach(function(i) {
-		var team = allTeams[i['Home Team']];
-		if (team == undefined) {
-			allTeams[i['Home Team']] = [i];
-		} else {
-			team.push(i);
-		}
-	});
-	d3.csv('2009-Table1.csv', function(e){
-		allGames['2009'] = e;
+		}*/
+		allGames['2008'] = e;
 		e.forEach(function(i) {
+			var team = allTeams[i['Home Team']];
+			if (team == undefined) {
+				allTeams[i['Home Team']] = [i];
+			} else {
+				team.push(i);
+			}
+
+			var venue = allVenues[i['Venue']];
+			if (venue == undefined) {
+				allVenues[i['Venue']] = [i];
+			} else {
+				venue.push(i);
+			}
+		});
+		d3.csv('2009-Table1.csv', function(e){
+			allGames['2009'] = e;
+			e.forEach(function(i) {
 				var team = allTeams[i['Home Team']];
 				if (team == undefined) {
-						allTeams[i['Home Team']] = [i];
+					allTeams[i['Home Team']] = [i];
 				} else {
-						team.push(i);
+					team.push(i);
 				}
-		});
-		d3.csv('2010-Table1.csv', function(e){
-			allGames['2010'] = e;
-			e.forEach(function(i) {
+
+				var venue = allVenues[i['Venue']];
+				if (venue == undefined) {
+					allVenues[i['Venue']] = [i];
+				} else {
+					venue.push(i);
+				}
+			});
+			d3.csv('2010-Table1.csv', function(e){
+				allGames['2010'] = e;
+				e.forEach(function(i) {
 					var team = allTeams[i['Home Team']];
 					if (team == undefined) {
-							allTeams[i['Home Team']] = [i];
+						allTeams[i['Home Team']] = [i];
 					} else {
-							team.push(i);
+						team.push(i);
 					}
-			});
-			d3.csv('2011-Table1.csv', function(e){
-				allGames['2011'] = e;
-				e.forEach(function(i) {
+
+					var venue = allVenues[i['Venue']];
+					if (venue == undefined) {
+						allVenues[i['Venue']] = [i];
+					} else {
+						venue.push(i);
+					}
+				});
+				d3.csv('2011-Table1.csv', function(e){
+					allGames['2011'] = e;
+					e.forEach(function(i) {
 						var team = allTeams[i['Home Team']];
 						if (team == undefined) {
-								allTeams[i['Home Team']] = [i];
+							allTeams[i['Home Team']] = [i];
 						} else {
-								team.push(i);
+							team.push(i);
 						}
-				});
-				d3.csv('2012-Table1.csv', function(e){
-					allGames['2012'] = e;
-					e.forEach(function(i) {
+
+						var venue = allVenues[i['Venue']];
+						if (venue == undefined) {
+							allVenues[i['Venue']] = [i];
+						} else {
+							venue.push(i);
+						}
+					});
+					d3.csv('2012-Table1.csv', function(e){
+						allGames['2012'] = e;
+						e.forEach(function(i) {
 							var team = allTeams[i['Home Team']];
 							if (team == undefined) {
-									allTeams[i['Home Team']] = [i];
+								allTeams[i['Home Team']] = [i];
 							} else {
-									team.push(i);
+								team.push(i);
+							}
+
+							var venue = allVenues[i['Venue']];
+							if (venue == undefined) {
+								allVenues[i['Venue']] = [i];
+							} else {
+								venue.push(i);
 							}
 					});
 					console.log(allGames);
 					console.log(allTeams);
+					console.log(allVenues);
 				});
 
 			});
