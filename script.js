@@ -11,7 +11,7 @@ var text=svg
 
 var allGames = {};
 var allTeams = {};
-var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Switfts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':true, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
+var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Switfts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':false, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
 
 d3.csv('2008-Table1.csv', function(e){
 	console.log(e);
