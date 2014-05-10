@@ -92,4 +92,15 @@ for table in tables:
 
 print "DONE WESTPAC2"
 
+for table in tables:
+    f = open(table, 'r')
+    text = f.read()
+    f.close()
+    text = text.replace("\xe2\x80\x93", "-")
+    f = open(table, 'w')
+    f.write(text)
+    f.close()
+
+print "DONE HYPHEN"
+
 
