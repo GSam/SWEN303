@@ -378,6 +378,8 @@ function graph4() {
 	}
 }
 
+// Load all the csv files
+// They are embedded one after another in callbacks because this is async code.
 d3.csv('2008-Table1.csv', function(e){
 	console.log(e);
 	/*for (var i = 0; i < e.length; i++) {
@@ -514,3 +516,7 @@ d3.csv('2008-Table1.csv', function(e){
 
 	});
 });
+
+function switchTo(mode) {
+	// do some switching code
+}
