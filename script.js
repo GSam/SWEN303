@@ -147,7 +147,7 @@ function graph1() {
 	.attr("x", function(d) { return x(d) - 3; })
 	.attr("y", y.rangeBand() / 2)
 	.attr("dy", ".35em")
-	.text(function(d) { return d; });
+	.text(function(d) { return Math.round(d*100)/100; });
 
 	var radio = document.createElement('input');
 	var radio1 = document.createElement('input');
