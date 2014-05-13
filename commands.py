@@ -103,4 +103,14 @@ for table in tables:
 
 print "DONE HYPHEN"
 
+for table in tables:
+    f = open(table, 'r')
+    text = f.read()
+    f.close()
+    text = text.replace("Adelaide Entertainment Centre", "Adelaide Entertainment Centre, Adelaide")
+    f = open(table, 'w')
+    f.write(text)
+    f.close()
+
+print "DONE ADEL"
 
