@@ -4,5 +4,11 @@ being repaired.
 
 Adelaide Arena and Entertainment Centre and DIFFERENT.
 
+As far as dealing with venues of the same name, I only dealt with those I could see quite clearly and were obviously duplicates. Going any further into looking at some of these would take a lot more effort and research. Another venue of the data could have been looking in visualisation the time zones on the map and seeing what that would look like. 
+
+The fact that the time zones are not all present makes annoying to deal with the times. 
+
+In order to deal with the draw, I replaced the values with 0-0 and since this is the only draw. Considering points for those games are probably quite terrible and lower than they normally be, it made some sense to remove them entirely. This choice makes it easy to deal with the draw count, but not so easy to deal with the fact that the points for the actual game differed and that a specific team was in fact leading the game at the point it was cancelled. 
+
 Loss of the time variable is unfortunate. What I would have liked to have done is that I might 
 compare how performance is better during the day or during the night. Even so, it's still missing a year. 
