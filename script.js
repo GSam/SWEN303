@@ -1,4 +1,4 @@
-var w=960,h=500,
+/*var w=960,h=500,
 svg=d3.select("#chart")
 .append("svg")
 .attr("width",w)
@@ -7,7 +7,7 @@ svg=d3.select("#chart")
 var text=svg
 .append("text")
 .text("hello world")
-.attr("y",50);
+.attr("y",50);*/
 
 var allGames = {};
 var allTeams = {};
@@ -38,7 +38,7 @@ function graph1() {
 	.orient("left")
 	.ticks(10, "%");
 
-	var chart = d3.select("#chart").append('svg')
+	var chart = d3.select("#chart").append('svg:svg')
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom).append("g")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -67,6 +67,17 @@ function graph1() {
 	.attr("y", y.rangeBand() / 2)
 	.attr("dy", ".35em")
 	.text(function(d) { return d; });
+
+	var radio = document.createElement('input');
+	var radio1 = document.createElement('input');
+	var radioGroup = document.createElement('form');
+	radioGroup.appendChild(radio);
+	radioGroup.appendChild(radio1);
+	radio1.name = radio.name = 'test';
+	radio.innerHTML = "Test1";
+	radio1.innerHTML = "TEST2";
+	radio.type = radio1.type = 'radio';
+	document.querySelector('body').appendChild(radioGroup);
 
 }
 
@@ -374,7 +385,11 @@ d3.csv('2008-Table1.csv', function(e){
 					console.log(allVenues);
 
 					// create graph 1
-					graph4();
+					graph1();
+					graph1();
+					d3.selectAll('svg').on('click', function(e){
+						d3.selectAll('svg').remove();
+					});
 
 				});
 
