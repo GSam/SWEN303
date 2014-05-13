@@ -17,6 +17,8 @@ var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Norther
 var listTeams = ['Central Pulse', 'Queensland Firebirds', 'Northern Mystics', 'Waikato Bay of Plenty Magic', 'New South Wales Swifts', 'Canterbury Tactix', 'Melbourne Vixens', 'West Coast Fever', 'Adelaide Thunderbirds', 'Southern Steel']
 var listYears = [2008, 2009, 2010, 2011, 2012, 2013];
 
+var colors = ["Gold", "Silver", "#CD7F32", "SlateGrey"]
+
 function TeamData (n) {
 	this.wins = 0;
 	this.losses = 0;
@@ -519,4 +521,54 @@ d3.csv('2008-Table1.csv', function(e){
 
 function switchTo(mode) {
 	// do some switching code
+}
+
+function rank(year) {
+	var list = allGames[year];
+	
+	var e = list[list.length-1];
+	console.log(e);
+	var ans = [];
+	// finals
+	var scoreHome = parseInt(e.Score.split('-')[0], 10);
+	var scoreAway = parseInt(e.Score.split('-')[1], 10);
+	if (scoreHome > scoreAway) {
+		// home won
+		ans.push(e['Home Team']);
+		ans.push(e['Away Team']);
+	} else {
+		// away won 
+		ans.push(e['Away Team']);
+		ans.push(e['Home Team']);
+	}
+
+	// prelim-final - third place 
+	e = list[list.length-2];
+	console.log(e);
+	var scoreHome = parseInt(e.Score.split('-')[0], 10);
+	var scoreAway = parseInt(e.Score.split('-')[1], 10);
+	if (scoreHome > scoreAway) {
+		// home won
+		ans.push(e['Away Team']);
+	} else {
+		// away won 
+		ans.push(e['Home Team']);
+	}
+
+	// minor semi-final - fourth place
+	
+	e = list[list.length-3];
+	console.log(e);
+	var scoreHome = parseInt(e.Score.split('-')[0], 10);
+	var scoreAway = parseInt(e.Score.split('-')[1], 10);
+	if (scoreHome > scoreAway) {
+		// home won
+		ans.push(e['Away Team']);
+	} else {
+		// away won 
+		ans.push(e['Home Team']);
+	}
+
+	return ans;
+	
 }
