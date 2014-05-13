@@ -79,6 +79,11 @@ function graph1() {
 	radio.type = radio1.type = 'radio';
 	document.querySelector('body').appendChild(radioGroup);
 
+	d3.select('#sort_by').on('click', function(e) {
+			
+	
+	});
+
 }
 
 function graph2() {
