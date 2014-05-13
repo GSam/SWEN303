@@ -409,23 +409,28 @@ d3.csv('2008-Table1.csv', function(e){
 
 							var venue = allVenues[i['Venue']];
 							if (venue == undefined) {
-								allVenues[i['Venue']] = [i];
+									allVenues[i['Venue']] = [i];
 							} else {
-								venue.push(i);
+									venue.push(i);
 							}
-					});
-					console.log(allGames);
-					console.log(allTeams);
-					console.log(allVenues);
+						});
 
-					// create graph 1
-					graph1();
-					graph1();
-					d3.selectAll('svg').on('click', function(e){
-						d3.selectAll('svg').remove();
-					});
+						d3.csv('2013-Table1.csv', function(e) {
+						
 
-				});
+						});
+						console.log(allGames);
+						console.log(allTeams);
+						console.log(allVenues);
+
+						// create graph 1
+						graph1();
+						graph1();
+						d3.selectAll('svg').on('click', function(e){
+								d3.selectAll('svg').remove();
+						});
+
+					});
 
 			});
 
