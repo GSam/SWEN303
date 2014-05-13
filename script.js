@@ -139,9 +139,10 @@ function graph1() {
 	.style("text-anchor", "end");
 	//.text("Frequency");
 
+	//var color = d3.scale.category10();
 	bar.append("rect")
 	.attr("width", function(d) {return x(d);})
-	.attr("height", y.rangeBand());
+	.attr("height", y.rangeBand());//.style('fill', function(d, i) {return color(i);});
 
 	bar.append("text")
 	.attr("x", function(d) { return x(d) - 3; })
