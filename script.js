@@ -76,20 +76,41 @@ function getAllTeamStats(tempYears) {
 	return data;
 }
 
+function winCount(a, b) {
+	return a.wins - b.wins;
+}
+
+function lossCount(a,b) {
+	return a.losses - b.losses;
+}
+
+function pointCount(a,b) {
+	return b.points - a.points;
+}
+
+function winRatio(a,b) {
+	return b.wins/b.losses - a.wins/a.losses;
+}
+
 function graph1() {
 
 	var margin = {top: 20, right: 30, bottom: 30, left: 180},
 	width = 960 - margin.left - margin.right,
 	height = 500 - margin.top - margin.bottom;
 
-	var data = getAllTeamStats(listYears);
+	var data1 = getAllTeamStats(listYears);
+	Array.sort(data1, winRatio);
+
+	var data = data1.map(function(e) {return e.wins/e.losses;});
+	console.log(data);
+	console.log(data1);
 
 	var x = d3.scale.linear()
-	.domain([0, 10])
+	.domain([0, d3.max(data, function(e){return e;})])
 	.range([0, width]);
 
 	var y = d3.scale.ordinal()
-	.domain(listTeams)
+	.domain(data1.map(function(e){return e.name;}))
 	.rangeRoundBands([0, height], .1);
 	thiss = y;
 
@@ -104,9 +125,9 @@ function graph1() {
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	var bar = chart.selectAll("g")
-	.data([1,2,3,4,5,6,7,8])
+	.data(data)
 	.enter().append("g")
-	.attr("transform", function(d, i) { return "translate(10," + y(listTeams[i]) + ")"; });
+	.attr("transform", function(d, i) { return "translate(10," + y(data1[i].name) + ")"; });
 
 	chart.append("g")
 	.attr("class", "y axis")
