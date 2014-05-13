@@ -13,8 +13,8 @@ var allGames = {};
 var allTeams = {};
 var allVenues = {};
 
-var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Switfts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':false, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
-var listTeams = ['Central Pulse', 'Queensland Firebirds', 'Northern Mystics', 'Waikato Bay of Plenty Magic', 'New South Wales Switfts', 'Canterbury Tactix', 'Melbourne Vixens', 'West Coast Fever', 'Adelaide Thunderbirds', 'Southern Steel']
+var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Swifts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':false, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
+var listTeams = ['Central Pulse', 'Queensland Firebirds', 'Northern Mystics', 'Waikato Bay of Plenty Magic', 'New South Wales Swifts', 'Canterbury Tactix', 'Melbourne Vixens', 'West Coast Fever', 'Adelaide Thunderbirds', 'Southern Steel']
 var listYears = [2008, 2009, 2010, 2011, 2012, 2013];
 
 function TeamData (n) {
@@ -38,15 +38,48 @@ function graph1() {
 	}
 	console.log(data);
 
+	/*
 	for (var i = 0; i < listTeams.length; i++) {
 		var temp = allTeams[listTeams[i]];
 		for (var j = 0; j < listYears; j++) {
 			var listG = temp[listYears[j]];
 			listG.forEach(function(e) {
-				
+				if (listYears.indexOf(e.year) !== -1) {
+					
+				}
 			});
 		}
+	}*/
+	for (var i = 0; i < listYears.length; i++) {
+		var listG = allGames[listYears[i]];
+		listG.forEach(function(e) {
+			if (e.Date.startsWith('BYES')) return;
+
+			var scoreHome = parseInt(e.Score.split('-')[0], 10);
+			var scoreAway = parseInt(e.Score.split('-')[1], 10);
+
+			if (scoreHome > scoreAway) {
+				console.log(e['Home Team']  + " " + e['Away Team']);
+				console.log(listTeams.indexOf(e['Home Team'])  + " " + listTeams.indexOf(e['Away Team']));
+				data[listTeams.indexOf(e['Home Team'])].wins++;
+				data[listTeams.indexOf(e['Home Team'])].points += 2;
+				data[listTeams.indexOf(e['Away Team'])].losses++;
+			} else if (scoreHome < scoreAway) {
+				data[listTeams.indexOf(e['Away Team'])].wins++;
+				data[listTeams.indexOf(e['Away Team'])].points += 2;
+				data[listTeams.indexOf(e['Home Team'])].losses++;
+			} else {
+				// draw - only one such case
+				console.log(e['Home Team']  + " " + e['Away Team']);
+				console.log(listTeams.indexOf(e['Home Team'])  + " " + listTeams.indexOf(e['Away Team']));
+				data[listTeams.indexOf(e['Home Team'])].draws++;
+				data[listTeams.indexOf(e['Home Team'])].points++;
+				data[listTeams.indexOf(e['Away Team'])].draws++;
+				data[listTeams.indexOf(e['Away Team'])].points++;
+			}
+		});
 	}
+	console.log(data);
 
 	var x = d3.scale.linear()
 	.domain([0, 10])
@@ -417,17 +450,35 @@ d3.csv('2008-Table1.csv', function(e){
 
 						d3.csv('2013-Table1.csv', function(e) {
 						
+							allGames['2013'] = e;
+							e.forEach(function(i) {
+								i.year = 2013;
+								var team = allTeams[i['Home Team']];
+								if (team == undefined) {
+									allTeams[i['Home Team']] = [i];
+								} else {
+									team.push(i);
+								}
 
-						});
-						console.log(allGames);
-						console.log(allTeams);
-						console.log(allVenues);
+								var venue = allVenues[i['Venue']];
+								if (venue == undefined) {
+									allVenues[i['Venue']] = [i];
+								} else {
+									venue.push(i);
+								}
+							});
 
-						// create graph 1
-						graph1();
-						graph1();
-						d3.selectAll('svg').on('click', function(e){
+							console.log(allGames);
+							console.log(allTeams);
+							console.log(allVenues);
+
+							// create graph 1
+							graph1();
+							graph1();
+							d3.selectAll('svg').on('click', function(e){
 								d3.selectAll('svg').remove();
+							});
+
 						});
 
 					});
