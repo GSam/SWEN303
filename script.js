@@ -25,19 +25,12 @@ function TeamData (n) {
 	this.points = 0;
 }
 
-function graph1() {
-
-	var margin = {top: 20, right: 30, bottom: 30, left: 180},
-	width = 960 - margin.left - margin.right,
-	height = 500 - margin.top - margin.bottom;
-
+function getAllTeamStats(tempYears) {
 	// calculate wins-losses, draws, proportion win, and league points
 	var data = [];
 	for (var i = 0; i < listTeams.length; i++) {
 		data.push(new TeamData(listTeams[i]));
 	}
-	console.log(data);
-
 	/*
 	for (var i = 0; i < listTeams.length; i++) {
 		var temp = allTeams[listTeams[i]];
@@ -50,8 +43,8 @@ function graph1() {
 			});
 		}
 	}*/
-	for (var i = 0; i < listYears.length; i++) {
-		var listG = allGames[listYears[i]];
+	for (var i = 0; i < tempYears.length; i++) {
+		var listG = allGames[tempYears[i]];
 		listG.forEach(function(e) {
 			if (e.Date.startsWith('BYES')) return;
 
@@ -80,6 +73,16 @@ function graph1() {
 		});
 	}
 	console.log(data);
+	return data;
+}
+
+function graph1() {
+
+	var margin = {top: 20, right: 30, bottom: 30, left: 180},
+	width = 960 - margin.left - margin.right,
+	height = 500 - margin.top - margin.bottom;
+
+	var data = getAllTeamStats(listYears);
 
 	var x = d3.scale.linear()
 	.domain([0, 10])
