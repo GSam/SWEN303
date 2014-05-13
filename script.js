@@ -15,13 +15,38 @@ var allVenues = {};
 
 var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Switfts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':false, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
 var listTeams = ['Central Pulse', 'Queensland Firebirds', 'Northern Mystics', 'Waikato Bay of Plenty Magic', 'New South Wales Switfts', 'Canterbury Tactix', 'Melbourne Vixens', 'West Coast Fever', 'Adelaide Thunderbirds', 'Southern Steel']
-var listYears = [2008, 2009, 2010, 2011, 2012];
+var listYears = [2008, 2009, 2010, 2011, 2012, 2013];
+
+function TeamData (n) {
+	this.wins = 0;
+	this.losses = 0;
+	this.draws = 0;
+	this.name = n;
+	this.points = 0;
+}
 
 function graph1() {
 
 	var margin = {top: 20, right: 30, bottom: 30, left: 180},
 	width = 960 - margin.left - margin.right,
 	height = 500 - margin.top - margin.bottom;
+
+	// calculate wins-losses, draws, proportion win, and league points
+	var data = [];
+	for (var i = 0; i < listTeams.length; i++) {
+		data.push(new TeamData(listTeams[i]));
+	}
+	console.log(data);
+
+	for (var i = 0; i < listTeams.length; i++) {
+		var temp = allTeams[listTeams[i]];
+		for (var j = 0; j < listYears; j++) {
+			var listG = temp[listYears[j]];
+			listG.forEach(function(e) {
+				
+			});
+		}
+	}
 
 	var x = d3.scale.linear()
 	.domain([0, 10])
@@ -31,6 +56,7 @@ function graph1() {
 	.domain(listTeams)
 	.rangeRoundBands([0, height], .1);
 	thiss = y;
+
 	var yAxis = d3.svg.axis()
 	.scale(y)
 	.orient("left")
@@ -301,6 +327,7 @@ d3.csv('2008-Table1.csv', function(e){
 		}*/
 		allGames['2008'] = e;
 		e.forEach(function(i) {
+			i.year = 2008;
 			var team = allTeams[i['Home Team']];
 			if (team == undefined) {
 				allTeams[i['Home Team']] = [i];
@@ -318,6 +345,7 @@ d3.csv('2008-Table1.csv', function(e){
 		d3.csv('2009-Table1.csv', function(e){
 			allGames['2009'] = e;
 			e.forEach(function(i) {
+				i.year = 2009;
 				var team = allTeams[i['Home Team']];
 				if (team == undefined) {
 					allTeams[i['Home Team']] = [i];
@@ -335,6 +363,7 @@ d3.csv('2008-Table1.csv', function(e){
 			d3.csv('2010-Table1.csv', function(e){
 				allGames['2010'] = e;
 				e.forEach(function(i) {
+					i.year = 2010;
 					var team = allTeams[i['Home Team']];
 					if (team == undefined) {
 						allTeams[i['Home Team']] = [i];
@@ -352,6 +381,7 @@ d3.csv('2008-Table1.csv', function(e){
 				d3.csv('2011-Table1.csv', function(e){
 					allGames['2011'] = e;
 					e.forEach(function(i) {
+						i.year = 2011;
 						var team = allTeams[i['Home Team']];
 						if (team == undefined) {
 							allTeams[i['Home Team']] = [i];
@@ -369,6 +399,7 @@ d3.csv('2008-Table1.csv', function(e){
 					d3.csv('2012-Table1.csv', function(e){
 						allGames['2012'] = e;
 						e.forEach(function(i) {
+							i.year = 2012;
 							var team = allTeams[i['Home Team']];
 							if (team == undefined) {
 								allTeams[i['Home Team']] = [i];
