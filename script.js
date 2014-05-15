@@ -48,7 +48,7 @@ function getAllTeamStats(tempYears) {
 	for (var i = 0; i < tempYears.length; i++) {
 		var listG = allGames[tempYears[i]];
 		listG.forEach(function(e) {
-			if (e.Date.startsWith('BYES')) return;
+			if (e.Date.indexOf('BYES') === 0) return;
 
 			var scoreHome = parseInt(e.Score.split('-')[0], 10);
 			var scoreAway = parseInt(e.Score.split('-')[1], 10);
@@ -259,6 +259,8 @@ function graph3() {
 		.append("svg:g")                //make a group to hold our pie chart
 		.attr("transform", "translate(" + r + "," + r + ")")    //move the center of the pie chart from 0, 0 to radius, radius
 
+		vis.append('svg:text').style('text-anchor', 'middle').attr('id', 'middletext');	
+
 		var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
 		.outerRadius(r).innerRadius(r/2);
 
@@ -273,7 +275,13 @@ function graph3() {
 
 		arcs.append("svg:path")
 		.attr("fill", function(d, i) { return color(i); } ) //set the color for each slice to be chosen from the color function defined above
-		.attr("d", arc).style("stroke", "#fff");                                    //this creates the actual SVG path using the associated data (pie) with the arc drawing function
+		.attr("d", arc).style("stroke", "#fff")
+		.on('mouseover', 
+			function(e){
+				console.log(e.data);
+				d3.select('#middletext').text(JSON.stringify(e.data));
+			})
+			.on('click', display);;                                    //this creates the actual SVG path using the associated data (pie) with the arc drawing function
 
 		arcs.append("svg:title")                                     //add a label to each slice
 		.attr("transform", function(d) {                    //set the label's origin to the center of the arc
@@ -584,4 +592,69 @@ function rank(year) {
 
 	return ans;
 	
+}
+
+function display(e) {
+	// calculate a ranking of the teams
+	var home = "";
+	var games = allVenues[e.data.label];
+	console.log(teamRank(games));
+	home = games[0]['Home Team'];
+	console.log(home);
+	teamRank(games).forEach(function(e) {
+		var d = document.createElement('p');
+		d.innerHTML = JSON.stringify(e);
+		if (e.name === home) d.innerHTML += ' HOME';
+		document.querySelector('body').appendChild(d);
+	
+	});
+
+}
+
+function teamRank(dat) {
+	// calculate wins-losses, draws, proportion win, and league points
+	var data = [];
+	for (var i = 0; i < listTeams.length; i++) {
+		data.push(new TeamData(listTeams[i]));
+	}
+	/*
+	for (var i = 0; i < listTeams.length; i++) {
+		var temp = allTeams[listTeams[i]];
+		for (var j = 0; j < listYears; j++) {
+			var listG = temp[listYears[j]];
+			listG.forEach(function(e) {
+				if (listYears.indexOf(e.year) !== -1) {
+					
+				}
+			});
+		}
+	}*/
+	dat.forEach(function(e) {
+		if (e.Date.indexOf('BYES') === 0) return;
+
+		var scoreHome = parseInt(e.Score.split('-')[0], 10);
+		var scoreAway = parseInt(e.Score.split('-')[1], 10);
+
+		if (scoreHome > scoreAway) {
+			//console.log(e['Home Team']  + " " + e['Away Team']);
+			//console.log(listTeams.indexOf(e['Home Team'])  + " " + listTeams.indexOf(e['Away Team']));
+			data[listTeams.indexOf(e['Home Team'])].wins++;
+			data[listTeams.indexOf(e['Home Team'])].points += 2;
+			data[listTeams.indexOf(e['Away Team'])].losses++;
+		} else if (scoreHome < scoreAway) {
+			data[listTeams.indexOf(e['Away Team'])].wins++;
+			data[listTeams.indexOf(e['Away Team'])].points += 2;
+			data[listTeams.indexOf(e['Home Team'])].losses++;
+		} else {
+			// draw - only one such case
+			//console.log(e['Home Team']  + " " + e['Away Team']);
+			console.log(listTeams.indexOf(e['Home Team'])  + " " + listTeams.indexOf(e['Away Team']));
+			data[listTeams.indexOf(e['Home Team'])].draws++;
+			data[listTeams.indexOf(e['Home Team'])].points++;
+			data[listTeams.indexOf(e['Away Team'])].draws++;
+			data[listTeams.indexOf(e['Away Team'])].points++;
+		}
+	});
+
+	return data;
 }
