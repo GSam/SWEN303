@@ -101,7 +101,7 @@ function graph1() {
 	height = 500 - margin.top - margin.bottom;
 
 	var data1 = getAllTeamStats(listYears);
-	Array.sort(data1, winRatio);
+	data1.sort(winRatio);
 
 	var data = data1.map(function(e) {return e.wins/e.losses;});
 	console.log(data);
