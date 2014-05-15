@@ -54,8 +54,8 @@ function getAllTeamStats(tempYears) {
 			var scoreAway = parseInt(e.Score.split('-')[1], 10);
 
 			if (scoreHome > scoreAway) {
-				console.log(e['Home Team']  + " " + e['Away Team']);
-				console.log(listTeams.indexOf(e['Home Team'])  + " " + listTeams.indexOf(e['Away Team']));
+				//console.log(e['Home Team']  + " " + e['Away Team']);
+				//console.log(listTeams.indexOf(e['Home Team'])  + " " + listTeams.indexOf(e['Away Team']));
 				data[listTeams.indexOf(e['Home Team'])].wins++;
 				data[listTeams.indexOf(e['Home Team'])].points += 2;
 				data[listTeams.indexOf(e['Away Team'])].losses++;
@@ -236,16 +236,22 @@ function graph2() {
 function graph3() {
 
 
-	var w = 300,                        //width
-	h = 300,                            //height
-	r = 100,                            //radius
+	var w = 600,                        //width
+	h = 600,                            //height
+	r = 250,                            //radius
 	color = d3.scale.category20c();     //builtin range of colors
 
-	data = [{"label":"one", "value":20}, 
-		{"label":"two", "value":50}, 
-	{"label":"three", "value":30}];
+	var data = [];
+	/*data = [{"label":"one", "value":20}, {"label":"two", "value":50}, 		{"label":"three", "value":30}];*/
 
-	var vis = d3.select("body")
+	for (var key in allVenues) {
+		if (allVenues.hasOwnProperty(key)) {
+			data.push({"label":key, "value": allVenues[key].length});	
+		}
+	}
+	console.log(data);
+
+	var vis = d3.select("#chart")
 	.append("svg:svg")              //create the SVG element inside the <body>
 	.data([data])                   //associate our data with the document
 	.attr("width", w)           //set the width and height of our visualization (these will be attributes of the <svg> tag
@@ -254,7 +260,7 @@ function graph3() {
 		.attr("transform", "translate(" + r + "," + r + ")")    //move the center of the pie chart from 0, 0 to radius, radius
 
 		var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
-		.outerRadius(r);
+		.outerRadius(r).innerRadius(r/2);
 
 		var pie = d3.layout.pie()           //this will create arc data for us given a list of values
 		.value(function(d) { return d.value; });    //we must tell it out to access the value of each element in our data array
@@ -269,7 +275,7 @@ function graph3() {
 		.attr("fill", function(d, i) { return color(i); } ) //set the color for each slice to be chosen from the color function defined above
 		.attr("d", arc).style("stroke", "#fff");                                    //this creates the actual SVG path using the associated data (pie) with the arc drawing function
 
-		arcs.append("svg:text")                                     //add a label to each slice
+		arcs.append("svg:title")                                     //add a label to each slice
 		.attr("transform", function(d) {                    //set the label's origin to the center of the arc
 			//we have to make sure to set these before calling arc.centroid
 			d.innerRadius = 0;
@@ -496,6 +502,9 @@ d3.csv('2008-Table1.csv', function(e){
 									venue.push(i);
 								}
 							});
+							
+							delete allVenues[undefined];
+							delete allVenues[''];
 
 							console.log(allGames);
 							console.log(allTeams);
@@ -506,6 +515,7 @@ d3.csv('2008-Table1.csv', function(e){
 							graph1();
 							d3.selectAll('svg').on('click', function(e){
 								d3.selectAll('svg').remove();
+								switchTo('venue');
 							});
 
 						});
@@ -521,13 +531,16 @@ d3.csv('2008-Table1.csv', function(e){
 
 function switchTo(mode) {
 	// do some switching code
+	if (mode === 'venue') {
+		graph3();
+	}
 }
 
 function rank(year) {
 	var list = allGames[year];
 	
 	var e = list[list.length-1];
-	console.log(e);
+	//console.log(e);
 	var ans = [];
 	// finals
 	var scoreHome = parseInt(e.Score.split('-')[0], 10);
@@ -544,7 +557,7 @@ function rank(year) {
 
 	// prelim-final - third place 
 	e = list[list.length-2];
-	console.log(e);
+	//console.log(e);
 	var scoreHome = parseInt(e.Score.split('-')[0], 10);
 	var scoreAway = parseInt(e.Score.split('-')[1], 10);
 	if (scoreHome > scoreAway) {
@@ -558,7 +571,7 @@ function rank(year) {
 	// minor semi-final - fourth place
 	
 	e = list[list.length-3];
-	console.log(e);
+	//console.log(e);
 	var scoreHome = parseInt(e.Score.split('-')[0], 10);
 	var scoreAway = parseInt(e.Score.split('-')[1], 10);
 	if (scoreHome > scoreAway) {
