@@ -809,7 +809,7 @@ var svg = d3.select("#chart").append("svg")
 	var end = null;
 	var oldEnd = null;
 
-  var node = svg.selectAll(".node")
+  var node = svg.selectAll(".force-node")
       .data(graph.nodes)
     .enter().append("circle")
       .attr("class", "force-node")
