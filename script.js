@@ -862,7 +862,23 @@ var svg = d3.select("#chart").append("svg")
     node.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
   });
-	
+
+
+	var y = d3.scale.ordinal()
+	.domain(graph1.map(function(e){return e.name;}).slice(0,10))
+	.rangeRoundBands([height/2, height], .1);
+
+	var x = d3.scale.ordinal()
+	.domain(graph1.map(function(e){return e.name;}).slice(0,10))
+	.rangeRoundBands([20, 100]);
+
+	svg.selectAll('.rivalBars')
+	.data(graph1.slice(0,10))
+	.enter().append('svg:line')
+	.attr('x1', 0)
+	.attr('y1', function(d) {return y(d.name);})
+	.attr('x2', function(d) {return x(d.name);})
+	.attr('y2', function(d) {return y(d.name);}).style('stroke', 'black');
 /*  d3.select('body').on("keydown", function() {
 var r = [10 / 2, -10 / 2, projection.rotate()[2]]; s = projection.rotate(r);console.log(projection.rotate(r)); 
     link.attr("x1", function(d) { return d.source.x; })
