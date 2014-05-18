@@ -658,3 +658,23 @@ function teamRank(dat) {
 
 	return data;
 }
+
+function gameDiff(a,b) {
+	if (a.Date.indexOf('BYES') === 0 || b.Date.indexOf('BYES') === 0) return;
+
+	var scoreHome = parseInt(a.Score.split('-')[0], 10);
+	var scoreAway = parseInt(a.Score.split('-')[1], 10);
+
+	var scoreHome1 = parseInt(b.Score.split('-')[0], 10);
+	var scoreAway1 = parseInt(b.Score.split('-')[1], 10);
+
+	return Math.abs(scoreHome - scoreAway) - Math.abs(scoreHome1 - scoreAway1);
+}
+
+function closestGames(dat) {
+	// calculate wins-losses, draws, proportion win, and league points
+	dat.sort(gameDiff);
+	return dat;
+}
+
+
