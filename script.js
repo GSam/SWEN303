@@ -759,6 +759,35 @@ var svg = d3.select("#chart").append("svg")
 	
 	}
 
+	svg.append('svg:rect')
+	.attr('x', 10)
+	.attr('y', 20)
+	.attr('width', 30)
+	.attr('height', 20)
+	.style('fill', color(true))
+	.append('svg:text')
+	.attr('x', 40)
+	.text('New Zealand');
+
+	svg.append('svg:rect')
+	.attr('x', 10)
+	.attr('y', 50)
+	.attr('width', 30)
+	.attr('height', 20)
+	.style('fill', color(false));
+
+	svg.append('svg:text')
+	.attr('x', 60)
+	.attr('y', 35)
+	.style('text-anchor', 'start')
+	.text('New Zealand');
+
+	svg.append('svg:text')
+	.attr('x', 60)
+	.attr('y', 65)
+	.style('text-anchor', 'start')
+	.text('Australia');
+	
 	var graph = {};
 	graph['nodes'] = listTeams.map(function(e){return {name:e}});
 	graph['links'] = graph1;
@@ -788,7 +817,6 @@ var svg = d3.select("#chart").append("svg")
       .style("fill", function(d) { return color(isNewZealand[d.name]); })
       .call(force.drag)
 	  .on('dblclick', function(d) {
-	 	// if start and end != null then console.log
 		var c = d3.select(this);
 		if (start === null) {
 			start = d.name;
