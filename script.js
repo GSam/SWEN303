@@ -776,13 +776,51 @@ var svg = d3.select("#chart").append("svg")
       .style("stroke-width", function(d) { return Math.sqrt(d.value); })
 	  .style("stroke","#999");
 
+	var start = null;
+	var end = null;
+	var oldEnd = null;
+
   var node = svg.selectAll(".node")
       .data(graph.nodes)
     .enter().append("circle")
-      .attr("class", "node")
+      .attr("class", "force-node")
       .attr("r", 5)
       .style("fill", function(d) { return color(isNewZealand[d.name]); })
-      .call(force.drag);
+      .call(force.drag)
+	  .on('dblclick', function(d) {
+	 	// if start and end != null then console.log
+		var c = d3.select(this);
+		if (start === null) {
+			start = d.name;
+			c.classed({'selected':true});
+			return;
+		}
+
+		if (d.name === start) {
+			start = null;
+			c.classed({'selected':false});
+			oldEnd.classed({'selected':false});
+			return;
+		}
+
+		if (d.name === end) {
+			end = null;
+			c.classed({'selected':false});
+			return;
+		}
+
+		if (oldEnd !== null) {
+			oldEnd.classed({'selected':false});
+		}
+
+		end = d.name;
+		oldEnd = c;
+		c.classed({'selected':true});
+
+		
+		console.log(start + " - " + end);
+	  
+	  });
 
   node.append("title")
       .text(function(d) { return d.name; });

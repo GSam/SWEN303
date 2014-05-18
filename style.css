@@ -13,6 +13,14 @@
   fill: brown;
 }
 
+.force-node:hover {
+  fill: orange !important;
+}
+
+.force-node.selected {
+  fill: red !important;
+}
+
 .bar:hover {
   fill: brown;
 }
