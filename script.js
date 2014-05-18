@@ -523,7 +523,8 @@ d3.csv('2008-Table1.csv', function(e){
 							graph1();
 							d3.selectAll('svg').on('click', function(e){
 								d3.selectAll('svg').remove();
-								switchTo('venue');
+								//switchTo('venue');
+								forceDir();
 							});
 
 						});
@@ -675,6 +676,126 @@ function closestGames(dat) {
 	// calculate wins-losses, draws, proportion win, and league points
 	dat.sort(gameDiff);
 	return dat;
+}
+
+function rivalries(dat) {
+	listTeams.sort();
+	var rivalries = [];
+	var dict = {};
+	for (var i = 0; i < listTeams.length; i++) {
+		for (var j = i + 1; j < listTeams.length; j++) {
+			var name = listTeams[i] + ' - ' + listTeams[j];
+			var d = new TeamData(name);
+			rivalries.push(d);
+			dict[name] = d;
+		}
+	}
+
+	dat.forEach(function(e) {
+		if (e.Date.indexOf('BYES') === 0) return;
+
+		var n = [e['Home Team'], e['Away Team']]
+		var s = n.sort().join(' - ');
+	
+		var data = dict[s];
+
+		//home team first
+		if (s.indexOf(e['Home Team']) === 0) {
+			var scoreHome = parseInt(e.Score.split('-')[0], 10);
+			var scoreAway = parseInt(e.Score.split('-')[1], 10);
+		} else {
+			var scoreHome = parseInt(e.Score.split('-')[1], 10);
+			var scoreAway = parseInt(e.Score.split('-')[0], 10);
+		}
+
+		if (scoreHome > scoreAway) {
+			data.wins++;
+		} else if (scoreHome < scoreAway) {
+			data.losses++;
+		} else {
+			data.draws++;
+		}
+		//data['ssss'] += scoreHome + " " + scoreAway;
+	});
+
+	rivalries.sort(rivalSort);
+	//console.log(rivalries);
+	return rivalries;
+}
+
+function rivalSort(a, b) {
+	return Math.min((a.wins)/(a.wins+a.losses), (a.losses)/(a.wins+a.losses)) - Math.min((b.wins)/(b.wins+b.losses), (b.losses)/(b.wins+b.losses));
+}
+
+function forceDir() {
+var width = 960,
+    height = 500;
+
+var color = d3.scale.category20();
+
+var force = d3.layout.force()
+    .charge(-1520)
+    .linkDistance(50)
+    .size([width, height]);
+
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+	var c = [];
+	listYears.forEach(function(e) {
+		c = c.concat(allGames[e]);
+	});
+
+	var graph0 = rivalries(c);
+	var graph1 = [];
+	for (var i = 0; i < graph0.length; i++) {
+		var e = graph0[i];	
+	 	e.value = Math.min((e.wins)/(e.wins+e.losses), (e.losses)/(e.wins+e.losses));	
+		if (e.value > 0) 
+			graph1.push(e);
+		e['source'] = listTeams.indexOf(e.name.split(' - ')[0]);
+		e['target'] = listTeams.indexOf(e.name.split(' - ')[1]);
+	
+	}
+
+	var graph = {};
+	graph['nodes'] = listTeams.map(function(e){return {name:e}});
+	graph['links'] = graph1;
+
+//d3.json("miserables.json", function(error, graph) {
+  force
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .start();
+
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("line")
+      .attr("class", "link")
+      .style("stroke-width", function(d) { return Math.sqrt(d.value); })
+	  .style("stroke","#999");
+
+  var node = svg.selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("circle")
+      .attr("class", "node")
+      .attr("r", 5)
+      .style("fill", function(d) { return color(isNewZealand[d.name]); })
+      .call(force.drag);
+
+  node.append("title")
+      .text(function(d) { return d.name; });
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  });
 }
 
 
