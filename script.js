@@ -752,7 +752,7 @@ var svg = d3.select("#chart").append("svg")
 	for (var i = 0; i < graph0.length; i++) {
 		var e = graph0[i];	
 	 	e.value = Math.min((e.wins)/(e.wins+e.losses), (e.losses)/(e.wins+e.losses));	
-		if (e.value > 0) 
+		if (e.value > 0.25) 
 			graph1.push(e);
 		e['source'] = listTeams.indexOf(e.name.split(' - ')[0]);
 		e['target'] = listTeams.indexOf(e.name.split(' - ')[1]);
@@ -796,6 +796,20 @@ var svg = d3.select("#chart").append("svg")
     node.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
   });
+	
+/*  d3.select('body').on("keydown", function() {
+var r = [10 / 2, -10 / 2, projection.rotate()[2]]; s = projection.rotate(r);console.log(projection.rotate(r)); 
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+
+	force.start();
+	
+  });*/
 }
 
 
