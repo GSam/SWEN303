@@ -1083,4 +1083,7 @@ var r = [10 / 2, -10 / 2, projection.rotate()[2]]; s = projection.rotate(r);cons
   });*/
 }
 
+function readd(a) {
+	d3.select('#chart').append(function(){return a.node();})
+}
 
