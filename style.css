@@ -1,5 +1,11 @@
 /*text{font-size:36px;}*/
 
+body
+{
+background-image:url('nzaus.jpg');
+background-repeat:no-repeat;
+}
+
 #chart rect {
   fill: steelblue;
 }

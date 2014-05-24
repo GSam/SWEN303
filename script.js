@@ -173,7 +173,10 @@ function graph1() {
 	});
 
 }
-
+ 
+function isNumber(n){
+    return typeof n == 'number' && !isNaN(n - n);
+}
 function graph2() {
 	// define dimensions of graph
 	var m = [40, 40, 40, 40]; // margins
@@ -294,6 +297,80 @@ function graph2() {
       .attr("dy", ".35em")
 	  .style('text-anchor', 'start')
       .text(function(d) { return "AUS home wins"; });
+	  
+	  var tree = {"name":"teams", "children":[]};
+	  for (var i = 0; i < listTeams.length; i++) {
+		  var e = listTeams[i];
+		  var t = [];
+		  yearly.forEach(function(e, index) {
+			  var s = e[i];
+			  var x = ((s.homeWin / (s.homeWin + s.homeLoss) ) / (s.awayWin / (s.awayWin + s.awayLoss)));
+			  var xx = (isNumber(x) ? x : 0.01)
+			  if (!isNaN(x) && !isFinite(x)) {
+				  console.log(listTeams[i] + " " + yearly[index]);
+			  }
+			  /*if (xx == 0.01) {
+				  console.log(s.homeWin / (s.homeWin + s.homeLoss));
+				  console.log(s.awayWin / (s.awayWin + s.awayLoss));
+				  console.log(listTeams[i]);
+				  }*/
+				  t.push({"name": listTeams[i], "data": s, "size": xx});
+		  });
+		  tree.children.push({"name":e, "children":t});
+
+	  }
+	  console.log(tree);
+
+	  var diameter = 480,
+	  format = d3.format(",.2f"),
+	  color = d3.scale.category20c();
+
+	  var bubble = d3.layout.pack()
+	  .sort(null)
+	  .size([diameter, diameter])
+	  .padding(1.5);
+
+	  var svg = d3.select("#chart").append("svg")
+	  .attr("width", diameter)
+	  .attr("height", diameter)
+	  .attr("class", "bubble");
+
+	  svg.append('title').text('Ratio of Home Wins to Away Wins');
+
+	  var node = svg.selectAll(".node")
+	  .data(bubble.nodes(classes(tree))
+	  .filter(function(d) { return !d.children; }))
+	  .enter().append("g")
+	  .attr("class", "node")
+	  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+	  node.append("title")
+	  .text(function(d) { return d.className + ": " + format(d.value); });
+
+	  node.append("circle")
+	  .attr("r", function(d) { return d.r; })
+	  .style("fill", function(d) { return color(d.packageName); }).on('mouseover', function(e){ console.log(e); });
+
+	  node.append("text")
+	  .attr("dy", ".3em")
+	  .style("text-anchor", "middle")
+	  .style("font", "10px sans-serif")
+	  .text(function(d) { return d.className.substring(0, d.r / 3); });
+
+	  // Returns a flattened hierarchy containing all leaf nodes under the root.
+	  function classes(root) {
+		  var classes = [];
+
+		  function recurse(name, node) {
+			  if (node.children) node.children.forEach(function(child) { recurse(node.name, child); });
+			  else classes.push({packageName: name, className: node.name, value: node.size, data:node.data});
+		  }
+
+		  recurse(null, root);
+		  return {children: classes};
+	  }
+
+	  d3.select(self.frameElement).style("height", diameter + "px");
 }
 
 function graph3() {
