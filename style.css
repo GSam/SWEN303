@@ -35,6 +35,14 @@ background-repeat:no-repeat;
   font: 10px sans-serif;
 }
 
+.focus .axis path,
+.focus .axis line {
+
+  stroke:lightgrey;
+  opacity:0.7;
+
+}
+
 .axis path,
 .axis line {
   fill: none;
@@ -65,4 +73,6 @@ background-repeat:no-repeat;
   fill: steelblue;
   clip-path: url(#clip);
 }
+
+
 

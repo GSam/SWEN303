@@ -175,9 +175,9 @@ function graph1() {
 
 
 
-	var margin = {top: 10, right: 10, bottom: 100, left: 40},
-	margin2 = {top: 430, right: 10, bottom: 20, left: 40},
-	width = 960 - margin.left - margin.right,
+	var margin = {top: 10, right: 20, bottom: 100, left: 150},
+	margin2 = {top: 430, right: 20, bottom: 20, left: 150},
+	width = 1280 - margin.left - margin.right,
 	height = 500 - margin.top - margin.bottom,
 	height2 = 500 - margin2.top - margin2.bottom;
 
@@ -190,7 +190,7 @@ function graph1() {
 
 	var xAxis = d3.svg.axis().scale(x).orient("bottom"),
 	xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
-	yAxis = d3.svg.axis().scale(y).orient("left");
+	yAxis = d3.svg.axis().scale(y).orient("left").tickSize(-width);
 
 	var brush = d3.svg.brush()
 	.x(x2)
@@ -225,33 +225,18 @@ function graph1() {
 	var context = svg.append("g")
 	.attr("class", "context")
 	.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
-var data = [type({"date": "Jan 2000", "price":"a"}),type({"date": "Jan 2005", "price":"b"}),type({"date": "Jan 2010", "price":"c"}) ];
+var data = [type({"date": "Apr 2008", "price":"Central Pulse"}),type({"date": "Mar 2008", "price":"New South Wales Swifts"}),type({"date": "Aug 2013", "price":"Queensland Firebirds"}) ];
 console.log(data);
 		x.domain(d3.extent(data.map(function(d) { return d.date; })));
-		y.domain(['a','b','c','d']);
+		y.domain(listTeams);
 		x2.domain(x.domain());
 		y2.domain(y.domain());
 		thisss = y
 
-		//focus.append('g').attr("clip-path", "url(#clip)").append("path")
-		focus.append('path')
-		.datum(data)
-		.attr("class", "area")
-		.attr("d", area).style('stroke', 'blue').style('stroke-width', '2').style('fill', 'none');
-
-		focus.append("g")
+		focus.append('g')	//	focus.append("g")
 		.attr("class", "x axis")
 		.attr("transform", "translate(0," + height + ")")
 		.call(xAxis);
-
-		focus.append("g")
-		.attr("class", "y axis")
-		.call(yAxis);
-
-		context.append("path")
-		.datum(data)
-		.attr("class", "area")
-		.attr("d", area2).style('stroke', 'blue').style('stroke-width', '2').style('fill', 'none');
 
 		context.append("g")
 		.attr("class", "x axis")
@@ -265,9 +250,35 @@ console.log(data);
 		.attr("y", -6)
 		.attr("height", height2 + 7);
 
+		focus.append("g")
+		.attr("class", "y axis")
+		.call(yAxis);
+
+		var games = [];
+		listYears.forEach(function(e) {
+			games = games.concat(allGames[e]);
+		});	
+
+		games = games.map(function(e) {var dat = new Date(e.year+ " "+ e.Date); if (dat == undefined) return; return [{"date":dat, "price":e['Home Team']},{"date":dat, "price":e['Away Team']}];});
+		console.log(games);
+		// paths
+		var ctx = context.selectAll('.dots').data(games).enter();
+		
+		ctx.append("path")
+		.attr("class", "area")
+		.attr("d", area2).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
+
+		ctx = focus.append('g').attr("clip-path", "url(#clip)")
+.selectAll('.dots').data(games).enter();
+		
+		ctx.append('path')
+		.attr("class", "area")
+		.attr("d", area).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
+
+
 	function brushed() {
 		x.domain(brush.empty() ? x2.domain() : brush.extent());
-		focus.select(".area").attr("d", area);
+		focus.selectAll(".area").attr("d", area);
 		focus.select(".x.axis").call(xAxis);
 	}
 
