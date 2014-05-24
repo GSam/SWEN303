@@ -185,8 +185,8 @@ function graph1() {
 
 	var x = d3.time.scale().range([0, width]),
 	x2 = d3.time.scale().range([0, width]),
-	y = d3.scale.linear().range([height, 0]),
-	y2 = d3.scale.linear().range([height2, 0]);
+	y = d3.scale.ordinal().rangeRoundBands([height, 0], .1),
+	y2 = d3.scale.ordinal().range([height2, 0]);
 
 	var xAxis = d3.svg.axis().scale(x).orient("bottom"),
 	xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
@@ -200,7 +200,7 @@ function graph1() {
 	.interpolate("monotone")
 	.x(function(d) { return x(d.date); })
 	//.y0(height)
-	.y(function(d) { return y(d.price); });
+	.y(function(d) { return y(d.price) + y.rangeBand()/2; });
 
 	var area2 = d3.svg.line()
 	.interpolate("monotone")
@@ -225,12 +225,13 @@ function graph1() {
 	var context = svg.append("g")
 	.attr("class", "context")
 	.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
-var data = [type({"date": "Jan 2000", "price":1000}),type({"date": "Jan 2005", "price":100}),type({"date": "Jan 2010", "price":500}) ];
+var data = [type({"date": "Jan 2000", "price":"a"}),type({"date": "Jan 2005", "price":"b"}),type({"date": "Jan 2010", "price":"c"}) ];
 console.log(data);
 		x.domain(d3.extent(data.map(function(d) { return d.date; })));
-		y.domain([0, d3.max(data.map(function(d) { return d.price; }))]);
+		y.domain(['a','b','c','d']);
 		x2.domain(x.domain());
 		y2.domain(y.domain());
+		thisss = y
 
 		//focus.append('g').attr("clip-path", "url(#clip)").append("path")
 		focus.append('path')
@@ -272,7 +273,6 @@ console.log(data);
 
 	function type(d) {
 		d.date = parseDate(d.date);
-		d.price = +d.price;
 		return d;
 	}
 
