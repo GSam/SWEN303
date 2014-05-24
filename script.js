@@ -25,6 +25,10 @@ function TeamData (n) {
 	this.draws = 0;
 	this.name = n;
 	this.points = 0;
+	this.homeWin = 0;
+	this.homeLoss = 0;
+	this.awayWin = 0;
+	this.awayLoss = 0;
 }
 
 function getAllTeamStats(tempYears) {
@@ -172,17 +176,54 @@ function graph1() {
 
 function graph2() {
 	// define dimensions of graph
-	var m = [80, 80, 80, 80]; // margins
-	var w = 800 - m[1] - m[3]; // width
+	var m = [40, 40, 40, 40]; // margins
+	var w = 500 - m[1] - m[3]; // width
 	var h = 400 - m[0] - m[2]; // height
 
 	// create a simple data array that we'll plot with a line (this array represents only the Y values, X will just be the index location)
-	var data = [3, 6, 2, 7, 5, 2, 0, 3, 8, 9, 2, 5, 9, 3, 6, 3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 9, 2, 7];
+	//var data = [3, 6, 2, 7, 5, 2, 0, 3, 8, 9, 2, 5, 9, 3, 6, 3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 9, 2, 7];
 
+	var yearly = [];
+	var NZhomeWin = [];
+	var NZawayWin = [];
+	var AUhomeWin = [];
+	var AUawayWin = [];
+
+	for(var i = 0; i < listYears.length; i++) {
+		var tem = teamRank(allGames[listYears[i]]);
+		var NZ = new TeamData('NZ');
+		var AU = new TeamData('AU');
+		tem.forEach(function(e) {
+			if (isNewZealand[e.name]) {
+				NZ.homeWin += e.homeWin;
+				NZ.awayWin += e.awayWin;
+				NZ.homeLoss += e.homeLoss;
+				NZ.awayLoss += e.awayLoss;
+			} else {
+				AU.homeWin += e.homeWin;
+				AU.awayWin += e.awayWin;
+				AU.homeLoss += e.homeLoss;
+				AU.awayLoss += e.awayLoss;
+			}
+		});
+		console.log(NZ);
+		console.log(AU);
+		NZhomeWin.push(NZ.homeWin / (NZ.homeWin + NZ.homeLoss));
+		NZawayWin.push(NZ.awayWin / (NZ.awayWin + NZ.awayLoss));
+		AUhomeWin.push(AU.homeWin / (AU.homeWin + AU.homeLoss));
+		AUawayWin.push(AU.awayWin / (AU.awayWin + AU.awayLoss));
+
+		yearly.push(tem);
+	}
+	console.log(NZhomeWin);
+	console.log(NZawayWin);
+	console.log(AUhomeWin);
+	console.log(AUawayWin);
+	console.log(yearly);
 	// X scale will fit all values from data[] within pixels 0-w
-	var x = d3.scale.linear().domain([0, data.length]).range([0, w]);
+	var x = d3.scale.ordinal().domain(listYears).rangeRoundBands([0, w], 0);
 	// Y scale will fit values from 0-10 within pixels h-0 (Note the inverted domain for the y-scale: bigger is up!)
-	var y = d3.scale.linear().domain([0, 10]).range([h, 0]);
+	var y = d3.scale.linear().domain([0, 1]).range([h, 0]);
 	// automatically determining max range can work something like this
 	// var y = d3.scale.linear().domain([0, d3.max(data)]).range([h, 0]);
 
@@ -190,15 +231,9 @@ function graph2() {
 	var line = d3.svg.line()
 	// assign the X function to plot our line as we wish
 	.x(function(d,i) { 
-		// verbose logging to show what's actually being done
-		console.log('Plotting X value for data point: ' + d + ' using index: ' + i + ' to be at: ' + x(i) + ' using our xScale.');
-		// return the X coordinate where we want to plot this datapoint
-		return x(i); 
+		return x(i+2008); 
 	})
 	.y(function(d) { 
-		// verbose logging to show what's actually being done
-		console.log('Plotting Y value for data point: ' + d + ' to be at: ' + y(d) + " using our yScale.");
-		// return the Y coordinate where we want to plot this datapoint
 		return y(d); 
 	})
 
@@ -210,27 +245,55 @@ function graph2() {
 	.attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
 	// create yAxis
-	var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true);
+	var xAxis = d3.svg.axis().scale(x).tickSize(-5);
 	// Add the x-axis.
 	graph.append("svg:g")
 	.attr("class", "x axis")
-	.attr("transform", "translate(0," + h + ")")
+	.attr("transform", "translate(" + -x.rangeBand()/2 +"," + h + ")")
 	.call(xAxis);
 
 
 	// create left yAxis
-	var yAxisLeft = d3.svg.axis().scale(y).ticks(4).orient("left");
+	var yAxisLeft = d3.svg.axis().scale(y).ticks(6).orient("left").tickSize(-w + x.rangeBand()/2).tickSubdivide(true);
 	// Add the y-axis to the left
 	graph.append("svg:g")
 	.attr("class", "y axis")
-	.attr("transform", "translate(-25,0)")
+	.attr("transform", "translate(0,-3)")
 	.call(yAxisLeft);
 
 	// Add the line by appending an svg:path element with the data line we created above
 	// do this AFTER the axes above so that the line is above the tick-lines
-	graph.append("svg:path").attr("d", line(data)).style("stroke","steelblue").style("stroke-width","1").style("fill", "none");
+//	graph.append("svg:path").attr("d", line(data)).style("stroke","steelblue").style("stroke-width","1").style("fill", "none");
+	graph.append("svg:path").attr("d", line(NZhomeWin)).style("stroke","Blue").style("stroke-width","2").style("fill", "none");
+	graph.append("svg:path").attr("d", line(NZawayWin)).style("stroke","PowderBlue").style("stroke-width","2").style("fill", "none");
+	graph.append("svg:path").attr("d", line(AUhomeWin)).style("stroke","Red").style("stroke-width","2").style("fill", "none");
+	graph.append("svg:path").attr("d", line(AUawayWin)).style("stroke","LightSalmon").style("stroke-width","2").style("fill", "none");
 
 
+  graph.append("text")
+      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(NZhomeWin[NZhomeWin.length-1]) - 4) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+	  .style('text-anchor', 'start')
+      .text(function(d) { return "NZ home wins"; });
+  graph.append("text")
+      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(NZawayWin[NZawayWin.length-1])) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+	  .style('text-anchor', 'start')
+      .text(function(d) { return "NZ away wins"; });
+  graph.append("text")
+      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(AUawayWin[AUawayWin.length-1]) + 4) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+	  .style('text-anchor', 'start')
+      .text(function(d) { return "AUS away wins"; });
+  graph.append("text")
+      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(AUhomeWin[AUhomeWin.length-1])) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+	  .style('text-anchor', 'start')
+      .text(function(d) { return "AUS home wins"; });
 }
 
 function graph3() {
@@ -643,10 +706,16 @@ function teamRank(dat) {
 			data[listTeams.indexOf(e['Home Team'])].wins++;
 			data[listTeams.indexOf(e['Home Team'])].points += 2;
 			data[listTeams.indexOf(e['Away Team'])].losses++;
+
+			data[listTeams.indexOf(e['Home Team'])].homeWin++;
+			data[listTeams.indexOf(e['Away Team'])].awayLoss++;
 		} else if (scoreHome < scoreAway) {
 			data[listTeams.indexOf(e['Away Team'])].wins++;
 			data[listTeams.indexOf(e['Away Team'])].points += 2;
 			data[listTeams.indexOf(e['Home Team'])].losses++;
+
+			data[listTeams.indexOf(e['Away Team'])].awayWin++;
+			data[listTeams.indexOf(e['Home Team'])].homeLoss++;
 		} else {
 			// draw - only one such case
 			//console.log(e['Home Team']  + " " + e['Away Team']);
