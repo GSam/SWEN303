@@ -524,7 +524,8 @@ d3.csv('2008-Table1.csv', function(e){
 							d3.selectAll('svg').on('click', function(e){
 								d3.selectAll('svg').remove();
 								//switchTo('venue');
-								forceDir();
+								//forceDir();
+								graph2();
 							});
 
 						});
@@ -746,13 +747,13 @@ var svg = d3.select("#chart").append("svg")
 	listYears.forEach(function(e) {
 		c = c.concat(allGames[e]);
 	});
-
+var percent = 0.;
 	var graph0 = rivalries(c);
 	var graph1 = [];
 	for (var i = 0; i < graph0.length; i++) {
 		var e = graph0[i];	
 	 	e.value = Math.min((e.wins)/(e.wins+e.losses), (e.losses)/(e.wins+e.losses));	
-		if (e.value > 0.25) 
+		if (e.value > percent) 
 			graph1.push(e);
 		e['source'] = listTeams.indexOf(e.name.split(' - ')[0]);
 		e['target'] = listTeams.indexOf(e.name.split(' - ')[1]);
@@ -879,6 +880,48 @@ var svg = d3.select("#chart").append("svg")
 	.attr('y1', function(d) {return y(d.name);})
 	.attr('x2', function(d) {return x(d.name);})
 	.attr('y2', function(d) {return y(d.name);}).style('stroke', 'black');
+
+	var zoom = d3.event.scale;
+	function zoomed() {
+		force.stop();
+		if (d3.event.scale > zoom) {
+			console.log("IN");
+		} else if (d3.event.scale < zoom) {
+			console.log("OUT");	
+		}
+		zoom = d3.event.scale;
+		console.log("scale  " + d3.event.scale);
+		percent = Math.min(1, percent + 0.05);
+		force.gravity(force.gravity() + 0.01, 1);
+		graph1 = [];
+		console.log(percent);
+		for (var i = 0; i < graph0.length; i++) {
+			var e = graph0[i];
+			if (e.value > percent) 
+				graph1.push(e);
+		}
+		console.log(graph1.length);
+		var link2 = svg.selectAll(".link")
+		.data(graph1)
+		.enter().append("line")
+		.attr("class", "link")
+		.style("stroke-width", function(d) { return 1; })
+		.style("stroke","#999");
+
+		 svg.selectAll(".link").data(graph1)
+		.exit().remove();
+
+		force.links(graph1);
+		force.start();
+
+	}
+
+	var zoom = d3.behavior.zoom()
+    .on("zoom", zoomed);
+
+	svg.call(zoom);
+
+	
 /*  d3.select('body').on("keydown", function() {
 var r = [10 / 2, -10 / 2, projection.rotate()[2]]; s = projection.rotate(r);console.log(projection.rotate(r)); 
     link.attr("x1", function(d) { return d.source.x; })
