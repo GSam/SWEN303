@@ -842,6 +842,7 @@ function switchTo(mode) {
 	if (mode === 'venue') {
 		graph3();
 	} else if (mode === 'team') {
+		graph6();
 		graph5('Central Pulse');
 	}
 }
@@ -1248,8 +1249,8 @@ function readd(a) {
 }
 
 function graph5(a) {
-	var w = 600,                        //width
-	h = 600,                            //height
+	var w = 200,                        //width
+	h = 500,                            //height
 	r = 250,                            //radius
 	color = d3.scale.category20c();     //builtin range of colors
 
@@ -1280,6 +1281,105 @@ function graph5(a) {
 
 	console.log(data);
 
+	data.sort(function(a,b) {
+		var x = b.wins / (b.wins + b.losses) - a.wins / (a.wins + a.losses);
+		if (b.wins === 0 && a.wins === 0) {
+			return a.losses - b.losses;
+		}
+		return x;
+	});
+
+console.log(data.slice(0,5));
+console.log(data.slice(-5).reverse());
+
+var vis = d3.select('#chart')
+	.append('svg:svg')
+	.attr("width", w)
+	.attr('height', h).append('svg:g');
+
+	vis.append('text').text('Best 5 Venues').attr('x', 0).attr('y',45).style('text-anchor', 'start');
+	var bars = vis.selectAll('.winbars')
+		.data(data.slice(0,5))
+		.enter()
+	var b = bars.append('svg:rect')
+		.attr('x', 0)
+		.attr('y', function(d,i) {return 30 * i + 50;})
+		.attr('height', 20)
+		.attr('width',0).style('fill','green').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "1": "0.7";});
+	b.transition()
+	.delay(200)
+		.attr('width', function(d) {return 150 * (d.wins / (d.wins + d.losses));});
+
+	var b = bars.append('svg:rect')
+		.attr('x', 150)
+		.attr('y', function(d,i) {return 30 * i + 50;})
+		.attr('height', 20)
+		.attr('width',0).style('fill','red').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "1": "0.7";});
+	b.transition()
+	.delay(200)
+		.attr('width', function(d) {return 150 * (d.losses / (d.wins + d.losses));})
+		.attr('x', function(d) {return 150 * (d.wins / (d.wins + d.losses));});
+
+
+
+var vis = d3.select('#chart')
+	.append('svg:svg')
+	.attr("width", w)
+	.attr('height', h).append('svg:g');
+
+	vis.append('text').text('Worst 5 Venues').attr('x', 0).attr('y',45).style('text-anchor', 'start');
+	var bars = vis.selectAll('.winbars')
+		.data(data.slice(-5).reverse())
+		.enter()
+	var b = bars.append('svg:rect')
+		.attr('x', 0)
+		.attr('y', function(d,i) {return 30 * i + 50;})
+		.attr('height', 20)
+		.attr('width',0).style('fill','green').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "0.5": "1";});
+	b.transition()
+	.delay(200)
+		.attr('width', function(d) {return 150 * (d.wins / (d.wins + d.losses));});
+
+	var b = bars.append('svg:rect')
+		.attr('x', 150)
+		.attr('y', function(d,i) {return 30 * i + 50;})
+		.attr('height', 20)
+		.attr('width',0).style('fill','red').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "1": "0.7";});
+	b.transition()
+	.delay(200)
+		.attr('width', function(d) {return 150 * (d.losses / (d.wins + d.losses));})
+		.attr('x', function(d) {return 150 * (d.wins / (d.wins + d.losses));});
+
+var vis = d3.select('#chart')
+	.append('svg:svg')
+	.attr("width", w)
+	.attr('height', h).append('svg:g');
+
+	vis.append('text').text('Home Venues').attr('x', 0).attr('y',45).style('text-anchor', 'start');
+	var bars = vis.selectAll('.winbars')
+		.data(data.filter(function(e) {return e.homeWin !== 0 || e.homeLoss !== 0;}))
+		.enter()
+	var b = bars.append('svg:rect')
+		.attr('x', 0)
+		.attr('y', function(d,i) {return 30 * i + 50;})
+		.attr('height', 20)
+		.attr('width',0).style('fill','green');
+	b.transition()
+	.delay(200)
+		.attr('width', function(d) {return 150 * (d.wins / (d.wins + d.losses));});
+
+	var b = bars.append('svg:rect')
+		.attr('x', 150)
+		.attr('y', function(d,i) {return 30 * i + 50;})
+		.attr('height', 20)
+		.attr('width',0).style('fill','red');
+	b.transition()
+	.delay(200)
+		.attr('width', function(d) {return 150 * (d.losses / (d.wins + d.losses));})
+		.attr('x', function(d) {return 150 * (d.wins / (d.wins + d.losses));});
+
+		//.ease('elastic')
+
 /*listYears.forEach(function(e){
 	var data = 
 	var vis = d3.select("#chart")
@@ -1306,5 +1406,145 @@ function graph5(a) {
 		.attr("fill", function(d, i) { return color(i); } ) //set the color for each slice to be chosen from the color function defined above
 		.attr("d", arc).style("stroke", "#fff");
 		});*/
+
+}
+
+
+function graph6() {
+	// define dimensions of graph
+	var m = [40, 40, 40, 40]; // margins
+	var w = 900 - m[1] - m[3]; // width
+	var h = 500 - m[0] - m[2]; // height
+
+	var select = d3.select('#chart').append('div').append('select').on('change', function(e){console.log(this.value);});
+
+	select.selectAll('option')
+	.data(listTeams).enter()
+	.append('option')
+	.attr('value', function(e){ 
+		return e;})
+		.text(function(d){return d;});
+
+	var select = d3.select('#chart').append('div').append('select').on('change', function(e){console.log(this.value);});
+
+	select.selectAll('option')
+	.data(listYears).enter()
+	.append('option')
+	.attr('value', function(e){ 
+		return e;})
+		.text(function(d){return d;});
+
+	var select = d3.select('#chart').append('div').append('input').attr('type', 'button').attr('value', 'Add line').on('click', function(e){console.log(this);});
+	var yearly = [];
+	var NZhomeWin = [];
+	var NZawayWin = [];
+	var AUhomeWin = [];
+	var AUawayWin = [];
+
+	for(var i = 0; i < listYears.length; i++) {
+		var tem = teamRank(allGames[listYears[i]]);
+		var NZ = new TeamData('NZ');
+		var AU = new TeamData('AU');
+		tem.forEach(function(e) {
+			if (isNewZealand[e.name]) {
+				NZ.homeWin += e.homeWin;
+				NZ.awayWin += e.awayWin;
+				NZ.homeLoss += e.homeLoss;
+				NZ.awayLoss += e.awayLoss;
+			} else {
+				AU.homeWin += e.homeWin;
+				AU.awayWin += e.awayWin;
+				AU.homeLoss += e.homeLoss;
+				AU.awayLoss += e.awayLoss;
+			}
+		});
+		console.log(NZ);
+		console.log(AU);
+		NZhomeWin.push(NZ.homeWin / (NZ.homeWin + NZ.homeLoss));
+		NZawayWin.push(NZ.awayWin / (NZ.awayWin + NZ.awayLoss));
+		AUhomeWin.push(AU.homeWin / (AU.homeWin + AU.homeLoss));
+		AUawayWin.push(AU.awayWin / (AU.awayWin + AU.awayLoss));
+
+		yearly.push(tem);
+	}
+	console.log(NZhomeWin);
+	console.log(NZawayWin);
+	console.log(AUhomeWin);
+	console.log(AUawayWin);
+	console.log(yearly);
+	// X scale will fit all values from data[] within pixels 0-w
+	var x = d3.scale.ordinal().domain(listYears).rangeRoundBands([0, w], 0);
+	// Y scale will fit values from 0-10 within pixels h-0 (Note the inverted domain for the y-scale: bigger is up!)
+	var y = d3.scale.linear().domain([0, 1]).range([h, 0]);
+	// automatically determining max range can work something like this
+	// var y = d3.scale.linear().domain([0, d3.max(data)]).range([h, 0]);
+
+	// create a line function that can convert data[] into x and y points
+	var line = d3.svg.line()
+	// assign the X function to plot our line as we wish
+	.x(function(d,i) { 
+		return x(i+2008); 
+	})
+	.y(function(d) { 
+		return y(d); 
+	})
+
+	// Add an SVG element with the desired dimensions and margin.
+	var graph = d3.select("#chart").append("svg:svg")
+	.attr("width", w + m[1] + m[3])
+	.attr("height", h + m[0] + m[2])
+	.append("svg:g")
+	.attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+
+	// create yAxis
+	var xAxis = d3.svg.axis().scale(x).tickSize(-5);
+	// Add the x-axis.
+	graph.append("svg:g")
+	.attr("class", "x axis")
+	.attr("transform", "translate(" + -x.rangeBand()/2 +"," + h + ")")
+	.call(xAxis);
+
+
+	// create left yAxis
+	var yAxisLeft = d3.svg.axis().scale(y).ticks(6).orient("left").tickSize(-w + x.rangeBand()/2).tickSubdivide(true);
+	// Add the y-axis to the left
+	graph.append("svg:g")
+	.attr("class", "y axis")
+	.attr("transform", "translate(0,-3)")
+	.call(yAxisLeft);
+
+	// Add the line by appending an svg:path element with the data line we created above
+	// do this AFTER the axes above so that the line is above the tick-lines
+//	graph.append("svg:path").attr("d", line(data)).style("stroke","steelblue").style("stroke-width","1").style("fill", "none");
+	graph.append("svg:path").attr("d", line(NZhomeWin)).style("stroke","Blue").style("stroke-width","2").style("fill", "none");
+	graph.append("svg:path").attr("d", line(NZawayWin)).style("stroke","PowderBlue").style("stroke-width","2").style("fill", "none");
+	graph.append("svg:path").attr("d", line(AUhomeWin)).style("stroke","Red").style("stroke-width","2").style("fill", "none");
+	graph.append("svg:path").attr("d", line(AUawayWin)).style("stroke","LightSalmon").style("stroke-width","2").style("fill", "none");
+
+
+  graph.append("text")
+      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(NZhomeWin[NZhomeWin.length-1]) - 4) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+	  .style('text-anchor', 'start')
+      .text(function(d) { return "NZ home wins"; });
+  graph.append("text")
+      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(NZawayWin[NZawayWin.length-1])) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+	  .style('text-anchor', 'start')
+      .text(function(d) { return "NZ away wins"; });
+  graph.append("text")
+      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(AUawayWin[AUawayWin.length-1]) + 4) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+	  .style('text-anchor', 'start')
+      .text(function(d) { return "AUS away wins"; });
+  graph.append("text")
+      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(AUhomeWin[AUhomeWin.length-1])) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+	  .style('text-anchor', 'start')
+      .text(function(d) { return "AUS home wins"; });
 
 }
