@@ -95,7 +95,7 @@ function pointCount(a,b) {
 }
 
 function winRatio(a,b) {
-	return b.wins/b.losses - a.wins/a.losses;
+	return b.wins/(b.wins + b.losses) - a.wins/(a.wins + a.losses);
 }
 
 function graph1() {
@@ -107,7 +107,7 @@ function graph1() {
 	var data1 = getAllTeamStats(listYears);
 	data1.sort(winRatio);
 
-	var data = data1.map(function(e) {return e.wins/e.losses;});
+	var data = data1.map(function(e) {return e.wins/(e.wins + e.losses);});
 	console.log(data);
 	console.log(data1);
 
@@ -666,6 +666,13 @@ d3.csv('2008-Table1.csv', function(e){
 				team.push(i);
 			}
 
+			team = allTeams[i['Away Team']];
+			if (team == undefined) {
+				allTeams[i['Away Team']] = [i];
+			} else {
+				team.push(i);
+			}
+
 			var venue = allVenues[i['Venue']];
 			if (venue == undefined) {
 				allVenues[i['Venue']] = [i];
@@ -680,6 +687,13 @@ d3.csv('2008-Table1.csv', function(e){
 				var team = allTeams[i['Home Team']];
 				if (team == undefined) {
 					allTeams[i['Home Team']] = [i];
+				} else {
+					team.push(i);
+				}
+
+				team = allTeams[i['Away Team']];
+				if (team == undefined) {
+					allTeams[i['Away Team']] = [i];
 				} else {
 					team.push(i);
 				}
@@ -702,6 +716,13 @@ d3.csv('2008-Table1.csv', function(e){
 						team.push(i);
 					}
 
+					team = allTeams[i['Away Team']];
+					if (team == undefined) {
+						allTeams[i['Away Team']] = [i];
+					} else {
+						team.push(i);
+					}
+
 					var venue = allVenues[i['Venue']];
 					if (venue == undefined) {
 						allVenues[i['Venue']] = [i];
@@ -716,6 +737,13 @@ d3.csv('2008-Table1.csv', function(e){
 						var team = allTeams[i['Home Team']];
 						if (team == undefined) {
 							allTeams[i['Home Team']] = [i];
+						} else {
+							team.push(i);
+						}
+
+						team = allTeams[i['Away Team']];
+						if (team == undefined) {
+							allTeams[i['Away Team']] = [i];
 						} else {
 							team.push(i);
 						}
@@ -738,6 +766,13 @@ d3.csv('2008-Table1.csv', function(e){
 								team.push(i);
 							}
 
+							team = allTeams[i['Away Team']];
+							if (team == undefined) {
+								allTeams[i['Away Team']] = [i];
+							} else {
+								team.push(i);
+							}
+
 							var venue = allVenues[i['Venue']];
 							if (venue == undefined) {
 									allVenues[i['Venue']] = [i];
@@ -754,6 +789,13 @@ d3.csv('2008-Table1.csv', function(e){
 								var team = allTeams[i['Home Team']];
 								if (team == undefined) {
 									allTeams[i['Home Team']] = [i];
+								} else {
+									team.push(i);
+								}
+
+								team = allTeams[i['Away Team']];
+								if (team == undefined) {
+									allTeams[i['Away Team']] = [i];
 								} else {
 									team.push(i);
 								}
@@ -779,8 +821,9 @@ d3.csv('2008-Table1.csv', function(e){
 							d3.selectAll('svg').on('click', function(e){
 								d3.selectAll('svg').remove();
 								//switchTo('venue');
+								switchTo('team');
 								//forceDir();
-								graph2();
+								//graph2();
 							});
 
 						});
@@ -798,6 +841,8 @@ function switchTo(mode) {
 	// do some switching code
 	if (mode === 'venue') {
 		graph3();
+	} else if (mode === 'team') {
+		graph5('Central Pulse');
 	}
 }
 
@@ -1202,4 +1247,64 @@ function readd(a) {
 	d3.select('#chart').append(function(){return a.node();})
 }
 
+function graph5(a) {
+	var w = 600,                        //width
+	h = 600,                            //height
+	r = 250,                            //radius
+	color = d3.scale.category20c();     //builtin range of colors
 
+	var data = [];
+	/*data = [{"label":"one", "value":20}, {"label":"two", "value":50}, 		{"label":"three", "value":30}];*/
+
+	var teamGames = allTeams[a];
+	
+	var dict = {};
+	teamGames.forEach(function(e) {
+		var venue = dict[e.Venue];
+		if (venue == undefined) {
+			venue = [e];
+			dict[e.Venue] = venue;
+		} else {
+			venue.push(e);
+		}
+	});
+	console.log(dict);
+
+	for (var key in dict) {
+		if (allVenues.hasOwnProperty(key)) {
+			var t =teamRank(dict[key]).filter(function(e){return a == e.name;})[0];
+			t.venue = key;
+			data.push(t);
+		}
+	}
+
+	console.log(data);
+
+/*listYears.forEach(function(e){
+	var data = 
+	var vis = d3.select("#chart")
+	.append("svg:svg")              //create the SVG element inside the <body>
+	.data([data])                   //associate our data with the document
+	.attr("width", w)           //set the width and height of our visualization (these will be attributes of the <svg> tag
+		.attr("height", h)
+		.append("svg:g")                //make a group to hold our pie chart
+		.attr("transform", "translate(" + r + "," + r + ")")    //move the center of the pie chart from 0, 0 to radius, radius
+
+		var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
+		.outerRadius(r);
+
+		var pie = d3.layout.pie()           //this will create arc data for us given a list of values
+		.value(function(d) { return d.value; });    //we must tell it out to access the value of each element in our data array
+
+		var arcs = vis.selectAll("g.slice")     //this selects all <g> elements with class slice (there aren't any yet)
+		.data(pie)                          //associate the generated pie data (an array of arcs, each having startAngle, endAngle and value properties) 
+		.enter()                            //this will create <g> elements for every "extra" data element that should be associated with a selection. The result is creating a <g> for every object in the data array
+		.append("svg:g")                //create a group to hold each slice (we will have a <path> and a <text> element associated with each slice)
+		.attr("class", "slice");    //allow us to style things in the slices (like text)
+
+		arcs.append("svg:path")
+		.attr("fill", function(d, i) { return color(i); } ) //set the color for each slice to be chosen from the color function defined above
+		.attr("d", arc).style("stroke", "#fff");
+		});*/
+
+}
