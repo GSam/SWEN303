@@ -843,7 +843,7 @@ function switchTo(mode) {
 		graph3();
 	} else if (mode === 'team') {
 		graph6();
-		graph5('Central Pulse');
+		//graph5('Central Pulse');
 	}
 }
 
@@ -1409,6 +1409,8 @@ var vis = d3.select('#chart')
 
 }
 
+var sYear = 2008;
+var sTeam = 'Central Pulse';
 
 function graph6() {
 	// define dimensions of graph
@@ -1435,47 +1437,35 @@ function graph6() {
 		.text(function(d){return d;});
 
 	var select = d3.select('#chart').append('div').append('input').attr('type', 'button').attr('value', 'Add line').on('click', function(e){console.log(this);});
-	var yearly = [];
-	var NZhomeWin = [];
-	var NZawayWin = [];
-	var AUhomeWin = [];
-	var AUawayWin = [];
 
-	for(var i = 0; i < listYears.length; i++) {
-		var tem = teamRank(allGames[listYears[i]]);
-		var NZ = new TeamData('NZ');
-		var AU = new TeamData('AU');
-		tem.forEach(function(e) {
-			if (isNewZealand[e.name]) {
-				NZ.homeWin += e.homeWin;
-				NZ.awayWin += e.awayWin;
-				NZ.homeLoss += e.homeLoss;
-				NZ.awayLoss += e.awayLoss;
-			} else {
-				AU.homeWin += e.homeWin;
-				AU.awayWin += e.awayWin;
-				AU.homeLoss += e.homeLoss;
-				AU.awayLoss += e.awayLoss;
-			}
-		});
-		console.log(NZ);
-		console.log(AU);
-		NZhomeWin.push(NZ.homeWin / (NZ.homeWin + NZ.homeLoss));
-		NZawayWin.push(NZ.awayWin / (NZ.awayWin + NZ.awayLoss));
-		AUhomeWin.push(AU.homeWin / (AU.homeWin + AU.homeLoss));
-		AUawayWin.push(AU.awayWin / (AU.awayWin + AU.awayLoss));
 
-		yearly.push(tem);
+	// tabulate round data
+	var yearGames = allGames[sYear];
+	var index = 0;
+	var games = [];
+	var data = [];
+	for (var i = 1; i < 15; i++) {
+		// while you haven't got to the next round yet
+		while (yearGames[index].Round <= i) {
+			games.push(yearGames[index]);
+			index++;
+		}
+		console.log(i);
+		data.push(teamRank(games).sort(function(a,b){ return b.points - a.points;}));
 	}
-	console.log(NZhomeWin);
-	console.log(NZawayWin);
-	console.log(AUhomeWin);
-	console.log(AUawayWin);
-	console.log(yearly);
+	console.log(data);
+	var rData = data.map(function(e) { 
+		for (var i = 0; i < e.length; i++) {
+			if (e[i].name === sTeam) {
+				return i+1;
+			}
+		}
+	});
+
 	// X scale will fit all values from data[] within pixels 0-w
-	var x = d3.scale.ordinal().domain(listYears).rangeRoundBands([0, w], 0);
+	var x = d3.scale.linear().domain([1,17]).range([0, w]);
 	// Y scale will fit values from 0-10 within pixels h-0 (Note the inverted domain for the y-scale: bigger is up!)
-	var y = d3.scale.linear().domain([0, 1]).range([h, 0]);
+	var y = d3.scale.linear().domain([10, 1]).range([h, 0]);
 	// automatically determining max range can work something like this
 	// var y = d3.scale.linear().domain([0, d3.max(data)]).range([h, 0]);
 
@@ -1483,7 +1473,7 @@ function graph6() {
 	var line = d3.svg.line()
 	// assign the X function to plot our line as we wish
 	.x(function(d,i) { 
-		return x(i+2008); 
+		return x(i+1); 
 	})
 	.y(function(d) { 
 		return y(d); 
@@ -1497,54 +1487,28 @@ function graph6() {
 	.attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
 	// create yAxis
-	var xAxis = d3.svg.axis().scale(x).tickSize(-5);
+	var xAxis = d3.svg.axis().scale(x).ticks(17).tickSize(-15);
 	// Add the x-axis.
-	graph.append("svg:g")
+	graph.append("svg:g").append("svg:g").attr('class', 'focus').append('svg:g')
 	.attr("class", "x axis")
-	.attr("transform", "translate(" + -x.rangeBand()/2 +"," + h + ")")
+	.attr("transform", "translate(" + 0 +"," + (h + 15) + ")")
 	.call(xAxis);
 
 
 	// create left yAxis
-	var yAxisLeft = d3.svg.axis().scale(y).ticks(6).orient("left").tickSize(-w + x.rangeBand()/2).tickSubdivide(true);
+	var yAxisLeft = d3.svg.axis().scale(y).orient("left").tickSize(-w).tickSubdivide(true);
 	// Add the y-axis to the left
-	graph.append("svg:g")
+	var context = graph.append("svg:g").attr('class', 'focus').append('svg:g')
 	.attr("class", "y axis")
 	.attr("transform", "translate(0,-3)")
 	.call(yAxisLeft);
 
-	// Add the line by appending an svg:path element with the data line we created above
-	// do this AFTER the axes above so that the line is above the tick-lines
-//	graph.append("svg:path").attr("d", line(data)).style("stroke","steelblue").style("stroke-width","1").style("fill", "none");
-	graph.append("svg:path").attr("d", line(NZhomeWin)).style("stroke","Blue").style("stroke-width","2").style("fill", "none");
-	graph.append("svg:path").attr("d", line(NZawayWin)).style("stroke","PowderBlue").style("stroke-width","2").style("fill", "none");
-	graph.append("svg:path").attr("d", line(AUhomeWin)).style("stroke","Red").style("stroke-width","2").style("fill", "none");
-	graph.append("svg:path").attr("d", line(AUawayWin)).style("stroke","LightSalmon").style("stroke-width","2").style("fill", "none");
 
+	console.log(rData);
+	var ctx = graph.selectAll('.dots').data([rData]).enter();
 
-  graph.append("text")
-      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(NZhomeWin[NZhomeWin.length-1]) - 4) + ")"; })
-      .attr("x", 3)
-      .attr("dy", ".35em")
-	  .style('text-anchor', 'start')
-      .text(function(d) { return "NZ home wins"; });
-  graph.append("text")
-      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(NZawayWin[NZawayWin.length-1])) + ")"; })
-      .attr("x", 3)
-      .attr("dy", ".35em")
-	  .style('text-anchor', 'start')
-      .text(function(d) { return "NZ away wins"; });
-  graph.append("text")
-      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(AUawayWin[AUawayWin.length-1]) + 4) + ")"; })
-      .attr("x", 3)
-      .attr("dy", ".35em")
-	  .style('text-anchor', 'start')
-      .text(function(d) { return "AUS away wins"; });
-  graph.append("text")
-      .attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(AUhomeWin[AUhomeWin.length-1])) + ")"; })
-      .attr("x", 3)
-      .attr("dy", ".35em")
-	  .style('text-anchor', 'start')
-      .text(function(d) { return "AUS home wins"; });
+	ctx.append("path")
+	.attr("class", "area")
+	.attr("d", line).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
 
 }
