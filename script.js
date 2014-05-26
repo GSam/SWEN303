@@ -172,9 +172,6 @@ function graph1() {
 	
 	});
 
-
-
-
 	var margin = {top: 10, right: 20, bottom: 100, left: 150},
 	margin2 = {top: 430, right: 20, bottom: 20, left: 150},
 	width = 1280 - margin.left - margin.right,
@@ -183,7 +180,7 @@ function graph1() {
 
 	var parseDate = d3.time.format("%b %Y").parse;
 
-	var x = d3.time.scale().range([0, width]),
+	var x = d3.fisheye.scale(d3.time.scale).range([0, width]).distortion(0),
 	x2 = d3.time.scale().range([0, width]),
 	y = d3.scale.ordinal().rangeRoundBands([height, 0], .1),
 	y2 = d3.scale.ordinal().range([height2, 0]);
@@ -271,10 +268,19 @@ console.log(data);
 		ctx = focus.append('g').attr("clip-path", "url(#clip)")
 .selectAll('.dots').data(games).enter();
 		
-		ctx.append('path')
+		var ss = ctx.append('path')
 		.attr("class", "area")
 		.attr("d", area).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
 
+	var zoom = d3.behavior.zoom().scaleExtent([5,20])
+    .on("zoom", function(){
+		x.distortion(d3.event.scale-5).focus(width/2);
+		focus.selectAll(".area").attr("d", area);
+		focus.select(".x.axis").call(xAxis);
+    
+    });
+
+	svg.call(zoom);
 
 	function brushed() {
 		x.domain(brush.empty() ? x2.domain() : brush.extent());
