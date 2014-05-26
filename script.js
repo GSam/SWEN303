@@ -298,9 +298,6 @@ function graph2() {
 	var w = 500 - m[1] - m[3]; // width
 	var h = 400 - m[0] - m[2]; // height
 
-	// create a simple data array that we'll plot with a line (this array represents only the Y values, X will just be the index location)
-	//var data = [3, 6, 2, 7, 5, 2, 0, 3, 8, 9, 2, 5, 9, 3, 6, 3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 9, 2, 7];
-
 	var yearly = [];
 	var NZhomeWin = [];
 	var NZawayWin = [];
@@ -843,7 +840,7 @@ function switchTo(mode) {
 		graph3();
 	} else if (mode === 'team') {
 		graph6();
-		//graph5('Central Pulse');
+		graph5('Central Pulse');
 	}
 }
 
@@ -1305,7 +1302,7 @@ var vis = d3.select('#chart')
 		.attr('x', 0)
 		.attr('y', function(d,i) {return 30 * i + 50;})
 		.attr('height', 20)
-		.attr('width',0).style('fill','green').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "1": "0.7";});
+		.attr('width',0).style('fill','green').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "1": "0.5";});
 	b.transition()
 	.delay(200)
 		.attr('width', function(d) {return 150 * (d.wins / (d.wins + d.losses));});
@@ -1314,7 +1311,7 @@ var vis = d3.select('#chart')
 		.attr('x', 150)
 		.attr('y', function(d,i) {return 30 * i + 50;})
 		.attr('height', 20)
-		.attr('width',0).style('fill','red').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "1": "0.7";});
+		.attr('width',0).style('fill','red').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "1": "0.5";});
 	b.transition()
 	.delay(200)
 		.attr('width', function(d) {return 150 * (d.losses / (d.wins + d.losses));})
@@ -1335,7 +1332,7 @@ var vis = d3.select('#chart')
 		.attr('x', 0)
 		.attr('y', function(d,i) {return 30 * i + 50;})
 		.attr('height', 20)
-		.attr('width',0).style('fill','green').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "0.5": "1";});
+		.attr('width',0).style('fill','green').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "1": "0.5";});
 	b.transition()
 	.delay(200)
 		.attr('width', function(d) {return 150 * (d.wins / (d.wins + d.losses));});
@@ -1344,7 +1341,7 @@ var vis = d3.select('#chart')
 		.attr('x', 150)
 		.attr('y', function(d,i) {return 30 * i + 50;})
 		.attr('height', 20)
-		.attr('width',0).style('fill','red').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "1": "0.7";});
+		.attr('width',0).style('fill','red').style('opacity', function(d) { return d.homeWin !== 0 || d.homeLoss !== 0 ? "1": "0.5";});
 	b.transition()
 	.delay(200)
 		.attr('width', function(d) {return 150 * (d.losses / (d.wins + d.losses));})
@@ -1530,7 +1527,6 @@ function graph6() {
 		console.log(rData);
 		var ctx = graph.selectAll('.dots').data([rData]);
 
-
 		ctx.enter().append('g').attr('class', 'line');
 
 		ctx.selectAll('path').data(function(d) {return [d];}).enter().append("path")
@@ -1547,6 +1543,8 @@ function graph6() {
 				return line(data.slice(0, interpolate(t)));
 			};
 		});
+
+		ctx.on('contextmenu', function(data, index) {console.log(this);d3.event.preventDefault();d3.select(this).remove();});
 
 		var circ = ctx.selectAll('circle').data(rData)
 		.enter().append('circle').transition().delay(200)
