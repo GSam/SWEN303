@@ -391,6 +391,7 @@ function graph2() {
 				AU.homeLoss += e.homeLoss;
 				AU.awayLoss += e.awayLoss;
 			}
+			e.year = listYears[i];
 		});
 		console.log(NZ);
 		console.log(AU);
@@ -528,11 +529,11 @@ function graph2() {
 	  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
 	  node.append("title")
-	  .text(function(d) { return d.className + ": " + format(d.value); });
+	  .text(function(d) { console.log(); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
 
 	  node.append("circle")
 	  .attr("r", 0)
-	  .style("fill", function(d) { return color(d.packageName); }).on('mouseover', function(e){ console.log(e); }).transition().delay(function(){return Math.random() * 300 + 100}).attr("r", function(d){return d.r;});
+	  .style("fill", function(d) { return color(d.packageName); }).on('mouseover', function(e){ console.log(e); });
 
 	  node.append("text")
 	  .attr("dy", ".3em")
@@ -554,6 +555,19 @@ function graph2() {
 	  }
 
 	  d3.select(self.frameElement).style("height", diameter + "px");
+
+
+	 function update() {
+		 svg.selectAll('circle').transition().delay(function(){return Math.random() * 300 + 100})
+		 .attr("r", function(d){
+			 if (showYear !== 'All' && d.data.year != showYear) return 0;
+			 return d.r;}
+		 );
+	 }
+
+	 update();
+
+	 d3.selectAll('.picker').on('change', function(e){update();});
 }
 
 function graph3() {
