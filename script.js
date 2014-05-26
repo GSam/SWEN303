@@ -1,14 +1,3 @@
-/*var w=960,h=500,
-svg=d3.select("#chart")
-.append("svg")
-.attr("width",w)
-.attr("height",h);
- 
-var text=svg
-.append("text")
-.text("hello world")
-.attr("y",50);*/
-
 var allGames = {};
 var allTeams = {};
 var allVenues = {};
@@ -268,19 +257,19 @@ console.log(data);
 
 		ctx = focus.append('g').attr("clip-path", "url(#clip)")
 .selectAll('.dots').data(games).enter();
-		
+
 		var ss = ctx.append('path')
 		.attr("class", "area")
 		.attr("d", area).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
 
 		ctx.append('circle').attr('class', 'fir')
 		.attr('cx', function(d,i) {return x(d[0].date);})
-		.attr('cy', function(d,i) {console.log(d);return y(d[0].price) + y.rangeBand()/2;})
+		.attr('cy', function(d,i) {return y(d[0].price) + y.rangeBand()/2;})
 		.attr('r', 5).style('opacity', 0.5);
 
 		ctx.append('circle').attr('class', 'sec')
 		.attr('cx', function(d,i) {return x(d[0].date);})
-		.attr('cy', function(d,i) {console.log(d);return y(d[1].price) + y.rangeBand()/2;})
+		.attr('cy', function(d,i) {;return y(d[1].price) + y.rangeBand()/2;})
 		.attr('r', 5).style('opacity', 0.5);
 
 	var zoom = d3.behavior.zoom().scaleExtent([5,20])
@@ -867,11 +856,18 @@ d3.csv('2008-Table1.csv', function(e){
 
 function switchTo(mode) {
 	// do some switching code
+	d3.selectAll('svg').remove();
 	if (mode === 'venue') {
 		graph3();
 	} else if (mode === 'team') {
 		graph6();
 		graph5('Central Pulse');
+	} else if (mode === 'home') {
+		graph2();	
+	} else if (mode === 'rival') {
+		forceDir();	
+	} else if (mode === 'overall') {
+		graph1();	
 	}
 }
 
@@ -1216,7 +1212,7 @@ var percent = 0.;
 	.attr('x2', function(d) {return x(d.name);})
 	.attr('y2', function(d) {return y(d.name);}).style('stroke', 'black');
 
-	var zoom = d3.event.scale;
+	var zoom = 1;//d3.event.scale;
 	function zoomed() {
 		force.stop();
 		if (d3.event.scale > zoom) {
