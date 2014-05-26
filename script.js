@@ -45,6 +45,10 @@ function getAllTeamStats(tempYears) {
 		var listG = allGames[tempYears[i]];
 		listG.forEach(function(e) {
 			if (e.Date.indexOf('BYES') === 0) return;
+			console.log(showFinal);
+			console.log(e.Round);
+			if (['15','16','17'].indexOf(e.Round) !== -1 && showFinal === 'Regular') return;
+			if (['15','16','17'].indexOf(e.Round) === -1 && showFinal === 'Finals') return;
 
 			var scoreHome = parseInt(e.Score.split('-')[0], 10);
 			var scoreAway = parseInt(e.Score.split('-')[1], 10);
@@ -87,6 +91,11 @@ function pointCount(a,b) {
 }
 
 function winRatio(a,b) {
+	if (!isNumber(b.wins/(b.wins + b.losses))) {
+		return -1;
+	} else if (!isNumber(a.wins/(a.wins + a.losses))) {
+		return 1;
+	}
 	return b.wins/(b.wins + b.losses) - a.wins/(a.wins + a.losses);
 }
 
@@ -96,7 +105,7 @@ function graph1() {
 	width = 960 - margin.left - margin.right,
 	height = 500 - margin.top - margin.bottom;
 
-	var data1 = getAllTeamStats(listYears);
+	var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
 	data1.sort(winRatio);
 
 	var data = data1.map(function(e) {return e.wins/(e.wins + e.losses);});
@@ -114,23 +123,20 @@ function graph1() {
 
 	var yAxis = d3.svg.axis()
 	.scale(y)
-	.orient("left")
-	.ticks(10, "%");
+	.orient("left");
 
 	var chart = d3.select("#chart").append('svg:svg')
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom).append("g")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	var bar = chart.selectAll("g")
-	.data(data)
-	.enter().append("g")
-	.attr("transform", function(d, i) { return "translate(10," + y(data1[i].name) + ")"; });
+	var bs = chart.append('g').attr("transform", function(d, i) { return "translate(10,0)"; });
 
-	chart.append("g")
+	var sss = chart.append("g")
 	.attr("class", "y axis")
-	.call(yAxis)
-	.append("text")
+	.call(yAxis);
+
+	sss.append("text")
 	.attr("transform", "rotate(-90)")
 	.attr("y", 6)
 	.attr("dy", ".71em")
@@ -138,17 +144,51 @@ function graph1() {
 	//.text("Frequency");
 
 	//var color = d3.scale.category10();
-	bar.append("rect")
-	.attr("width", function(d) {return x(d);})
-	.attr("height", y.rangeBand());//.style('fill', function(d, i) {return color(i);});
+	bs.selectAll('rect').data(data).enter().append("rect").attr('class', 'bar')
+	.attr("width", function(d) {if (!isNumber(d)) return 0; return x(d);})
+	.attr("height", y.rangeBand())//.style('fill', function(d, i) {return color(i);});
+	.attr('y', function(d, i) {return y(data1[i].name);});
 
-	bar.append("text")
-	.attr("x", function(d) { return x(d) - 3; })
-	.attr("y", y.rangeBand() / 2)
+	bs.selectAll('text').data(data).enter().append("text")
+	.attr("x", function(d) {if (!isNumber(d)) return 10;  return Math.max(x(d) - 6, 5); })
 	.attr("dy", ".35em")
+	.attr('y', function(d, i) {return y(data1[i].name) + y.rangeBand()/2;})
 	.text(function(d) { return Math.round(d*100)/100; });
 
-	var radio = document.createElement('input');
+	function update() {
+		var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
+		data1.sort(winRatio);
+
+		var data = data1.map(function(e) {return e.wins/(e.wins + e.losses);});
+		console.log(data);
+		console.log(data1);
+	
+		console.log( d3.max(data, function(e){return e;}));
+		y.domain(data1.map(function(e){return e.name;}))
+		var yAxis = d3.svg.axis()
+		.scale(y)
+		.orient("left");
+		sss.call(yAxis);
+		
+		var x = d3.scale.linear()
+		.domain([0, d3.max(data, function(e){return e;})])
+		.range([0, width]);console.log(width);
+
+		bs.selectAll('rect').data(data)
+		.attr("width", function(d) {if (!isNumber(d)) return 0; test = x;console.log(x(d) + " " + d);return x(d);})
+		.attr("height", y.rangeBand())//.style('fill', function(d, i) {return color(i);});
+		.attr('y', function(d, i) {return y(data1[i].name);});
+
+		bs.selectAll('text').data(data)
+		.attr("x", function(d) {if (!isNumber(d)) return 10;  return Math.max(x(d) - 6, 5); })
+		.attr("dy", ".35em")
+		.attr('y', function(d, i) {return y(data1[i].name) + y.rangeBand()/2;})
+		.text(function(d) { return Math.round(d*100)/100; });
+	}
+
+	d3.selectAll('.picker').on('change', function(e){update();});
+
+	/*var radio = document.createElement('input');
 	var radio1 = document.createElement('input');
 	var radioGroup = document.createElement('form');
 	radioGroup.appendChild(radio);
@@ -162,8 +202,15 @@ function graph1() {
 	d3.select('#sort_by').on('click', function(e) {
 			
 	
-	});
+	});*/
+	otherhalf();
 
+}
+
+
+function otherhalf() {
+
+	// second half
 	var margin = {top: 10, right: 20, bottom: 100, left: 150},
 	margin2 = {top: 430, right: 20, bottom: 20, left: 150},
 	width = 1280 - margin.left - margin.right,
@@ -311,7 +358,8 @@ console.log(data);
 	}
 
 }
- 
+
+
 function isNumber(n){
     return typeof n == 'number' && !isNaN(n - n);
 }
@@ -836,8 +884,9 @@ d3.csv('2008-Table1.csv', function(e){
 							console.log(allVenues);
 							var div = d3.select('.horizontal').append('div');
 
-							var select = div.append('select').attr('id', 'selectYear')
-							.on('change', function(){console.log(this.value);});
+							var select = div.append('select').attr('id', 'selectYear').attr('class', 'picker');
+
+							select.node().addEventListener('change', function(e) {showYear = this.value;});
 
 							select.selectAll('option')
 							.data(['All'].concat(listYears))
@@ -846,8 +895,9 @@ d3.csv('2008-Table1.csv', function(e){
 							.text(function(d) {return d;});
 
 
-							select = div.append('select').attr('id', 'selectReg')
-							.on('change', function(){console.log(this.value);});
+							select = div.append('select').attr('id', 'selectReg').attr('class', 'picker');
+
+							select.node().addEventListener('change', function(e) {showFinal = this.value;});
 
 							select.selectAll('option')
 							.data(['Both', 'Regular', 'Finals'])
