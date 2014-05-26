@@ -1410,57 +1410,14 @@ var vis = d3.select('#chart')
 }
 
 var sYear = 2008;
-var sTeam = 'Central Pulse';
+var sTeam = 'Melbourne Vixens';
 
 function graph6() {
 	// define dimensions of graph
-	var m = [40, 40, 40, 40]; // margins
+	var m = [40, 40, 60, 40]; // margins
 	var w = 900 - m[1] - m[3]; // width
 	var h = 500 - m[0] - m[2]; // height
 
-	var select = d3.select('#chart').append('div').append('select').on('change', function(e){console.log(this.value);});
-
-	select.selectAll('option')
-	.data(listTeams).enter()
-	.append('option')
-	.attr('value', function(e){ 
-		return e;})
-		.text(function(d){return d;});
-
-	var select = d3.select('#chart').append('div').append('select').on('change', function(e){console.log(this.value);});
-
-	select.selectAll('option')
-	.data(listYears).enter()
-	.append('option')
-	.attr('value', function(e){ 
-		return e;})
-		.text(function(d){return d;});
-
-	var select = d3.select('#chart').append('div').append('input').attr('type', 'button').attr('value', 'Add line').on('click', function(e){console.log(this);});
-
-
-	// tabulate round data
-	var yearGames = allGames[sYear];
-	var index = 0;
-	var games = [];
-	var data = [];
-	for (var i = 1; i < 15; i++) {
-		// while you haven't got to the next round yet
-		while (yearGames[index].Round <= i) {
-			games.push(yearGames[index]);
-			index++;
-		}
-		console.log(i);
-		data.push(teamRank(games).sort(function(a,b){ return b.points - a.points;}));
-	}
-	console.log(data);
-	var rData = data.map(function(e) { 
-		for (var i = 0; i < e.length; i++) {
-			if (e[i].name === sTeam) {
-				return i+1;
-			}
-		}
-	});
 
 	// X scale will fit all values from data[] within pixels 0-w
 	var x = d3.scale.linear().domain([1,17]).range([0, w]);
@@ -1492,23 +1449,134 @@ function graph6() {
 	graph.append("svg:g").append("svg:g").attr('class', 'focus').append('svg:g')
 	.attr("class", "x axis")
 	.attr("transform", "translate(" + 0 +"," + (h + 15) + ")")
-	.call(xAxis);
+	.call(xAxis).append("text")
+    .attr("transform", "translate("+ w/2 + ")")
+    .attr("y", 25)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text("Round").style('font-weight', 'bold');
 
+	graph.append('rect').attr('x', x(14.5)).attr('y',0)
+	.attr('width', 2.5*w/16).attr('height', h)
+	.style('fill', 'yellow').style('opacity', '0.5')
+	.on('mouseover', function(e) {var s = d3.select(this); s.style('fill', 'gold');} )
+	.on('mouseout', function(e) {var s = d3.select(this); s.style('fill', 'yellow'); /*graph.selectAll('.temp').remove();*/});
+	graph.append('svg:g').append('svg:text').attr('class','temp').text('FINALS').style('font-weight', 'bold').attr('x',x(16.0)).attr('y', y(9.5));
 
 	// create left yAxis
 	var yAxisLeft = d3.svg.axis().scale(y).orient("left").tickSize(-w).tickSubdivide(true);
 	// Add the y-axis to the left
 	var context = graph.append("svg:g").attr('class', 'focus').append('svg:g')
 	.attr("class", "y axis")
-	.attr("transform", "translate(0,-3)")
-	.call(yAxisLeft);
+	.attr("transform", "translate(0,0)")
+	.call(yAxisLeft)
+	.append("text")
+    .attr("transform", "rotate(-90)")
+	.attr('y', -30)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text("Rank").style('font-weight', 'bold');
+
+	function update() {
+		// tabulate round data
+		var yearGames = allGames[sYear];
+		console.log(sYear);
+		var index = 0;
+		var games = [];
+		var data = [];
+		for (var i = 1; i < 15; i++) {
+			// while you haven't got to the next round yet
+			while (yearGames[index].Round <= i) {
+				games.push(yearGames[index]);
+				index++;
+			}
+			console.log(i);
+			data.push(teamRank(games).sort(function(a,b){ return b.points - a.points;}));
+		}
+		console.log(data);
+
+		var rData = data.map(function(e) { 
+			for (var i = 0; i < e.length; i++) {
+				if (e[i].name === sTeam) {
+					return i+1;
+				}
+			}
+		});
+		var r = rank(sYear).indexOf(sTeam) + 1;
+		console.log(r);
+		if (r !== -1) {
+			// if they ranked
+			var rr = rData[rData.length - 1];
+			if (rr <= 2) {
+				if (r === 3) {rData.push(2); rData.push(3);} else {
+				var rrr = yearGames[index];
+				var sss = teamRank([rrr]).filter(function(e) {return e.name === sTeam;})[0];
+				if (sss.points > 0) {
+					rData.push(1);
+					rData.push(1);
+				} else {
+					rData.push(2);
+					rData.push(2);
+				}
+				rData.push(r);
+				}
+			} else {
+				if (r === 4) {rData.push(4);}
+				if (r === 3) {rData.push(3); rData.push(3);}
+				if (r === 2) {rData.push(3); rData.push(2); rData.push(2);}
+				if (r === 1) {rData.push(3); rData.push(2); rData.push(1);}
+			}
+		}	
+		console.log(rData);
+		var ctx = graph.selectAll('.dots').data([rData]);
 
 
-	console.log(rData);
-	var ctx = graph.selectAll('.dots').data([rData]).enter();
+		ctx.enter().append('g').attr('class', 'line');
 
-	ctx.append("path")
-	.attr("class", "area")
-	.attr("d", line).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
+		ctx.selectAll('path').data(function(d) {return [d];}).enter().append("path")
+		.attr("class", "area")
+		//.attr("d", line)
+		.style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none')
+  .transition()
+    .duration(2000)
+    .attrTween('d', function(data) {
+			var interpolate = d3.scale.quantile()
+			.domain([0,1])
+			.range(d3.range(1, 18));
+			return function(t) {
+				return line(data.slice(0, interpolate(t)));
+			};
+		});
+
+		var circ = ctx.selectAll('circle').data(rData)
+		.enter().append('circle').transition().delay(200)
+		.attr('cx', function (d, i) { return x(i+1); })
+		.attr('cy', function (d) { return y(d); })
+		.attr('r', 3);
+		console.log(rData);
+	}
+
+	update();
+
+	var select = d3.select('#chart').append('div').append('select').on('change', function(e){sTeam = this.value;});
+
+	select.selectAll('option')
+	.data(listTeams).enter()
+	.append('option')
+	.attr('value', function(e){ 
+		return e;})
+		.text(function(d){return d;});
+
+	var select = d3.select('#chart').append('div').append('select').on('change', function(e){sYear = this.value;});
+
+	select.selectAll('option')
+	.data(listYears).enter()
+	.append('option')
+	.attr('value', function(e){ 
+		return e;})
+		.text(function(d){return d;});
+
+	var select = d3.select('#chart').append('div').append('input').attr('type', 'button').attr('value', 'Add line').on('click', function(e){update();});
+
 
 }
