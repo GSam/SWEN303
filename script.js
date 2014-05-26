@@ -257,6 +257,7 @@ console.log(data);
 		});	
 
 		games = games.map(function(e) {var dat = new Date(e.year+ " "+ e.Date); if (dat == undefined) return; return [{"date":dat, "price":e['Home Team']},{"date":dat, "price":e['Away Team']}];});
+		games = games.filter(function(e) {return e[0].price !== "" && e[1].price !== "";});
 		console.log(games);
 		// paths
 		var ctx = context.selectAll('.dots').data(games).enter();
@@ -272,13 +273,31 @@ console.log(data);
 		.attr("class", "area")
 		.attr("d", area).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
 
+		ctx.append('circle').attr('class', 'fir')
+		.attr('cx', function(d,i) {return x(d[0].date);})
+		.attr('cy', function(d,i) {console.log(d);return y(d[0].price) + y.rangeBand()/2;})
+		.attr('r', 5).style('opacity', 0.5);
+
+		ctx.append('circle').attr('class', 'sec')
+		.attr('cx', function(d,i) {return x(d[0].date);})
+		.attr('cy', function(d,i) {console.log(d);return y(d[1].price) + y.rangeBand()/2;})
+		.attr('r', 5).style('opacity', 0.5);
+
 	var zoom = d3.behavior.zoom().scaleExtent([5,20])
     .on("zoom", function(){
 		x.distortion(d3.event.scale-5).focus(width/2);
 		focus.selectAll(".area").attr("d", area);
 		focus.select(".x.axis").call(xAxis);
+		focus.selectAll('circle.fir')
+		.attr('cy', function(d,i) {return y(d[0].price) + y.rangeBand()/2;})
+		.attr('cx', function(d,i) {return x(d[0].date);})
+		focus.selectAll('circle.sec')
+		.attr('cy', function(d,i) {return y(d[1].price) + y.rangeBand()/2;})
+		.attr('cx', function(d,i) {return x(d[0].date);})
     
     });
+	var show = false;
+	svg.on('click', function(e) {show = !show; svg.selectAll('circle').style('opacity', show ? 0.4 : 0);});
 
 	svg.call(zoom);
 
@@ -286,6 +305,12 @@ console.log(data);
 		x.domain(brush.empty() ? x2.domain() : brush.extent());
 		focus.selectAll(".area").attr("d", area);
 		focus.select(".x.axis").call(xAxis);
+		focus.selectAll('circle.fir')
+		.attr('cy', function(d,i) {return y(d[0].price) + y.rangeBand()/2;})
+		.attr('cx', function(d,i) {return x(d[0].date);})
+		focus.selectAll('circle.sec')
+		.attr('cy', function(d,i) {return y(d[1].price) + y.rangeBand()/2;})
+		.attr('cx', function(d,i) {return x(d[0].date);})
 	}
 
 	function type(d) {
@@ -466,8 +491,8 @@ function graph2() {
 	  .text(function(d) { return d.className + ": " + format(d.value); });
 
 	  node.append("circle")
-	  .attr("r", function(d) { return d.r; })
-	  .style("fill", function(d) { return color(d.packageName); }).on('mouseover', function(e){ console.log(e); });
+	  .attr("r", 0)
+	  .style("fill", function(d) { return color(d.packageName); }).on('mouseover', function(e){ console.log(e); }).transition().delay(function(){return Math.random() * 300 + 100}).attr("r", function(d){return d.r;});
 
 	  node.append("text")
 	  .attr("dy", ".3em")
@@ -821,13 +846,13 @@ d3.csv('2008-Table1.csv', function(e){
 							// create graph 1
 							graph1();
 							//graph1();
-							d3.selectAll('svg').on('click', function(e){
+							/*d3.selectAll('svg').on('click', function(e){
 								d3.selectAll('svg').remove();
 								//switchTo('venue');
-								switchTo('team');
+								//switchTo('team');
 								//forceDir();
-								//graph2();
-							});
+								graph2();
+							});*/
 
 						});
 
