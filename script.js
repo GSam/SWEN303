@@ -4,6 +4,7 @@ var allVenues = {};
 
 var showYear = 'All';
 var showFinal = 'Both';
+var sTeam = 'Melbourne Vixens';
 
 var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Swifts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':false, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
 var listTeams = ['Central Pulse', 'Queensland Firebirds', 'Northern Mystics', 'Waikato Bay of Plenty Magic', 'New South Wales Swifts', 'Canterbury Tactix', 'Melbourne Vixens', 'West Coast Fever', 'Adelaide Thunderbirds', 'Southern Steel']
@@ -45,8 +46,8 @@ function getAllTeamStats(tempYears) {
 		var listG = allGames[tempYears[i]];
 		listG.forEach(function(e) {
 			if (e.Date.indexOf('BYES') === 0) return;
-			console.log(showFinal);
-			console.log(e.Round);
+			//console.log(showFinal);
+			//console.log(e.Round);
 			if (['15','16','17'].indexOf(e.Round) !== -1 && showFinal === 'Regular') return;
 			if (['15','16','17'].indexOf(e.Round) === -1 && showFinal === 'Finals') return;
 
@@ -533,13 +534,13 @@ function graph2() {
 
 	  node.append("circle")
 	  .attr("r", 0)
-	  .style("fill", function(d) { return color(d.packageName); }).on('mouseover', function(e){ console.log(e); });
+	  .style("fill", function(d) { return color(d.packageName); }).on('mouseover', function(e){ console.log(e); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');});
 
 	  node.append("text")
 	  .attr("dy", ".3em")
 	  .style("text-anchor", "middle")
 	  .style("font", "10px sans-serif")
-	  .text(function(d) { return d.className.substring(0, d.r / 3); });
+	  .text(function(d) { return d.className.substring(0, d.r / 3); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).style('cursor', 'default');
 
 	  // Returns a flattened hierarchy containing all leaf nodes under the root.
 	  function classes(root) {
@@ -1522,7 +1523,6 @@ var vis = d3.select('#chart')
 }
 
 var sYear = 2008;
-var sTeam = 'Melbourne Vixens';
 
 function graph6() {
 	// define dimensions of graph
@@ -1604,6 +1604,7 @@ function graph6() {
 				index++;
 			}
 			console.log(i);
+			console.log(index);
 			data.push(teamRank(games).sort(function(a,b){ return b.points - a.points;}));
 		}
 		console.log(data);
