@@ -1415,6 +1415,7 @@ function graph6() {
 	var w = 900 - m[1] - m[3]; // width
 	var h = 500 - m[0] - m[2]; // height
 
+	var color = d3.scale.category20();
 
 	// X scale will fit all values from data[] within pixels 0-w
 	var x = d3.scale.linear().domain([1,17]).range([0, w]);
@@ -1532,7 +1533,7 @@ function graph6() {
 		ctx.selectAll('path').data(function(d) {return [d];}).enter().append("path")
 		.attr("class", "area")
 		//.attr("d", line)
-		.style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none')
+		.style('stroke', function(d) {return color(sTeam + "" + sYear);}).style('stroke-width', '2').style('fill', 'none')
   .transition()
     .duration(2000)
     .attrTween('d', function(data) {
