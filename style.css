@@ -110,3 +110,8 @@ div.horizontal {
 	margin-right:auto;
 	text-align:center;
 }
+
+div.horizontal select {
+	display: inline-block;
+	margin:5px;
+}

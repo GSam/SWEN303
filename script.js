@@ -2,6 +2,9 @@ var allGames = {};
 var allTeams = {};
 var allVenues = {};
 
+var showYear = 'All';
+var showFinal = 'Both';
+
 var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Swifts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':false, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
 var listTeams = ['Central Pulse', 'Queensland Firebirds', 'Northern Mystics', 'Waikato Bay of Plenty Magic', 'New South Wales Swifts', 'Canterbury Tactix', 'Melbourne Vixens', 'West Coast Fever', 'Adelaide Thunderbirds', 'Southern Steel']
 var listYears = [2008, 2009, 2010, 2011, 2012, 2013];
@@ -831,6 +834,27 @@ d3.csv('2008-Table1.csv', function(e){
 							console.log(allGames);
 							console.log(allTeams);
 							console.log(allVenues);
+							var div = d3.select('.horizontal').append('div');
+
+							var select = div.append('select').attr('id', 'selectYear')
+							.on('change', function(){console.log(this.value);});
+
+							select.selectAll('option')
+							.data(['All'].concat(listYears))
+							.enter().append('option')
+							.attr('value', function(d) {return d;})
+							.text(function(d) {return d;});
+
+
+							select = div.append('select').attr('id', 'selectReg')
+							.on('change', function(){console.log(this.value);});
+
+							select.selectAll('option')
+							.data(['Both', 'Regular', 'Finals'])
+							.enter().append('option')
+							.attr('value', function(d) {return d;})
+							.text(function(d) {return d;});
+
 
 							// create graph 1
 							graph1();
