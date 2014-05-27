@@ -114,3 +114,7 @@ div.horizontal select {
 	display: inline-block;
 	margin:5px;
 }
+
+.slice path:hover {
+	opacity:0.8;
+}

@@ -5,6 +5,8 @@ var allVenues = {};
 var showYear = 'All';
 var showFinal = 'Both';
 var sTeam = 'Melbourne Vixens';
+var teamCol = "None";
+var sVenue = "";
 
 var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Swifts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':false, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
 var listTeams = ['Central Pulse', 'Queensland Firebirds', 'Northern Mystics', 'Waikato Bay of Plenty Magic', 'New South Wales Swifts', 'Canterbury Tactix', 'Melbourne Vixens', 'West Coast Fever', 'Adelaide Thunderbirds', 'Southern Steel']
@@ -452,12 +454,12 @@ function graph2() {
 	// Add the y-axis to the left
 	graph.append("svg:g")
 	.attr("class", "y axis")
-	.attr("transform", "translate(0,-3)")
+	.attr("transform", "translate(0,3)")
 	.call(yAxisLeft);
-NZhomeWin = NZhomeWin.map(function(e) {if (!isNumber(e)) return 0; return e;} );
-NZawayWin = NZawayWin.map(function(e) {if (!isNumber(e)) return 0; return e;} );
-AUhomeWin =AUhomeWin.map(function(e) {if (!isNumber(e)) return 0; return e;} ); 
-AUawayWin =AUawayWin.map(function(e) {if (!isNumber(e)) return 0; return e;} ); 
+NZhomeWin = NZhomeWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} );
+NZawayWin = NZawayWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} );
+AUhomeWin =AUhomeWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} ); 
+AUawayWin =AUawayWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} ); 
 	// Add the line by appending an svg:path element with the data line we created above
 	// do this AFTER the axes above so that the line is above the tick-lines
 //	graph.append("svg:path").attr("d", line(data)).style("stroke","steelblue").style("stroke-width","1").style("fill", "none");
@@ -637,7 +639,14 @@ function graph3() {
 
 	for (var key in allVenues) {
 		if (allVenues.hasOwnProperty(key)) {
-			data.push({"label":key, "value": allVenues[key].length});	
+			var temp = allVenues[key].filter(
+				function(e) { 
+					if (showFinal === 'Finals') return e.Round >= 15; if (showFinal === 'Regular') return e.Round < 15; return true;
+				}
+			);	
+
+			temp = temp.filter(function(e) { if (showYear === 'All') return true; return e.year === +showYear;});
+			data.push({"label":key, "value": temp.length}); 
 		}
 	}
 	console.log(data);
@@ -648,9 +657,10 @@ function graph3() {
 	.attr("width", w)           //set the width and height of our visualization (these will be attributes of the <svg> tag
 		.attr("height", h)
 		.append("svg:g")                //make a group to hold our pie chart
-		.attr("transform", "translate(" + r + "," + r + ")")    //move the center of the pie chart from 0, 0 to radius, radius
+		.attr("transform", "translate(" + (r+20) + "," + (r+20) + ")")    //move the center of the pie chart from 0, 0 to radius, radius
 
 		vis.append('svg:text').style('text-anchor', 'middle').attr('id', 'middletext');	
+		vis.append('svg:text').style('text-anchor', 'middle').attr('id', 'middlevalue').attr('y', '1em').style('font', '24px sans-serif');
 
 		var arc = d3.svg.arc()              //this will create <path> elements for us using arc data
 		.outerRadius(r).innerRadius(r/2);
@@ -670,7 +680,8 @@ function graph3() {
 		.on('mouseover', 
 			function(e){
 				console.log(e.data);
-				d3.select('#middletext').text(JSON.stringify(e.data));
+				d3.select('#middletext').text(e.data.label);
+				d3.select('#middlevalue').text(e.data.value);
 			})
 			.on('click', display);;                                    //this creates the actual SVG path using the associated data (pie) with the arc drawing function
 
@@ -969,6 +980,16 @@ d3.csv('2008-Table1.csv', function(e){
 
 							select.selectAll('option')
 							.data(['Both', 'Regular', 'Finals'])
+							.enter().append('option')
+							.attr('value', function(d) {return d;})
+							.text(function(d) {return d;});
+
+							select = div.append('select').attr('id', 'selectReg').attr('class', 'picker');
+
+							select.node().addEventListener('change', function(e) {teamCol = this.value;});
+
+							select.selectAll('option')
+							.data(['None','Distinguish Country'])
 							.enter().append('option')
 							.attr('value', function(d) {return d;})
 							.text(function(d) {return d;});
