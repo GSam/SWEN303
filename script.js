@@ -541,7 +541,7 @@ AUawayWin =AUawayWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;}
 
 	  node.selectAll('circle').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; })).enter().append("circle")
 	  .attr("r", 0)
-	  .style("fill", function(d) { return color(d.packageName); }).on('mouseover', function(e){ console.log(e); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";}).append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
+	  .style("fill", function(d) { return (teamCol === 'None' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato'));}).on('mouseover', function(e){ console.log(e); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";}).append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
 
 	  node.selectAll('text').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; })).enter().append("text")
 	  .attr("dy", ".3em")
@@ -609,7 +609,7 @@ AUawayWin =AUawayWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;}
 		 }
 	  node.selectAll('circle').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; }))
 	  .attr("r", 0)
-	  .style("fill", function(d) { return color(d.packageName); }).on('mouseover', function(e){ console.log(e); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";}).append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
+	  .style("fill", function(d) { return (teamCol === 'None' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato'));}).on('mouseover', function(e){ console.log(e); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";}).append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
 
 	  node.selectAll('text').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; }))
 	  .attr("dy", ".3em")
@@ -620,10 +620,16 @@ AUawayWin =AUawayWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;}
 	 	update1(); // make a better transition
 	 }
 
+	 function update3() {
+		 node.selectAll('circle')//.style('stroke', function(e) { return (teamCol === 'None' ? 'none' : (isNewZealand[e.packageName] ? 'blue':'red'));});
+ .style("fill", function(d) {  return (teamCol === 'None' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato')) ; })
+	 }
+
 	 update1();
 
 	 d3.selectAll('#selectYear').on('change', function(e){update1();});
 	 d3.selectAll('#selectReg').on('change', function(e) {update2();});
+	 d3.selectAll('#selectCol').on('change', function(e) {update3();});
 }
 
 function graph3() {
@@ -675,7 +681,7 @@ function graph3() {
 		.attr("class", "slice");    //allow us to style things in the slices (like text)
 
 		arcs.append("svg:path")
-		.attr("fill", function(d, i) { return color(i); } ) //set the color for each slice to be chosen from the color function defined above
+		.attr("fill", function(d, i) { if (teamCol ==='None') return color(i);  console.log("HELLO" );console.log( d.data);return isNewZealand[allVenues[d.data.label][0]['Home Team']] ? "PowderBlue": "Tomato";} ) //set the color for each slice to be chosen from the color function defined above
 		.attr("d", arc).style("stroke", "#fff")
 		.on('mouseover', 
 			function(e){
@@ -694,6 +700,29 @@ function graph3() {
 		})
 		.attr("text-anchor", "middle")                          //center the text on it's origin
 		.text(function(d, i) { return data[i].label; });        //get the label from our original data array
+
+		function update () {
+			switchTo('venue');	
+
+			/*for (var key in allVenues) {
+				if (allVenues.hasOwnProperty(key)) {
+					var temp = allVenues[key].filter(
+						function(e) { 
+							if (showFinal === 'Finals') return e.Round >= 15; if (showFinal === 'Regular') return e.Round < 15; return true;
+						}
+					);	
+
+					temp = temp.filter(function(e) { if (showYear === 'All') return true; return e.year === +showYear;});
+					data.push({"label":key, "value": temp.length}); 
+				}
+			}
+			console.log(data);
+			vis.data([data]);
+			pie.value(function(d){return d.value;});
+			arcs.data(pie).attr("d", arc);*/
+			}
+
+		d3.selectAll('.picker').on('change', function(e){update();});
 
 }
 
@@ -984,7 +1013,7 @@ d3.csv('2008-Table1.csv', function(e){
 							.attr('value', function(d) {return d;})
 							.text(function(d) {return d;});
 
-							select = div.append('select').attr('id', 'selectReg').attr('class', 'picker');
+							select = div.append('select').attr('id', 'selectCol').attr('class', 'picker');
 
 							select.node().addEventListener('change', function(e) {teamCol = this.value;});
 
