@@ -2,14 +2,14 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-		<title>My project</title>
+		<title>ANZ Championsip Visualization</title>
 		<script type="text/javascript" src="d3.v3.min.js"></script>
 		<script type="text/javascript" src="fisheye.js"></script>
 		<link href="style.css" rel="stylesheet">
 	</head>
 	<body>
 		<div class='horizontal'>
-			<h1>Something</h1>
+			<h1>ANZ Championship Visualization</h1>
 			<ul>
 				<li class="selected" onclick="switchTo('overall')">Overall</li>
 				<li onclick="switchTo('team')">Team</li>
@@ -26,6 +26,8 @@
 			<input type='radio' id="loss" value='Losses' name='Sort'/>Losses<br/>
 			<input type='radio' id="proportion" value='Proportion' name='Sort'/>Proportion<br/>
 		</form>
+		<div id="matchview"> 
+		</div>
 	</body>
 </html>
 

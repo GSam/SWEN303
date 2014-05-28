@@ -20,11 +20,11 @@ background-repeat:no-repeat;
 }
 
 .force-node:hover {
-  fill: orange !important;
+  fill: GreenYellow !important;
 }
 
 .force-node.selected {
-  fill: red !important;
+  fill: GreenYellow !important;
 }
 
 .bar:hover {
@@ -121,4 +121,10 @@ div.horizontal select {
 
 div.horizontal ul {
 	padding-left:0px;
+}
+
+#matchview {
+  margin-left:auto;
+  margin-right:auto;
+  width:1300px;
 }

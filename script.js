@@ -149,7 +149,7 @@ function graph1() {
 	//var color = d3.scale.category10();
 	bs.selectAll('rect').data(data).enter().append("rect").attr('class', 'bar')
 	.attr("width", function(d) {if (!isNumber(d)) return 0; return x(d);})
-	.attr("height", y.rangeBand())//.style('fill', function(d, i) {return color(i);});
+	.attr("height", y.rangeBand()).style('fill', function(d, i) {return (teamCol === 'None' ? 'steel blue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
 	.attr('y', function(d, i) {return y(data1[i].name);});
 
 	bs.selectAll('text').data(data).enter().append("text")
@@ -179,7 +179,8 @@ function graph1() {
 
 		bs.selectAll('rect').data(data)
 		.attr("width", function(d) {if (!isNumber(d)) return 0; test = x;console.log(x(d) + " " + d);return x(d);})
-		.attr("height", y.rangeBand())//.style('fill', function(d, i) {return color(i);});
+		.attr("height", y.rangeBand()).style('fill', function(d, i) {return (teamCol === 'None' ? 'steelblue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
+
 		.attr('y', function(d, i) {return y(data1[i].name);});
 
 		bs.selectAll('text').data(data)
@@ -214,8 +215,8 @@ function graph1() {
 function otherhalf() {
 
 	// second half
-	var margin = {top: 10, right: 20, bottom: 100, left: 150},
-	margin2 = {top: 430, right: 20, bottom: 20, left: 150},
+	var margin = {top: 10, right: 20, bottom: 100, left: 140},
+	margin2 = {top: 430, right: 20, bottom: 20, left: 140},
 	width = 1280 - margin.left - margin.right,
 	height = 500 - margin.top - margin.bottom,
 	height2 = 500 - margin2.top - margin2.bottom;
@@ -247,7 +248,7 @@ function otherhalf() {
 	//.y0(height2)
 	.y(function(d) { return y2(d.price); });
 
-	var svg = d3.select("body").append("svg")
+	var svg = d3.select("#matchview").append("svg")
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom);
 
@@ -315,15 +316,17 @@ console.log(data);
 		.attr("class", "area")
 		.attr("d", area).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
 
+	var show = false;
+
 		ctx.append('circle').attr('class', 'fir')
 		.attr('cx', function(d,i) {return x(d[0].date);})
 		.attr('cy', function(d,i) {return y(d[0].price) + y.rangeBand()/2;})
-		.attr('r', 5).style('opacity', 0.5);
+		.attr('r', 5).style('opacity',  show ? 0.4 : 0);
 
 		ctx.append('circle').attr('class', 'sec')
 		.attr('cx', function(d,i) {return x(d[0].date);})
 		.attr('cy', function(d,i) {;return y(d[1].price) + y.rangeBand()/2;})
-		.attr('r', 5).style('opacity', 0.5);
+		.attr('r', 5).style('opacity', show ? 0.4 : 0);
 
 	var zoom = d3.behavior.zoom().scaleExtent([5,20])
     .on("zoom", function(){
@@ -338,7 +341,6 @@ console.log(data);
 		.attr('cx', function(d,i) {return x(d[0].date);})
     
     });
-	var show = false;
 	svg.on('click', function(e) {show = !show; svg.selectAll('circle').style('opacity', show ? 0.4 : 0);});
 
 	svg.call(zoom);
@@ -445,7 +447,7 @@ function graph2() {
 	// Add the x-axis.
 	graph.append("svg:g")
 	.attr("class", "x axis")
-	.attr("transform", "translate(" + -x.rangeBand()/2 +"," + h + ")")
+	.attr("transform", "translate(" + -x.rangeBand()/2 +"," + (h+3) + ")")
 	.call(xAxis);
 
 
@@ -454,7 +456,7 @@ function graph2() {
 	// Add the y-axis to the left
 	graph.append("svg:g")
 	.attr("class", "y axis")
-	.attr("transform", "translate(0,3)")
+	.attr("transform", "translate(0,0)")
 	.call(yAxisLeft);
 NZhomeWin = NZhomeWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} );
 NZawayWin = NZawayWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} );
@@ -681,7 +683,7 @@ function graph3() {
 		.attr("class", "slice");    //allow us to style things in the slices (like text)
 
 		arcs.append("svg:path")
-		.attr("fill", function(d, i) { if (teamCol ==='None') return color(i);  console.log("HELLO" );console.log( d.data);return isNewZealand[allVenues[d.data.label][0]['Home Team']] ? "PowderBlue": "Tomato";} ) //set the color for each slice to be chosen from the color function defined above
+		.attr("fill", function(d, i) { if (teamCol ==='None') return color(i);return isNewZealand[allVenues[d.data.label][0]['Home Team']] ? "PowderBlue": "Tomato";} ) //set the color for each slice to be chosen from the color function defined above
 		.attr("d", arc).style("stroke", "#fff")
 		.on('mouseover', 
 			function(e){
@@ -1243,7 +1245,6 @@ function rivalries(dat) {
 	});
 
 	rivalries.sort(rivalSort);
-	//console.log(rivalries);
 	return rivalries;
 }
 
@@ -1270,20 +1271,20 @@ var svg = d3.select("#chart").append("svg")
 	listYears.forEach(function(e) {
 		c = c.concat(allGames[e]);
 	});
-var percent = 0.;
+	var percent = 0.25;
 	var graph0 = rivalries(c);
 	var graph1 = [];
 	for (var i = 0; i < graph0.length; i++) {
 		var e = graph0[i];	
-	 	e.value = Math.min((e.wins)/(e.wins+e.losses), (e.losses)/(e.wins+e.losses));	
+		e.value = Math.min((e.wins)/(e.wins+e.losses), (e.losses)/(e.wins+e.losses));	
 		if (e.value > percent) 
 			graph1.push(e);
 		e['source'] = listTeams.indexOf(e.name.split(' - ')[0]);
 		e['target'] = listTeams.indexOf(e.name.split(' - ')[1]);
-	
+
 	}
 
-	svg.append('svg:rect')
+	/*	svg.append('svg:rect')
 	.attr('x', 10)
 	.attr('y', 20)
 	.attr('width', 30)
@@ -1310,7 +1311,7 @@ var percent = 0.;
 	.attr('x', 60)
 	.attr('y', 65)
 	.style('text-anchor', 'start')
-	.text('Australia');
+	.text('Australia'); */
 	
 	var graph = {};
 	graph['nodes'] = listTeams.map(function(e){return {name:e}});
@@ -1337,10 +1338,10 @@ var percent = 0.;
       .data(graph.nodes)
     .enter().append("circle")
       .attr("class", "force-node")
-      .attr("r", 5)
-      .style("fill", function(d) { return color(isNewZealand[d.name]); })
+      .attr("r", 7)
+      .style("fill", function(d) { return (isNewZealand[d.name]) ? 'SteelBlue': 'LightSalmon'; })
       .call(force.drag)
-	  .on('dblclick', function(d) {
+	  .on('click', function(d) {
 		var c = d3.select(this);
 		if (start === null) {
 			start = d.name;
@@ -1373,7 +1374,6 @@ var percent = 0.;
 		console.log(start + " - " + end);
 	  
 	  });
-
   node.append("title")
       .text(function(d) { return d.name; });
 
@@ -1415,7 +1415,7 @@ var percent = 0.;
 		zoom = d3.event.scale;
 		console.log("scale  " + d3.event.scale);
 		percent = Math.min(1, percent + 0.05);
-		force.gravity(force.gravity() + 0.01, 1);
+		force.gravity(force.gravity() + 0.05, 1);
 		graph1 = [];
 		console.log(percent);
 		for (var i = 0; i < graph0.length; i++) {
@@ -1441,6 +1441,7 @@ var percent = 0.;
 
 	var zoom = d3.behavior.zoom()
     .on("zoom", zoomed);
+
 
 	svg.call(zoom);
 
