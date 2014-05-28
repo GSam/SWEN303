@@ -8,6 +8,9 @@ var sTeam = 'Melbourne Vixens';
 var teamCol = "None";
 var sVenue = "";
 
+var rival1 = null;
+var rival2 = null;
+
 var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Swifts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':false, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
 var listTeams = ['Central Pulse', 'Queensland Firebirds', 'Northern Mystics', 'Waikato Bay of Plenty Magic', 'New South Wales Swifts', 'Canterbury Tactix', 'Melbourne Vixens', 'West Coast Fever', 'Adelaide Thunderbirds', 'Southern Steel']
 var listYears = [2008, 2009, 2010, 2011, 2012, 2013];
@@ -247,7 +250,7 @@ function otherhalf() {
 	.x(function(d) { return x2(d.date); })
 	//.y0(height2)
 	.y(function(d) { return y2(d.price); });
-
+	d3.select('#matchview').append('div').attr('class', 'remove').append('h2').text('MATCH VIEWER').style('padding-top', '50px');
 	var svg = d3.select("#matchview").append("svg")
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom);
@@ -1051,6 +1054,7 @@ d3.csv('2008-Table1.csv', function(e){
 function switchTo(mode) {
 	// do some switching code
 	d3.selectAll('svg').remove();
+	d3.selectAll('.remove').remove();
 	if (mode === 'venue') {
 		graph3();
 	} else if (mode === 'team') {
@@ -1063,6 +1067,7 @@ function switchTo(mode) {
 	} else if (mode === 'overall') {
 		graph1();	
 	}
+	window.scrollTo(0, 0);
 }
 
 function rank(year) {
@@ -1253,10 +1258,12 @@ function rivalSort(a, b) {
 }
 
 var percent = 0.25;
+var graph0 = [];
+var c = [];
 
 function forceDir() {
 	var width = 960,
-	height = 600;
+	height = 550;
 
 	var color = d3.scale.category20();
 
@@ -1265,11 +1272,13 @@ function forceDir() {
 	.linkDistance(50)
 	.size([width, height]);
 
+	d3.select('#matchview').append('svg').attr('width', 1000).attr('height', 600);
+
 	var svg = d3.select("#chart").append("svg")
 	.attr("width", width)
 	.attr("height", height);
 
-	var c = [];
+	c = [];
 	listYears.forEach(function(e) {
 		if (showYear === 'All' || e === +showYear) {
 			c = c.concat(allGames[e]);
@@ -1280,7 +1289,7 @@ function forceDir() {
 			if (showFinal === 'Finals') return e.Round >= 15; if (showFinal === 'Regular') return e.Round < 15; return true;
 		}
 	);	
-	var graph0 = rivalries(c);
+	graph0 = rivalries(c);
 	console.log(graph0);
 	var graph1 = [];
 	for (var i = 0; i < graph0.length; i++) {
@@ -1353,23 +1362,23 @@ function forceDir() {
       .style("fill", function(d) { return (isNewZealand[d.name]) ? 'SteelBlue': 'LightSalmon'; })
       .call(force.drag)
 	  .on('click', function(d) {
-		var c = d3.select(this);
+		var cc = d3.select(this);
 		if (start === null) {
 			start = d.name;
-			c.classed({'selected':true});
+			cc.classed({'selected':true});
 			return;
 		}
 
 		if (d.name === start) {
 			start = null;
-			c.classed({'selected':false});
+			cc.classed({'selected':false});
 			if (oldEnd !== null) oldEnd.classed({'selected':false});
 			return;
 		}
 
 		if (d.name === end) {
 			end = null;
-			c.classed({'selected':false});
+			cc.classed({'selected':false});
 			return;
 		}
 
@@ -1379,11 +1388,14 @@ function forceDir() {
 		}
 
 		end = d.name;
-		oldEnd = c;
-		c.classed({'selected':true});
+		oldEnd = cc;
+		cc.classed({'selected':true});
 
 		
 		console.log(start + " - " + end);
+		rival1 = start;
+		rival2 = end;
+		showRival();
 	  
 	  });
   node.append("title")
@@ -1464,7 +1476,7 @@ function forceDir() {
 		var isZooming = d3.event.scale > zoom;
 		if (zoom === d3.event.scale) return;
 		zoom = d3.event.scale;
-		console.log("scale  " + d3.event.scale + " " +isZooming);
+		console.log("scale  " + d3.event.scale + " " +isZooming + ' ' + percent);
 		var prev = percent;
 		percent = Math.max(0, Math.min(0.53, percent + (isZooming ? 0.02 : -0.02)));
 		if (prev !== 0 && percent === 0 || percent === 0.53) return;
@@ -1515,6 +1527,13 @@ svg.on('dblclick.zoom', null);
 
 	d3.selectAll('.picker').on('change', function(e){update();});
 
+showRival();
+
+if (rival1 !== null && d3.selectAll('.force-node selected').empty()) {
+	start = rival1;
+	d3.selectAll('.force-node').classed('selected', function(d) {return d.name == rival1;});
+	d3.selectAll('.force-node').classed('selected', function(d) {if ( d.name === rival2 ) {oldEnd = d3.select(this); return true;} return d.name === rival1;});
+}
 	
 /*  d3.select('body').on("keydown", function() {
 var r = [10 / 2, -10 / 2, projection.rotate()[2]]; s = projection.rotate(r);console.log(projection.rotate(r)); 
@@ -1847,7 +1866,7 @@ function graph6() {
 
 	update();
 
-	var select = d3.select('#chart').append('div').append('select').on('change', function(e){sTeam = this.value;});
+	var select = d3.select('#chart').append('div').attr('class','remove').append('select').on('change', function(e){sTeam = this.value;});
 
 	select.selectAll('option')
 	.data(listTeams).enter()
@@ -1856,7 +1875,7 @@ function graph6() {
 		return e;})
 		.text(function(d){return d;});
 
-	var select = d3.select('#chart').append('div').append('select').on('change', function(e){sYear = this.value;});
+	var select = d3.select('#chart').append('div').attr('class', 'remove').append('select').on('change', function(e){sYear = this.value;});
 
 	select.selectAll('option')
 	.data(listYears).enter()
@@ -1865,7 +1884,150 @@ function graph6() {
 		return e;})
 		.text(function(d){return d;});
 
-	var select = d3.select('#chart').append('div').append('input').attr('type', 'button').attr('value', 'Add line').on('click', function(e){update();});
+	var select = d3.select('#chart').append('div').attr('class', 'remove').append('input').attr('type', 'button').attr('value', 'Add line').on('click', function(e){update();});
 
 
+}
+
+function sssssss() {
+
+
+				var gradient = gg.append("svg:defs")
+				.append("svg:linearGradient")
+				.attr("id", "gradient")
+				.attr("x1", "0%")
+				.attr("y1", "0%")
+				.attr("x2", "100%")
+				.attr("y2", "100%")
+				.attr("spreadMethod", "pad");
+
+				// Define the gradient colors
+				gradient.append("svg:stop")
+				.attr("offset", "0%")
+				.attr("stop-color", 'PowderBlue')
+				.attr("stop-opacity", 1);
+
+				gradient.append("svg:stop")
+				.attr("offset", "100%")
+				.attr("stop-color", 'LightSalmon')
+				.attr("stop-opacity", 1);
+				
+				gg.style('background-color', 'url(#gradient)');
+}
+
+
+
+function showRival(){
+		var ssss = [rival1, rival2];
+		ssss.sort();
+		graph0.forEach(function(e) {
+			if (e.name === (ssss[0] + ' - ' + ssss[1])){
+				d3.select('#matchview svg').remove();
+
+				
+				var gg = d3.select('#matchview').append('svg').attr('width', 1000).attr('height', 600);
+				var re = gg.append('rect').attr('x', 0).attr('y', 0).attr('width', 1000).attr('height', 600-50).attr('fill','white');
+				var rect1 = gg.append('rect').attr('x',0).attr('y',0).attr('width', 15).attr('height', 600-50).style('fill', isNewZealand[ssss[0]] ? 'PowderBlue' : 'LightSalmon'); 
+				var rect2 = gg.append('rect').attr('x',1000-15).attr('y',0).attr('width', 15).attr('height', 600-50).style('fill', isNewZealand[ssss[1]] ? 'PowderBlue' : 'LightSalmon');			
+
+				var gradient = gg.append("svg:defs")
+				.append("svg:linearGradient")
+				.attr("id", "gradient")
+				.attr("x1", "0%")
+				.attr("y1", "0%")
+				.attr("x2", "100%")
+				.attr("y2", "0%")
+				.attr("spreadMethod", "pad");
+
+				// Define the gradient colors
+				gradient.append("svg:stop")
+				.attr("offset", "0%")
+				.attr("stop-color", isNewZealand[ssss[0]] ? 'PowderBlue' : 'LightSalmon')
+				.attr("stop-opacity", 0.9);
+
+				gradient.append("svg:stop")
+				.attr("offset", "100%")
+				.attr("stop-color", 'White')
+				.attr("stop-opacity", 0.1);
+
+				var gradient2 = gg.append("svg:defs")
+				.append("svg:linearGradient")
+				.attr("id", "gradient2")
+				.attr("x1", "100%")
+				.attr("y1", "0%")
+				.attr("x2", "0%")
+				.attr("y2", "0%")
+				.attr("spreadMethod", "pad");
+
+				// Define the gradient colors
+				gradient2.append("svg:stop")
+				.attr("offset", "0%")
+				.attr("stop-color", isNewZealand[ssss[1]] ? 'PowderBlue' : 'LightSalmon')
+				.attr("stop-opacity", 0.9);
+
+				gradient2.append("svg:stop")
+				.attr("offset", "100%")
+				.attr("stop-color", 'White')
+				.attr("stop-opacity", 0.1);
+
+				gg.append('text').text(ssss[0]).attr('x', 250).attr('y', 75).style('text-anchor', 'middle').style('font-weight', 'bold');
+				gg.append('text').text(ssss[1]).attr('x', 750).attr('y', 75).style('text-anchor', 'middle').style('font-weight', 'bold');
+				var y = 125;
+				gg.append('text').text(e.wins).attr('x', 250).attr('y', y).style('text-anchor', 'end')
+				.attr('fill', (e.wins > e.losses ? 'green' : (e.wins < e.losses ? 'red' : 'black')));
+
+				gg.append('text').text('Wins').attr('x', 500).attr('y', y).style('text-anchor', 'middle');
+				gg.append('text').text(e.losses).attr('x', 750).attr('y', y).style('text-anchor', 'start')
+				.attr('fill', (e.losses > e.wins ? 'green' : (e.losses < e.wins ? 'red' : 'black')));
+				y += 50;
+
+				gg.append('text').text("ds").attr('x', 250).attr('y', y).style('text-anchor', 'end')
+				.attr('fill', (e.wins > e.losses ? 'green' : (e.wins < e.losses ? 'red' : 'black')));
+				gg.append('text').text('Points Scored').attr('x', 500).attr('y', y).style('text-anchor', 'middle');
+				gg.append('text').text("dsds").attr('x', 750).attr('y', y).style('text-anchor', 'start')
+				.attr('fill', (e.wins > e.losses ? 'green' : (e.wins < e.losses ? 'red' : 'black')));
+				y += 50;
+
+				var t1 = teamRank(c).filter(function(e){return e.name == ssss[0];})[0];
+				var t2 = teamRank(c).filter(function(e){return e.name == ssss[1];})[0];
+
+				gg.append('text').text(t1.wins + t1.losses).attr('x', 250).attr('y', y).style('text-anchor', 'end')
+				.attr('fill', (t1.wins + t1.losses > t2.wins + t2.losses ? 'green' : (t1.wins + t1.losses < t2.wins + t2.losses ? 'red' : 'black')));
+				gg.append('text').text('Overall Matches Played').attr('x', 500).attr('y', y).style('text-anchor', 'middle');
+				gg.append('text').text(t2.wins + t2.losses).attr('x', 750).attr('y', y).style('text-anchor', 'start')
+				.attr('fill', (t2.wins + t2.losses > t1.wins + t1.losses ? 'green' : (t2.wins + t2.losses < t1.wins + t1.losses ? 'red' : 'black')));
+				y += 50;
+
+				gg.append('text').text(t1.wins).attr('x', 250).attr('y', y).style('text-anchor', 'end')
+				.attr('fill', (t1.wins > t2.wins ? 'green' : (t1.wins < t2.wins ? 'red' : 'black')));
+				gg.append('text').text('Overall Wins').attr('x', 500).attr('y', y).style('text-anchor', 'middle');
+				gg.append('text').text(t2.wins).attr('x', 750).attr('y', y).style('text-anchor', 'start')
+				.attr('fill', (t2.wins > t1.wins ? 'green' : (t2.wins < t1.wins ? 'red' : 'black')));
+				y += 50;
+
+				gg.append('text').text(t1.losses).attr('x', 250).attr('y', y).style('text-anchor', 'end')
+				.attr('fill', (t1.losses > t2.losses ? 'green' : (t1.losses < t2.losses ? 'red' : 'black')));
+				gg.append('text').text('Overall Losses').attr('x', 500).attr('y', y).style('text-anchor', 'middle');
+				gg.append('text').text(t2.losses).attr('x', 750).attr('y', y).style('text-anchor', 'start')
+				.attr('fill', (t2.losses > t1.losses ? 'green' : (t2.losses < t1.losses ? 'red' : 'black')));
+				y += 50;
+
+				gg.append('text').text(t1.losses).attr('x', 250).attr('y', y).style('text-anchor', 'end');
+				gg.append('text').text('Overall Points Scored').attr('x', 500).attr('y', y).style('text-anchor', 'middle');
+				gg.append('text').text(t2.losses).attr('x', 750).attr('y', y).style('text-anchor', 'start');
+				y += 50;
+
+				gg.append('text').text(Math.round( 100 * t1.wins / (t1.wins + t1.losses)) / 100 ).attr('x', 250).attr('y', y).style('text-anchor', 'end')
+				.attr('fill', (t1.wins / (t1.wins + t1.losses) > t2.wins/(t2.wins + t2.losses) ? 'green' : ( (t1.wins / (t1.wins + t1.losses) < t2.wins/(t2.wins + t2.losses)  ? 'red' : 'black'))));
+				gg.append('text').text('Overall Win %').attr('x', 500).attr('y', y).style('text-anchor', 'middle');
+				gg.append('text').text(Math.round( 100 * t2.wins / (t2.wins + t2.losses)) / 100).attr('x', 750).attr('y', y).style('text-anchor', 'start')
+				.attr('fill', (t2.wins / (t2.wins + t2.losses) > t1.wins/(t1.wins + t1.losses) ? 'green' : ( (t2.wins / (t2.wins + t2.losses) < t1.wins/(t1.wins + t1.losses)  ? 'red' : 'black'))));
+				y += 50;
+				
+				gg.on('mousemove', function() {if (d3.mouse(this)[0] < 400) {re.attr('fill', 'url(#gradient)');} else if (d3.mouse(this)[0] > 600) {re.attr('fill', 'url(#gradient2)');} else {re.attr('fill', 'white');}});
+				gg.on('mouseout', function() {re.attr('fill','white');});
+
+				gg.on('click', function() {if (d3.mouse(this)[0] < 400) {sTeam = ssss[0]; switchTo('team');} else if (d3.mouse(this)[0] > 600) { sTeam = ssss[1]; switchTo('team');}});
+			}
+		});
 }

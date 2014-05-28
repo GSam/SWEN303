@@ -127,4 +127,10 @@ div.horizontal ul {
   margin-left:auto;
   margin-right:auto;
   width:1300px;
+  text-align:center;
+}
+
+.split {
+  margin-left: 90px;
+  margin-right: 90px;
 }
