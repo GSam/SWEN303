@@ -1353,7 +1353,7 @@ function forceDir() {
 	var start = null;
 	var end = null;
 	var oldEnd = null;
-
+	svg.append('text').attr('x', width - 5).attr('y', 0).attr('dy', '2em').style('text-anchor', 'end').style('font-size', '14px').text('Rivalries where each team has won at least some percentage');
   var node = svg.selectAll(".force-node")
       .data(graph.nodes)
     .enter().append("circle")
@@ -1505,8 +1505,8 @@ function forceDir() {
 	
 		force.links(graph1);
 		force.start();
-		svg.selectAll('#per').text(Math.round(percent * 100) + "%").style('font', '64px sans-serif');
-	}
+		svg.selectAll('#per').text(Math.round(percent * 100) + "%");
+		}
 
 	var zoomer = d3.behavior.zoom()
     .on("zoom", zoomed).on('zoomstart', function(){d3.timer.flush(); svg.selectAll('#per').transition().style('font', '64px sans-serif');})
