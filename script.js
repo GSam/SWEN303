@@ -1352,7 +1352,7 @@ var svg = d3.select("#chart").append("svg")
 		if (d.name === start) {
 			start = null;
 			c.classed({'selected':false});
-			oldEnd.classed({'selected':false});
+			if (oldEnd !== null) oldEnd.classed({'selected':false});
 			return;
 		}
 
@@ -1363,6 +1363,7 @@ var svg = d3.select("#chart").append("svg")
 		}
 
 		if (oldEnd !== null) {
+			console.log(oldEnd);
 			oldEnd.classed({'selected':false});
 		}
 
@@ -1377,15 +1378,6 @@ var svg = d3.select("#chart").append("svg")
   node.append("title")
       .text(function(d) { return d.name; });
 
-  force.on("tick", function() {
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-  });
 
 
 	var y = d3.scale.ordinal()
@@ -1405,13 +1397,14 @@ var svg = d3.select("#chart").append("svg")
 	.attr('y2', function(d) {return y(d.name);}).style('stroke', 'black');
 
 	var zoom = 1;//d3.event.scale;
-	function zoomed() {
+	function zoomed(ddd) {
 		if (d3.event.scale > zoom) {
 			console.log("IN");
 		} else if (d3.event.scale < zoom) {
 			console.log("OUT");	
 		}
 		var isZooming = d3.event.scale > zoom;
+		if (zoom === d3.event.scale) return;
 		zoom = d3.event.scale;
 		console.log("scale  " + d3.event.scale);
 		percent = Math.max(0, Math.min(0.53, percent + (isZooming ? 0.02 : -0.02)));
@@ -1426,26 +1419,39 @@ var svg = d3.select("#chart").append("svg")
 				graph1.push(e);
 		}
 		console.log(graph1.length);
-		var link2 = svg.selectAll(".link")
-		.data(graph1)
-		.enter().append("line")
+		link = svg.selectAll(".link")
+		.data(graph1);
+		link.enter().append("line")
 		.attr("class", "link")
 		.style("stroke-width", function(d) { return 1; })
 		.style("stroke","#999");
 
-		 svg.selectAll(".link").data(graph1)
-		.exit().remove();
+		svg.selectAll(".link")
+		.data(graph1).exit().remove();
 
+		// make sure nodes are on top
+		svg.selectAll('.link,.force-node').sort(function(a,b) {return a.source === undefined;});
+	
 		force.links(graph1);
 		force.start();
-
 	}
 
 	var zoom = d3.behavior.zoom()
     .on("zoom", zoomed);
 
 
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+  });
 	svg.call(zoom);
+		svg.on('drag', function(){});
+svg.on('dblclick.zoom', null);
 
 	
 /*  d3.select('body').on("keydown", function() {
