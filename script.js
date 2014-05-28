@@ -1406,16 +1406,18 @@ var svg = d3.select("#chart").append("svg")
 
 	var zoom = 1;//d3.event.scale;
 	function zoomed() {
-		force.stop();
 		if (d3.event.scale > zoom) {
 			console.log("IN");
 		} else if (d3.event.scale < zoom) {
 			console.log("OUT");	
 		}
+		var isZooming = d3.event.scale > zoom;
 		zoom = d3.event.scale;
 		console.log("scale  " + d3.event.scale);
-		percent = Math.min(1, percent + 0.05);
-		force.gravity(force.gravity() + 0.05, 1);
+		percent = Math.max(0, Math.min(0.53, percent + (isZooming ? 0.02 : -0.02)));
+		if (percent === 0 || percent === 0.53) return;
+		force.stop();
+		force.gravity( (percent <= 0.25 ? 0.1 : force.gravity() + 0.05));
 		graph1 = [];
 		console.log(percent);
 		for (var i = 0; i < graph0.length; i++) {
