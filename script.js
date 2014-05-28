@@ -649,7 +649,7 @@ function graph3() {
 		if (allVenues.hasOwnProperty(key)) {
 			var temp = allVenues[key].filter(
 				function(e) { 
-					if (showFinal === 'Finals') return e.Round >= 15; if (showFinal === 'Regular') return e.Round < 15; return true;
+					if (showFinal === 'Finals') return +e.Round >= 15; if (showFinal === 'Regular') return +e.Round < 15; return true;
 				}
 			);	
 
@@ -1256,7 +1256,7 @@ var percent = 0.25;
 
 function forceDir() {
 	var width = 960,
-	height = 500;
+	height = 600;
 
 	var color = d3.scale.category20();
 
@@ -1271,14 +1271,22 @@ function forceDir() {
 
 	var c = [];
 	listYears.forEach(function(e) {
-		c = c.concat(allGames[e]);
+		if (showYear === 'All' || e === +showYear) {
+			c = c.concat(allGames[e]);
+		}
 	});
+	c = c.filter(
+		function(e) { 
+			if (showFinal === 'Finals') return e.Round >= 15; if (showFinal === 'Regular') return e.Round < 15; return true;
+		}
+	);	
 	var graph0 = rivalries(c);
+	console.log(graph0);
 	var graph1 = [];
 	for (var i = 0; i < graph0.length; i++) {
 		var e = graph0[i];	
 		e.value = Math.min((e.wins)/(e.wins+e.losses), (e.losses)/(e.wins+e.losses));	
-		if (e.value > percent) 
+		if (e.value >= percent) 
 			graph1.push(e);
 		e['source'] = listTeams.indexOf(e.name.split(' - ')[0]);
 		e['target'] = listTeams.indexOf(e.name.split(' - ')[1]);
@@ -1399,6 +1407,52 @@ function forceDir() {
 	.attr('x2', function(d) {return x(d.name);})
 	.attr('y2', function(d) {return y(d.name);}).style('stroke', 'black');
 
+
+	function update() {
+		c = [];	
+		listYears.forEach(function(e) {
+			if (showYear === 'All' || e === +showYear) {
+				c = c.concat(allGames[e]);
+			}
+		});
+		console.log(c.length + "");
+		c = c.filter(
+			function(e) { 
+				if (showFinal === 'Finals') return e.Round >= 15; if (showFinal === 'Regular') return e.Round < 15; return true;
+			}
+		);	
+		console.log(c.length + "");
+		graph0 = rivalries(c);
+		console.log(graph0);
+		var graph1 = [];
+		for (var i = 0; i < graph0.length; i++) {
+			var e = graph0[i];	
+			e.value = Math.min((e.wins)/(e.wins+e.losses), (e.losses)/(e.wins+e.losses));	
+			if (e.value >= percent) 
+				graph1.push(e);
+			e['source'] = listTeams.indexOf(e.name.split(' - ')[0]);
+			e['target'] = listTeams.indexOf(e.name.split(' - ')[1]);
+
+		}
+
+		force.stop();
+		link = svg.selectAll(".link")
+		.data(graph1);
+		link.enter().append("line")
+		.attr("class", "link")
+		.style("stroke-width", function(d) { return 1; })
+		.style("stroke","#999");
+
+		svg.selectAll(".link")
+		.data(graph1).exit().remove();
+
+		// make sure nodes are on top
+		svg.selectAll('.link,.force-node').sort(function(a,b) {return a.source === undefined;});
+	
+		force.links(graph1);
+		force.start();
+	}
+
 	var zoom = 1;
 	function zoomed(ddd) {
 		if (d3.event.scale > zoom) {
@@ -1406,20 +1460,21 @@ function forceDir() {
 		} else if (d3.event.scale < zoom) {
 			console.log("OUT");	
 		}
-		console.log("scale  " + d3.event.scale + " " +zoom);
+	//	console.log("scale  " + d3.event.scale + " " +zoom);
 		var isZooming = d3.event.scale > zoom;
 		if (zoom === d3.event.scale) return;
 		zoom = d3.event.scale;
 		console.log("scale  " + d3.event.scale + " " +isZooming);
+		var prev = percent;
 		percent = Math.max(0, Math.min(0.53, percent + (isZooming ? 0.02 : -0.02)));
-		if (percent === 0 || percent === 0.53) return;
+		if (prev !== 0 && percent === 0 || percent === 0.53) return;
 		force.stop();
 		force.gravity( (percent <= 0.25 ? 0.1 : force.gravity() + 0.05));
 		graph1 = [];
 		console.log(percent);
 		for (var i = 0; i < graph0.length; i++) {
 			var e = graph0[i];
-			if (e.value > percent) 
+			if (e.value >= percent) 
 				graph1.push(e);
 		}
 		console.log(graph1.length);
@@ -1443,7 +1498,7 @@ function forceDir() {
 
 	var zoomer = d3.behavior.zoom()
     .on("zoom", zoomed).on('zoomstart', function(){d3.timer.flush(); svg.selectAll('#per').transition().style('font', '64px sans-serif');})
-	.on('zoomend', function(){ d3.timer(function(){console.log('hello');svg.selectAll('#per').style('font', '32px sans-serif');}, 600);});
+	.on('zoomend', function(){ d3.timer(function(){svg.selectAll('#per').style('font', '32px sans-serif');}, 600);});
 
 
   force.on("tick", function() {
