@@ -1252,26 +1252,27 @@ function rivalSort(a, b) {
 	return Math.min((a.wins)/(a.wins+a.losses), (a.losses)/(a.wins+a.losses)) - Math.min((b.wins)/(b.wins+b.losses), (b.losses)/(b.wins+b.losses));
 }
 
+var percent = 0.25;
+
 function forceDir() {
-var width = 960,
-    height = 500;
+	var width = 960,
+	height = 500;
 
-var color = d3.scale.category20();
+	var color = d3.scale.category20();
 
-var force = d3.layout.force()
-    .charge(-1520)
-    .linkDistance(50)
-    .size([width, height]);
+	var force = d3.layout.force()
+	.charge(-1520)
+	.linkDistance(50)
+	.size([width, height]);
 
-var svg = d3.select("#chart").append("svg")
-    .attr("width", width)
-    .attr("height", height);
+	var svg = d3.select("#chart").append("svg")
+	.attr("width", width)
+	.attr("height", height);
 
 	var c = [];
 	listYears.forEach(function(e) {
 		c = c.concat(allGames[e]);
 	});
-	var percent = 0.25;
 	var graph0 = rivalries(c);
 	var graph1 = [];
 	for (var i = 0; i < graph0.length; i++) {
@@ -1396,7 +1397,7 @@ var svg = d3.select("#chart").append("svg")
 	.attr('x2', function(d) {return x(d.name);})
 	.attr('y2', function(d) {return y(d.name);}).style('stroke', 'black');
 
-	var zoom = 1;//d3.event.scale;
+	var zoom = 1;
 	function zoomed(ddd) {
 		if (d3.event.scale > zoom) {
 			console.log("IN");
