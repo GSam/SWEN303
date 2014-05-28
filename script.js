@@ -1285,6 +1285,8 @@ function forceDir() {
 
 	}
 
+	svg.append('text').attr('id', 'per').text(Math.round(percent*100)  + "%").style('font', '32px sans-serif').attr('x', '100px').attr('y', '60px').style('text-anchor','middle').attr('dy', '0.5em');
+
 	/*	svg.append('svg:rect')
 	.attr('x', 10)
 	.attr('y', 20)
@@ -1404,10 +1406,11 @@ function forceDir() {
 		} else if (d3.event.scale < zoom) {
 			console.log("OUT");	
 		}
+		console.log("scale  " + d3.event.scale + " " +zoom);
 		var isZooming = d3.event.scale > zoom;
 		if (zoom === d3.event.scale) return;
 		zoom = d3.event.scale;
-		console.log("scale  " + d3.event.scale);
+		console.log("scale  " + d3.event.scale + " " +isZooming);
 		percent = Math.max(0, Math.min(0.53, percent + (isZooming ? 0.02 : -0.02)));
 		if (percent === 0 || percent === 0.53) return;
 		force.stop();
@@ -1435,10 +1438,12 @@ function forceDir() {
 	
 		force.links(graph1);
 		force.start();
+		svg.selectAll('#per').text(Math.round(percent * 100) + "%").style('font', '64px sans-serif');
 	}
 
-	var zoom = d3.behavior.zoom()
-    .on("zoom", zoomed);
+	var zoomer = d3.behavior.zoom()
+    .on("zoom", zoomed).on('zoomstart', function(){d3.timer.flush(); svg.selectAll('#per').transition().style('font', '64px sans-serif');})
+	.on('zoomend', function(){ d3.timer(function(){console.log('hello');svg.selectAll('#per').style('font', '32px sans-serif');}, 600);});
 
 
   force.on("tick", function() {
@@ -1450,9 +1455,10 @@ function forceDir() {
     node.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
   });
-	svg.call(zoom);
-		svg.on('drag', function(){});
+	svg.call(zoomer);
 svg.on('dblclick.zoom', null);
+
+	d3.selectAll('.picker').on('change', function(e){update();});
 
 	
 /*  d3.select('body').on("keydown", function() {
