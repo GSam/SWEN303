@@ -4,6 +4,16 @@
  *
  * This visualization works upon a number of the provided d3 tutorials.
  *
+ * Bar chart guidance from: http://bl.ocks.org/mbostock/3885304
+ * Basic line graph structure: http://bl.ocks.org/benjchristensen/2579599
+ * Match viewer adapted from: http://bl.ocks.org/mbostock/1667367
+ * Bubble chart from: http://bl.ocks.org/mbostock/4063269
+ * Force directed graph: http://bl.ocks.org/mbostock/4062045
+ * Pie chart from: http://bl.ocks.org/mbostock/3887235
+ *
+ * Lots of them have been entirely restructured, but there are probably
+ * remaining comments left for some of them.
+ *
  */
 var allGames = {};
 var allTeams = {};
@@ -260,7 +270,7 @@ function otherhalf() {
 	.x(function(d) { return x2(d.date); })
 	//.y0(height2)
 	.y(function(d) { return y2(d.price); });
-	d3.select('#matchview').append('div').attr('class', 'remove').append('h2').text('MATCH VIEWER - Timeline of all games').style('padding-top', '50px');
+	d3.select('#matchview').append('div').attr('class', 'remove').append('h2').text('MATCH VIEWER - Timeline of All Games').style('padding-top', '50px');
 	var svg = d3.select("#matchview").append("svg")
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom);
@@ -382,10 +392,9 @@ function isNumber(n){
     return typeof n == 'number' && !isNaN(n - n);
 }
 function graph2() {
-	// define dimensions of graph
-	var m = [40, 40, 40, 40]; // margins
-	var w = 500 - m[1] - m[3]; // width
-	var h = 400 - m[0] - m[2]; // height
+	var m = [40, 40, 40, 40]; 
+	var w = 500 - m[1] - m[3]; 
+	var h = 400 - m[0] - m[2];
 
 	var yearly = [];
 	var NZhomeWin = [];
@@ -431,16 +440,11 @@ function graph2() {
 	console.log(AUhomeWin);
 	console.log(AUawayWin);
 	console.log(yearly);
-	// X scale will fit all values from data[] within pixels 0-w
-	var x = d3.scale.ordinal().domain(listYears).rangeRoundBands([0, w], 0);
-	// Y scale will fit values from 0-10 within pixels h-0 (Note the inverted domain for the y-scale: bigger is up!)
-	var y = d3.scale.linear().domain([0, 1]).range([h, 0]);
-	// automatically determining max range can work something like this
-	// var y = d3.scale.linear().domain([0, d3.max(data)]).range([h, 0]);
 
-	// create a line function that can convert data[] into x and y points
+	var x = d3.scale.ordinal().domain(listYears).rangeRoundBands([0, w], 0);
+	var y = d3.scale.linear().domain([0, 1]).range([h, 0]);
+	
 	var line = d3.svg.line()
-	// assign the X function to plot our line as we wish
 	.x(function(d,i) { 
 		return x(i+2008); 
 	})
@@ -448,25 +452,20 @@ function graph2() {
 		return y(d); 
 	})
 
-	// Add an SVG element with the desired dimensions and margin.
 	var graph = d3.select("#chart").append("svg:svg")
 	.attr("width", w + m[1] + m[3])
 	.attr("height", h + m[0] + m[2])
 	.append("svg:g")
 	.attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
-	// create yAxis
 	var xAxis = d3.svg.axis().scale(x).tickSize(-5);
-	// Add the x-axis.
 	graph.append("svg:g")
 	.attr("class", "x axis")
 	.attr("transform", "translate(" + -x.rangeBand()/2 +"," + (h+3) + ")")
 	.call(xAxis);
 
 
-	// create left yAxis
 	var yAxisLeft = d3.svg.axis().scale(y).ticks(6).orient("left").tickSize(-w + x.rangeBand()/2).tickSubdivide(true);
-	// Add the y-axis to the left
 	graph.append("svg:g")
 	.attr("class", "y axis")
 	.attr("transform", "translate(0,0)")
