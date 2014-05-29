@@ -2,7 +2,7 @@
  *
  * SWEN303 Data Visualization Project
  *
- * This visualization works upon a number of the provided d3 tutorials.
+ * This visualization works upon a number of the available d3 tutorials.
  *
  * Bar chart guidance from: http://bl.ocks.org/mbostock/3885304
  * Basic line graph structure: http://bl.ocks.org/benjchristensen/2579599
@@ -322,12 +322,11 @@ console.log(data);
 			games = games.concat(allGames[e]);
 		});	
 
-		games = games.map(function(e) {var dat = new Date(e.year+ " "+ e.Date); if (dat == undefined) return; return [{"date":dat, "price":e['Home Team']},{"date":dat, "price":e['Away Team']}];});
-		games = games.filter(function(e) {return e[0].price !== "" && e[1].price !== "";});
+		games = games.map(function(e) {var dat = new Date(e.Date + " " +e.year); if (dat == undefined || isNaN(dat.getTime())) return; return [{"date":dat, "price":e['Home Team']},{"date":dat, "price":e['Away Team']}];});
+		games = games.filter(function(e) {if(e == undefined) return false; return e[0].price !== "" && e[1].price !== "";});
 		console.log(games);
 		// paths
 		var ctx = context.selectAll('.dots').data(games).enter();
-		
 		ctx.append("path")
 		.attr("class", "area")
 		.attr("d", area2).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
@@ -339,7 +338,7 @@ console.log(data);
 		.attr("class", "area")
 		.attr("d", area).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
 
-	var show = false;
+		var show = false;
 
 		ctx.append('circle').attr('class', 'fir')
 		.attr('cx', function(d,i) {return x(d[0].date);})
@@ -392,7 +391,7 @@ function isNumber(n){
     return typeof n == 'number' && !isNaN(n - n);
 }
 function graph2() {
-	var m = [40, 40, 40, 40]; 
+	var m = [60, 40, 40, 40]; 
 	var w = 500 - m[1] - m[3]; 
 	var h = 400 - m[0] - m[2];
 
@@ -457,6 +456,8 @@ function graph2() {
 	.attr("height", h + m[0] + m[2])
 	.append("svg:g")
 	.attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+
+	graph.append('text').text('Proportion of Wins on Home and Away Courts').style('text-anchor', 'middle').attr('x', w/2).attr('dy', -40).style('font', '14px sans-serif').style('font-weight', 'bold');
 
 	var xAxis = d3.svg.axis().scale(x).tickSize(-5);
 	graph.append("svg:g")
@@ -2176,10 +2177,10 @@ function showRival(){
 				y += 50;
 
 				gg.append('text').text(t1.gamePoints).attr('x', 250).attr('y', y).style('text-anchor', 'end')
-				.attr('fill', (t1.gamePoints > t2.awayGamePoints ? 'green' : (t1.gamePoints < t2.awayGamePoints ? 'red' : 'black')));
+				.attr('fill', (t1.gamePoints > t2.gamePoints ? 'green' : (t1.gamePoints < t2.gamePoints ? 'red' : 'black')));
 				gg.append('text').text('Overall Points Scored').attr('x', 500).attr('y', y).style('text-anchor', 'middle');
 				gg.append('text').text(t2.gamePoints).attr('x', 750).attr('y', y).style('text-anchor', 'start')
-				.attr('fill', (t2.gamePoints > t1.awayGamePoints ? 'green' : (t2.gamePoints < t1.awayGamePoints ? 'red' : 'black')));
+				.attr('fill', (t2.gamePoints > t1.gamePoints ? 'green' : (t2.gamePoints < t1.gamePoints ? 'red' : 'black')));
 				y += 50;
 
 				gg.append('text').text(Math.round( 100 * t1.wins / (t1.wins + t1.losses)) / 100 ).attr('x', 250).attr('y', y).style('text-anchor', 'end')
