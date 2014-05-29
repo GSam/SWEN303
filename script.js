@@ -822,9 +822,13 @@ function graph3() {
 			var selection = vis.selectAll('.listTeams').data(teamRank(games).sort(winRatio));
 			selection = selection.enter().append('g');
 
+			if (teamCol !== 'None') {selection.append('rect').style('fill',function(d) {return isNewZealand[d.name] ? 'steelblue' :'red'}).style('stroke','black').attr('y', function(d,i) {return 40 * i - h/4;}).attr('x', 0.5*w + 20)
+			.attr('width', 6).attr('height', 6).attr('dy', '1em');
+			}
+
 			selection.append('title').text(function(d){ if (d.name === home) return 'Home team';});
 			
-			selection.append('text').attr('class', 'listTeams').attr('y', function(d,i) {return 40 * i - h/4;}).attr('x', 0.5*w).on('click', function(e) {sTeam = e.name; switchTo('team');});
+			selection.append('text').attr('class', 'listTeams').attr('y', function(d,i) {return 40 * i - h/4;}).attr('x', 0.5*w).on('click', function(e) {sTeam = e.name; switchTo('team');}).attr('dy','0.6em');
 
 			vis.selectAll('.listTeams').text(function(d){return d.name + " " + d.wins + "W " + d.losses + "L";}).style('fill', function(d) {return home === d.name ? 'red' : 'black'}).style('cursor', 'default');
 
