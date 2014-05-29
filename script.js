@@ -377,7 +377,7 @@ var data = [type({"date": "Apr 2008", "price":"Central Pulse"}),type({"date": "M
 			games = games.concat(allGames[e]);
 		});	
 
-		games = games.map(function(e) {var dat = new Date(e.Date + " " +e.year); if (dat == undefined || isNaN(dat.getTime())) return; return [{"date":dat, "price":e['Home Team']},{"date":dat, "price":e['Away Team']}];});
+		games = games.map(function(e) {var dat = new Date(e.Date + " " +e.year); if (dat == undefined || isNaN(dat.getTime())) return; return [{"date":dat, "price":e['Home Team'], 'game':e},{"date":dat, "price":e['Away Team'], 'game':e}];});
 		games = games.filter(function(e) {if(e == undefined) return false; return e[0].price !== "" && e[1].price !== "";});
 		console.log(games);
 		// paths
@@ -394,6 +394,7 @@ var data = [type({"date": "Apr 2008", "price":"Central Pulse"}),type({"date": "M
 		.attr("d", area).style('stroke', 'Blue').style('stroke-width', '2').style('fill', 'none');
 
 		var show = false;
+		var colored = false;
 
 		ctx.append('circle').attr('class', 'fir')
 		.attr('cx', function(d,i) {return x(d[0].date);})
@@ -426,6 +427,21 @@ var data = [type({"date": "Apr 2008", "price":"Central Pulse"}),type({"date": "M
 		.attr("y", -6)
 		.attr("height", height2 + 7);
 
+		svg.on('contextmenu', function(e) {colored = !colored; 
+			d3.event.preventDefault();
+			svg.selectAll('.fir').style('fill', function(d) {if (!colored) return 'black'; 
+		console.log(d);	
+				var scoreHome = parseInt(d[0].game.Score.split('-')[0], 10);
+				var scoreAway = parseInt(d[0].game.Score.split('-')[1], 10);
+			if (scoreHome === scoreAway) return 'black';
+			return scoreHome > scoreAway ? 'green':'red';});
+			svg.selectAll('.sec').style('fill', function(d) {if (!colored) return 'black'; 
+				var scoreHome = parseInt(d[0].game.Score.split('-')[0], 10);
+				var scoreAway = parseInt(d[0].game.Score.split('-')[1], 10);
+			if (scoreHome === scoreAway) return 'black';
+			return scoreHome < scoreAway ? 'green':'red';});
+
+		});
 
 	/*svg.call(zoom);*/
 

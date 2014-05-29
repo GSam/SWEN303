@@ -192,3 +192,12 @@ g.opt.selected{
 	fill:black;
 	fill-opacity:0.1;
 }
+
+.fir:hover {
+	opacity:1!important;
+}
+
+.sec:hover {
+	opacity:1!important;
+}
+
