@@ -78,6 +78,8 @@ function getAllTeamStats(tempYears) {
 
 			var scoreHome = parseInt(e.Score.split('-')[0], 10);
 			var scoreAway = parseInt(e.Score.split('-')[1], 10);
+			data[listTeams.indexOf(e['Home Team'])].gamePoints += scoreHome;
+			data[listTeams.indexOf(e['Away Team'])].gamePoints += scoreAway;
 
 			if (scoreHome > scoreAway) {
 				//console.log(e['Home Team']  + " " + e['Away Team']);
@@ -105,17 +107,20 @@ function getAllTeamStats(tempYears) {
 }
 
 function winCount(a, b) {
-	return a.wins - b.wins;
+	return b.wins - a.wins;
 }
 
 function lossCount(a,b) {
-	return a.losses - b.losses;
+	return b.losses - a.losses;
 }
 
-function pointCount(a,b) {
-	return b.points - a.points;
+function ptCount(a,b) {
+//	return b.points - a.points;
+	return b.gamePoints - a.gamePoints;
 }
-
+function winLoss(a,b) {
+	return (b.wins-b.losses) - (a.wins-a.losses);
+}
 function winRatio(a,b) {
 	if (!isNumber(b.wins/(b.wins + b.losses))) {
 		return -1;
@@ -124,7 +129,7 @@ function winRatio(a,b) {
 	}
 	return b.wins/(b.wins + b.losses) - a.wins/(a.wins + a.losses);
 }
-
+var currentSort = null;
 function graph1() {
 
 	var margin = {top: 20, right: 110, bottom: 30, left: 180},
@@ -162,6 +167,7 @@ function graph1() {
 	.attr("class", "y axis")
 	.call(yAxis);
 
+	d3.selectAll('.y.axis g').on('click',function(d,i){sTeam = d; switchTo('team');});
 	sss.append("text")
 	.attr("transform", "rotate(-90)")
 	.attr("y", 6)
@@ -173,7 +179,7 @@ function graph1() {
 	bs.selectAll('rect').data(data).enter().append("rect").attr('class', 'bar')
 	.attr("width", function(d) {if (!isNumber(d)) return 0; return x(d);})
 	.attr("height", y.rangeBand()).style('fill', function(d, i) {return (teamCol === 'None' ? 'steel blue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
-	.attr('y', function(d, i) {return y(data1[i].name);});
+	.attr('y', function(d, i) {return y(data1[i].name);}).on('click', function(e,i) {sTeam = data1[i].name; switchTo('team');});
 
 	bs.selectAll('text').data(data).enter().append("text")
 	.attr("x", function(d) {if (!isNumber(d)) return 10;  return Math.max(x(d) - 6, 5); })
@@ -181,16 +187,16 @@ function graph1() {
 	.attr('y', function(d, i) {return y(data1[i].name) + y.rangeBand()/2;})
 	.text(function(d) { return Math.round(d*100)/100; });
 
-	var ggg = chart.selectAll('.opt').data([{'name':'%', 'des':'Win Proportion'}, {'name':'&#10003;','des':'Win Count'}, {'name':'x','des':'Loss Count'}, {'name':'pts','des':'Points Scored'}, {'name':'+/-','des':'Wins - Losses'}]).enter().append('g').attr('class', 'opt').attr('transform', function(d,i) { return 'translate(' + (width+70) + "," +( i*height/5 + 50)+")";});
+	var ggg = chart.selectAll('.opt').data([{'name':'%', 'des':'Win Proportion', 'sort':winRatio, 'map':function(e){return e.wins/(e.wins+e.losses);}}, {'name':'&#10003;','des':'Win Count','sort':winCount,'map':function(e){return e.wins;}}, {'name':'x','des':'Loss Count','sort':lossCount,'map':function(e){return e.losses;}}, {'name':'pts','des':'Points Scored','sort':ptCount,'map':function(e){return e.gamePoints;}}, {'name':'+/-','des':'Wins - Losses','sort':winLoss,'map':function(e){return e.wins-e.losses;}}]).enter().append('g').attr('class', 'opt').attr('transform', function(d,i) { return 'translate(' + (width+70) + "," +( i*height/5 + 50)+")";}).on('click', function(d){console.log("he");currentSort = d; update();});
 	ggg.append('circle').attr('r', 30)
 	ggg.append('text').html(function(d){return d.name;}).style('text-anchor', 'middle').attr('dy','0.3em');
 	ggg.append('title').text(function(d){return d.des;});
 
 	function update() {
-		var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
-		data1.sort(winRatio);
+		(function (){var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
+		data1.sort(currentSort.sort);
 
-		var data = data1.map(function(e) {return e.wins/(e.wins + e.losses);});
+		var data = data1.map(currentSort.map);
 		console.log(data);
 		console.log(data1);
 	
@@ -203,23 +209,22 @@ function graph1() {
 		sss.transition().duration(300).call(yAxis).selectAll('g').delay(function(d,i) {return i * 100;});
 		
 		var x = d3.scale.linear()
-		.domain([0, d3.max(data, function(e){return e;})])
+		.domain(currentSort.name === 'pts' || currentSort.name ==='+/-' ? d3.extent(data) : [0, d3.max(data, function(e){return e;})])
 		.range([0, width]);console.log(width);
+		if (currentSort.name === 'pts' || currentSort.name =='+/-') x.nice();
 
 		bs.selectAll('rect').data(data)
 		.transition().delay(function(d,i) {return i * 50;})
 		.attr('y', function(d, i) {return y(data1[i].name);}).style('fill', function(d, i) {return (teamCol === 'None' ? 'steelblue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
-		.each('end',function() {
-		d3.select(this).transition()
-		.attr("width", function(d) {if (!isNumber(d)) return 0; test = x;console.log(x(d) + " " + d);return x(d);})
-		.attr("height", y.rangeBand())});
+		.attr("width", function(d) {if (currentSort.name ==='+/-') return Math.abs(x(d) - x(0)); if (!isNumber(d)) return 0; test = x;console.log(x(d) + " " + d);return x(d);})
+		.attr("height", y.rangeBand()).attr('x', function(d){if (currentSort.name==='+/-') return x(Math.min(0, d)); return 0;})
 
 		bs.selectAll('text').data(data)
 		.transition().delay(function(d,i) {return i * 50;})
 		.attr("x", function(d) {if (!isNumber(d)) return 10;  return Math.max(x(d) - 6, 5); })
 		.attr("dy", ".35em")
 		.attr('y', function(d, i) {return y(data1[i].name) + y.rangeBand()/2;})
-		.text(function(d) { return Math.round(d*100)/100; });
+		.text(function(d) { return Math.round(d*100)/100; });})();
 	}
 
 	d3.selectAll('.picker').on('change', function(e){update();});
@@ -1581,10 +1586,10 @@ function forceDir() {
 
 	var x = d3.scale.ordinal()
 	.domain([0,1,2,3,4,5,6,7,8,9,10])
-	.rangeRoundBands([40, 120]);
+	.rangeRoundBands([40, 130]);
 
 	svg.append('text').style('text-anchor', 'start').text('10 Closest Matches').style('font-weight','bold')
-	.attr('x', '10px')
+	.attr('x', '20px')
 	.attr('y', function(d) {return y(0);});
 
 	var closest10Games = c.sort(function(a,b) { 
@@ -1606,18 +1611,18 @@ function forceDir() {
 		d3.selectAll('.force-node').classed('selected', function(d) {if ( d.name === rival2 ) {oldEnd = d3.select(this); return true;} return d.name === rival1;});
 		showRival();
 	});
-	hh.append('rect').attr('x', 0).attr('y', function(d,i) {return y(i+1) - y.rangeBand()/2;}).attr('width', 120).attr('height', y.rangeBand()).style('fill','white');
-	hh.append('title').text(function(d) {return d['Home Team'] + " " + d.Score + " " + d['Away Team'];});
+	hh.append('rect').attr('x', 0).attr('y', function(d,i) {return y(i+1) - y.rangeBand()/2;}).attr('width', 130).attr('height', y.rangeBand()).style('fill','white');
+	hh.append('title').text(function(d) {return d['Home Team'] + " " + d.Score + " " + d['Away Team'] + (showYear === 'All' ?  ' (' + d.year + ')' : '');});
 	hh.append('text').style('text-anchor', 'start').text(function(d) {return parseInt(d.Score.split('-')[0], 10); return d['Home Team'] + " " + d.Score + " " + d['Away Team'];})
-	.attr('x', function(d,i) {return 10;})
+	.attr('x', function(d,i) {return 20;})
 	.attr('y', function(d,i) {return y(i+1);}).append('line').attr('x1', 0).attr('x2', 100).attr('y', function(d,i) {return y(i+1);});
 
 	hh.append('text').style('text-anchor', 'end').text(function(d) {return parseInt(d.Score.split('-')[1], 10); return d['Home Team'] + " " + d.Score + " " + d['Away Team'];})
 	.attr('x', function(d,i) {return x(i+1);})
 	.attr('y', function(d,i) {return y(i+1);}).append('line').attr('x1', 0).attr('x2', 100).attr('y', function(d,i) {return y(i+1);});
 
-	hh.append('line').attr('x1', 10).attr('x2', function(d,i) {return x(i+1);}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) {return isNewZealand[d['Home Team']] ? 'blue': 'red'});
-	hh.append('line').attr('x1', 10).attr('x2', function(d,i) {return 10 + (x(i+1) - 10)/2;}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) { return isNewZealand[d['Away Team']] ? 'blue': 'red'});
+	hh.append('line').attr('x1', 20).attr('x2', function(d,i) {return x(i+1);}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) {return isNewZealand[d['Home Team']] ? 'blue': 'red'});
+	hh.append('line').attr('x1', 20).attr('x2', function(d,i) {return 20 + (x(i+1) - 20)/2;}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) { return isNewZealand[d['Away Team']] ? 'blue': 'red'});
 
 	function update() {
 		c = [];	
@@ -1683,18 +1688,18 @@ function forceDir() {
 			d3.selectAll('.force-node').classed('selected', function(d) {if ( d.name === rival2 ) {oldEnd = d3.select(this); return true;} return d.name === rival1;});
 			showRival();
 		});
-		hh.append('rect').attr('x', 0).attr('y', function(d,i) {return y(i+1) - y.rangeBand()/2;}).attr('width', 120).attr('height', y.rangeBand()).style('fill','white');
-		hh.append('title').text(function(d) {return d['Home Team'] + " " + d.Score + " " + d['Away Team'];});
+		hh.append('rect').attr('x', 0).attr('y', function(d,i) {return y(i+1) - y.rangeBand()/2;}).attr('width', 130).attr('height', y.rangeBand()).style('fill','white');
+		hh.append('title').text(function(d) {return d['Home Team'] + " " + d.Score + " " + d['Away Team'] + (showYear === 'All' ?  ' (' + d.year + ')' : '');});
 	hh.append('text').style('text-anchor', 'start').text(function(d) {return parseInt(d.Score.split('-')[0], 10); return d['Home Team'] + " " + d.Score + " " + d['Away Team'];})
-	.attr('x', function(d,i) {return 10;})
+	.attr('x', function(d,i) {return 20;})
 	.attr('y', function(d,i) {return y(i+1);}).append('line').attr('x1', 0).attr('x2', 100).attr('y', function(d,i) {return y(i+1);});
 
 	hh.append('text').style('text-anchor', 'end').text(function(d) {return parseInt(d.Score.split('-')[1], 10); return d['Home Team'] + " " + d.Score + " " + d['Away Team'];})
 	.attr('x', function(d,i) {return x(i+1);})
 	.attr('y', function(d,i) {return y(i+1);}).append('line').attr('x1', 0).attr('x2', 100).attr('y', function(d,i) {return y(i+1);});
 
-	hh.append('line').attr('x1', 10).attr('x2', function(d,i) {return x(i+1);}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) {return isNewZealand[d['Home Team']] ? 'blue': 'red'});
-	hh.append('line').attr('x1', 10).attr('x2', function(d,i) {return 10 + (x(i+1) - 10)/2;}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) { return isNewZealand[d['Away Team']] ? 'blue': 'red'});
+	hh.append('line').attr('x1', 20).attr('x2', function(d,i) {return x(i+1);}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) {return isNewZealand[d['Home Team']] ? 'blue': 'red'});
+	hh.append('line').attr('x1', 20).attr('x2', function(d,i) {return 20 + (x(i+1) - 20)/2;}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) { return isNewZealand[d['Away Team']] ? 'blue': 'red'});
 		console.log(closest10Games);
 
 		showRival();
