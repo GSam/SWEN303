@@ -116,7 +116,8 @@ div.horizontal select {
 }
 
 .slice path:hover {
-	opacity:0.8;
+	fill: GreenYellow;
+	opacity:0.6;
 }
 
 div.horizontal ul {
@@ -134,3 +135,24 @@ div.horizontal ul {
   margin-left: 90px;
   margin-right: 90px;
 }
+
+/*.node circle:hover {
+	opacity:0.8;
+}*/
+
+.paths.selected {
+  fill: GreenYellow !important;
+}
+
+.listTeams:hover {
+	opacity: 0.4;
+}
+
+text {
+	cursor:default;
+}
+
+div {
+	cursor:default;
+}
+
