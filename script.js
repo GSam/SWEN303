@@ -472,30 +472,30 @@ function graph2() {
 	.attr("transform", "translate(0,0)")
 	.call(yAxisLeft);
 
-	 update0();
+	update0();
 
-	  var tree = {"name":"teams", "children":[]};
-	  for (var i = 0; i < listTeams.length; i++) {
-		  var e = listTeams[i];
-		  var t = [];
-		  yearly.forEach(function(e, index) {
-			  var s = e[i];
-			  var x = ((s.homeWin / (s.homeWin + s.homeLoss) ) / (s.awayWin / (s.awayWin + s.awayLoss)));
-			  var xx = (isNumber(x) ? x : 0.01)
-			  if (!isNaN(x) && !isFinite(x)) {
-				  console.log(listTeams[i] + " " + yearly[index]);
-			  }
-			  /*if (xx == 0.01) {
-				  console.log(s.homeWin / (s.homeWin + s.homeLoss));
-				  console.log(s.awayWin / (s.awayWin + s.awayLoss));
-				  console.log(listTeams[i]);
-				  }*/
-				  t.push({"name": listTeams[i], "data": s, "size": xx});
-		  });
-		  tree.children.push({"name":e, "children":t});
+	var tree = {"name":"teams", "children":[]};
+	for (var i = 0; i < listTeams.length; i++) {
+		var e = listTeams[i];
+		var t = [];
+		yearly.forEach(function(e, index) {
+			var s = e[i];
+			var x = ((s.homeWin / (s.homeWin + s.homeLoss) ) / (s.awayWin / (s.awayWin + s.awayLoss)));
+			var xx = (isNumber(x) ? x : 0.01)
+			if (!isNaN(x) && !isFinite(x)) {
+				console.log(listTeams[i] + " " + yearly[index]);
+			}
+			/*if (xx == 0.01) {
+				console.log(s.homeWin / (s.homeWin + s.homeLoss));
+				console.log(s.awayWin / (s.awayWin + s.awayLoss));
+				console.log(listTeams[i]);
+				}*/
+				t.push({"name": listTeams[i], "data": s, "size": xx});
+		});
+		tree.children.push({"name":e, "children":t});
 
-	  }
-	  console.log(tree);
+	}
+	console.log(tree);
 
 	  var diameter = 480,
 	  format = d3.format(",.2f"),
