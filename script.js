@@ -391,7 +391,7 @@ function isNumber(n){
     return typeof n == 'number' && !isNaN(n - n);
 }
 function graph2() {
-	var m = [60, 40, 40, 40]; 
+	var m = [60, 40, 80, 40]; 
 	var w = 500 - m[1] - m[3]; 
 	var h = 400 - m[0] - m[2];
 
@@ -474,6 +474,7 @@ function graph2() {
 
 	update0();
 
+	var infiniteWin = [];
 	var tree = {"name":"teams", "children":[]};
 	for (var i = 0; i < listTeams.length; i++) {
 		var e = listTeams[i];
@@ -481,10 +482,11 @@ function graph2() {
 		yearly.forEach(function(e, index) {
 			var s = e[i];
 			var x = ((s.homeWin / (s.homeWin + s.homeLoss) ) / (s.awayWin / (s.awayWin + s.awayLoss)));
+			if (!isFinite(x) && !isNaN(x)) infiniteWin.push(s);
 			var xx = (isNumber(x) ? x : 0.01)
-			if (!isNaN(x) && !isFinite(x)) {
+			/*if (!isNaN(x) && !isFinite(x)) {
 				console.log(listTeams[i] + " " + yearly[index]);
-			}
+			}*/
 			/*if (xx == 0.01) {
 				console.log(s.homeWin / (s.homeWin + s.homeLoss));
 				console.log(s.awayWin / (s.awayWin + s.awayLoss));
@@ -632,13 +634,17 @@ function graph2() {
 		.text(function(d) { return "AUS home wins"; });
 
 	}
-
+	d3.selectAll('#matchview').append('h4').attr('class','remove').text('Team Periods Where Only Home Games Were Won:');
 	 function update1() {
 		 svg.selectAll('circle').transition().delay(function(){return Math.random() * 300 + 100})
 		 .attr("r", function(d){
 			 if (showYear !== 'All' && d.data.year != showYear) return 0;
 			 return d.r;}
 		 );
+		 var mmm = d3.selectAll('#matchview').selectAll('p').data(infiniteWin);
+		 mmm.enter().append('p').attr('class','remove toHighlight');
+		 mmm.text(function(d){return d.name + " (" + d.year + ")" ;}).style('color', function(d) {return isNewZealand[d.name] ? 'SteelBlue': 'Tomato';});
+		 mmm.exit().remove();
 	 }
 
 	 function update2() {
@@ -661,7 +667,7 @@ function graph2() {
 			 });
 			 yearly.push(tem);
 		 }
-
+		infiniteWin = [];
 		 var tree = {"name":"teams", "children":[]};
 		 for (var i = 0; i < listTeams.length; i++) {
 			 var e = listTeams[i];
@@ -669,6 +675,7 @@ function graph2() {
 			 yearly.forEach(function(e, index) {
 				 var s = e[i];
 				 var x = ((s.homeWin / (s.homeWin + s.homeLoss) ) / (s.awayWin / (s.awayWin + s.awayLoss)));
+				 if (!isFinite(x) && !isNaN(x)) infiniteWin.push(s);
 				 var xx = (isNumber(x) ? x : 0.01)
 				 t.push({"name": listTeams[i], "data": s, "size": xx});
 			 });
@@ -1463,7 +1470,7 @@ function forceDir() {
 	var start = null;
 	var end = null;
 	var oldEnd = null;
-	svg.append('text').attr('x', width - 5).attr('y', 0).attr('dy', '2em').style('text-anchor', 'end').style('font-size', '14px').text('Rivalries where each team has won at least some percentage').style('font-weight', 'bold');
+	svg.append('text').attr('x', width - 5).attr('y', 0).attr('dy', '4em').style('text-anchor', 'end').style('font-size', '14px').text('Rivalries where each team has won at least some percentage').style('font-weight', 'bold');
   var node = svg.selectAll(".force-node")
       .data(graph.nodes)
     .enter().append("circle")
@@ -1508,27 +1515,34 @@ function forceDir() {
 		showRival();
 	  
 	  });
-  node.append("title")
+	  node.append("title")
       .text(function(d) { return d.name; });
 
-
+/*	var closest10Games = c.sort(function(a,b) { 
+		  var scoreHome = parseInt(a.Score.split('-')[0], 10);
+		  var scoreAway = parseInt(a.Score.split('-')[1], 10);
+		  var scoreH = parseInt(b.Score.split('-')[0], 10);
+		  var scoreA = parseInt(b.Score.split('-')[1], 10);
+		  return Math.abs(scoreHome-scoreAway) - Math.abs(scoreH-scoreA);
+	  }).slice(0,10);
 
 	var y = d3.scale.ordinal()
-	.domain(graph1.map(function(e){return e.name;}).slice(0,10))
+	.domain([0,1,2,3,4,5,6,7,8,9,10])
 	.rangeRoundBands([height/2, height], .1);
 
 	var x = d3.scale.ordinal()
-	.domain(graph1.map(function(e){return e.name;}).slice(0,10))
+	.domain([0,1,2,3,4,5,6,7,8,9,10])
 	.rangeRoundBands([20, 100]);
 
-	svg.selectAll('.rivalBars')
-	.data(graph1.slice(0,10))
-	.enter().append('svg:line')
-	.attr('x1', 0)
-	.attr('y1', function(d) {return y(d.name);})
-	.attr('x2', function(d) {return x(d.name);})
-	.attr('y2', function(d) {return y(d.name);}).style('stroke', 'black');
+	svg.append('text').style('text-anchor', 'start').text('10 Closest Matches').style('font-weight','bold')
+	.attr('x', '10px')
+	.attr('y', function(d) {return y(0);});
 
+	svg.selectAll('.rivalBars')
+	.data(closest10Games)
+	.enter().append('text').style('text-anchor', 'start').text(function(d) { return d['Home Team'] + " " + d.Score + " " + d['Away Team'];})
+	.attr('x', '10px')
+	.attr('y', function(d,i) {return y(i+1);}).append('line').attr('x1', 0).attr('x2', 100).attr('y', function(d,i) {return y(i+1);});*/
 
 	function update() {
 		c = [];	
@@ -1902,6 +1916,20 @@ function graph6() {
 		return y(d); 
 	})
 
+	var titleDiv = d3.select('#chart').append('div').attr('class','remove').style('padding-top', '20px').style('text-align', 'center').html('<h2>Team: <span id="teamname">' + sTeam + '</span></h2>');
+	titleDiv.select('#teamname').style('color', isNewZealand[sTeam] ? 'Blue' : 'Red');
+	var select = titleDiv.append('div').attr('class','remove').append('select').on('change', function(e){sTeam = this.value;d3.select('#teamname').html(sTeam);titleDiv.select('#teamname').style('color', isNewZealand[sTeam] ? 'Blue' : 'Red');
+});
+
+	select.selectAll('option')
+	.data(listTeams.slice().sort()).enter()
+	.append('option')
+	.attr('value', function(e){ 
+		return e;})
+		.text(function(d){return d;});
+	
+	select.property('value', sTeam);
+
 	// Add an SVG element with the desired dimensions and margin.
 	var graph = d3.select("#chart").append("svg:svg")
 	.attr("width", w + m[1] + m[3])
@@ -2053,8 +2081,6 @@ function graph6() {
 }
 
 function sssssss() {
-
-
 				var gradient = gg.append("svg:defs")
 				.append("svg:linearGradient")
 				.attr("id", "gradient")

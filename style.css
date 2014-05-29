@@ -165,3 +165,7 @@ div {
 body {
 	font-family: sans-serif;
 }
+
+.toHighlight:hover {
+	color:GreenYellow !important;
+}
