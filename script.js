@@ -25,6 +25,7 @@ var sTeam = 'Melbourne Vixens';
 var teamCol = "None";
 var sVenue = null;
 var sVenueTemp = "";
+var sorter = 'Default sort';
 
 var rival1 = null;
 var rival2 = null;
@@ -142,6 +143,20 @@ function graph1() {
 	
 	var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
 	data1.sort(currentSort.sort);
+	
+	if (sorter === 'Default sort') {
+		// do nothing 
+	} else {
+		var aus = data1.filter(function(e) {return !isNewZealand[e.name];});
+		var nz = data1.filter(function(e) {return isNewZealand[e.name];});
+		if (sorter == 'AUS High-low, NZ High-low') {
+			data1 = aus.concat(nz);
+		} else if (sorter == 'AUS High-low, NZ Low-high') {
+			data1 = aus.concat(nz.reverse());
+		} else {
+			data1 = aus.reverse().concat(nz);
+		}
+	}
 
 	var data = data1.map(currentSort.map);
 	console.log(data);
@@ -207,6 +222,20 @@ function graph1() {
 		d3.selectAll('.opt').classed('selected', function(d) {return d.name===currentSort.name;});
 		(function (){var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
 		data1.sort(currentSort.sort);
+
+		if (sorter === 'Default sort') {
+			// do nothing 
+		} else {
+			var aus = data1.filter(function(e) {return !isNewZealand[e.name];});
+			var nz = data1.filter(function(e) {return isNewZealand[e.name];});
+			if (sorter == 'AUS High-low, NZ High-low') {
+				data1 = aus.concat(nz);
+			} else if (sorter == 'AUS High-low, NZ Low-high') {
+				data1 = aus.concat(nz.reverse());
+			} else {
+				data1 = aus.reverse().concat(nz);
+			}
+		}
 
 		var data = data1.map(currentSort.map);
 		console.log(data);
@@ -276,7 +305,7 @@ function otherhalf() {
 
 	var divv = d3.select('#matchview').append('div').attr('class', 'remove');
 
-	var x = d3.time.scale().range([0, width]).distortion(0),
+	var x = d3.time.scale().range([0, width]),
 	x2 = d3.time.scale().range([0, width]),
 	y = d3.scale.ordinal().rangeRoundBands([0,height], .1),
 	y2 = d3.scale.ordinal().range([0, height2]);
@@ -1227,9 +1256,19 @@ d3.csv('2008-Table1.csv', function(e){
 							.attr('value', function(d) {return d;})
 							.text(function(d) {return d;});
 
+							var select = d3.selectAll('#chart').append('select').attr('id', 'sortmethod').attr('class', 'picker').style('margin','5px');
 
+							select.node().addEventListener('change', function(e) {sorter = this.value;});
+
+							select.selectAll('option')
+							.data(['Default sort','AUS High-low, NZ High-low', 'AUS High-low, NZ Low-high', 'AUS Low-high, NZ High-low'])
+							.enter().append('option')
+							.attr('value', function(d) {return d;})
+							.text(function(d) {return d;});
+
+							select.property('value', 'Default sort');
 							// create graph 1
-							graph1();
+							switchTo('overall');
 							//graph1();
 							/*d3.selectAll('svg').on('click', function(e){
 								d3.selectAll('svg').remove();
@@ -1256,6 +1295,7 @@ function switchTo(mode) {
 	d3.selectAll('.remove').remove();
 	d3.selectAll('.horizontal li').classed('selected', false);
 	d3.selectAll('#selectCol').style('display', 'inline');
+	d3.selectAll('#sortmethod').style('display', 'none');
 	if (mode === 'venue') {
 		graph3();
 		d3.select('#venueview').classed('selected', true);
@@ -1272,6 +1312,7 @@ function switchTo(mode) {
 		forceDir();	
 		d3.select('#rivalview').classed('selected', true);
 	} else if (mode === 'overall') {
+		d3.selectAll('#sortmethod').style('display', 'inline');
 		graph1();	
 		d3.select('#overview').classed('selected', true);
 	}
@@ -1553,7 +1594,7 @@ function forceDir() {
 	var start = null;
 	var end = null;
 	var oldEnd = null;
-	svg.append('text').attr('x', width - 5).attr('y', 0).attr('dy', '4em').style('text-anchor', 'end').style('font-size', '14px').text('Rivalries where each team has won at least some percentage').style('font-weight', 'bold');
+	svg.append('text').attr('x', width - 5).attr('y', 0).attr('dy', '4em').style('text-anchor', 'end').style('font-size', '14px').text('Rivalries Where Each Team Has Won At Least Some Percentage').style('font-weight', 'bold');
   var node = svg.selectAll(".force-node")
       .data(graph.nodes)
     .enter().append("circle")
