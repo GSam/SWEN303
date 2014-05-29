@@ -95,6 +95,12 @@ div.horizontal li {
 
 div.horizontal li:hover {
 	background-color:blue;
+	color:GreenYellow;
+}
+
+div.horizontal .selected {
+	background-color:blue;
+	color:GreenYellow;
 }
 
 div.horizontal li {

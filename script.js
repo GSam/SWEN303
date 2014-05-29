@@ -260,7 +260,7 @@ function otherhalf() {
 	.x(function(d) { return x2(d.date); })
 	//.y0(height2)
 	.y(function(d) { return y2(d.price); });
-	d3.select('#matchview').append('div').attr('class', 'remove').append('h2').text('MATCH VIEWER').style('padding-top', '50px');
+	d3.select('#matchview').append('div').attr('class', 'remove').append('h2').text('MATCH VIEWER - Timeline of all games').style('padding-top', '50px');
 	var svg = d3.select("#matchview").append("svg")
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom);
@@ -1166,19 +1166,25 @@ function switchTo(mode) {
 	// do some switching code
 	d3.selectAll('svg').remove();
 	d3.selectAll('.remove').remove();
+	d3.selectAll('.horizontal li').classed('selected', false);
 	d3.selectAll('#selectCol').style('display', 'inline');
 	if (mode === 'venue') {
 		graph3();
+		d3.select('#venueview').classed('selected', true);
 	} else if (mode === 'team') {
 		d3.selectAll('#selectCol').style('display', 'none');
 		graph6();
 		graph5('Central Pulse');
+		d3.select('#teamview').classed('selected', true);
 	} else if (mode === 'home') {
 		graph2();	
+		d3.select('#homeview').classed('selected', true);
 	} else if (mode === 'rival') {
 		forceDir();	
+		d3.select('#rivalview').classed('selected', true);
 	} else if (mode === 'overall') {
 		graph1();	
+		d3.select('#overview').classed('selected', true);
 	}
 	window.scrollTo(0, 0);
 }
@@ -1619,41 +1625,41 @@ function forceDir() {
 	.on('zoomend', function(){ d3.timer(function(){svg.selectAll('#per').style('font', '32px sans-serif');}, 600);});
 
 
-  force.on("tick", function() {
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+	force.on("tick", function() {
+		link.attr("x1", function(d) { return d.source.x; })
+		.attr("y1", function(d) { return d.source.y; })
+		.attr("x2", function(d) { return d.target.x; })
+		.attr("y2", function(d) { return d.target.y; });
 
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-  });
+		node.attr("cx", function(d) { return d.x; })
+		.attr("cy", function(d) { return d.y; });
+	});
 	svg.call(zoomer);
-svg.on('dblclick.zoom', null);
+	svg.on('dblclick.zoom', null);
 
 	d3.selectAll('.picker').on('change', function(e){update();});
 
-showRival();
+	showRival();
 
-if (rival1 !== null && d3.selectAll('.force-node selected').empty()) {
-	start = rival1;
-	d3.selectAll('.force-node').classed('selected', function(d) {return d.name == rival1;});
-	d3.selectAll('.force-node').classed('selected', function(d) {if ( d.name === rival2 ) {oldEnd = d3.select(this); return true;} return d.name === rival1;});
-}
-	
-/*  d3.select('body').on("keydown", function() {
-var r = [10 / 2, -10 / 2, projection.rotate()[2]]; s = projection.rotate(r);console.log(projection.rotate(r)); 
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+	if (rival1 !== null && d3.selectAll('.force-node selected').empty()) {
+		start = rival1;
+		d3.selectAll('.force-node').classed('selected', function(d) {return d.name == rival1;});
+		d3.selectAll('.force-node').classed('selected', function(d) {if ( d.name === rival2 ) {oldEnd = d3.select(this); return true;} return d.name === rival1;});
+	}
 
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+	/*  d3.select('body').on("keydown", function() {
+		var r = [10 / 2, -10 / 2, projection.rotate()[2]]; s = projection.rotate(r);console.log(projection.rotate(r)); 
+		link.attr("x1", function(d) { return d.source.x; })
+		.attr("y1", function(d) { return d.source.y; })
+		.attr("x2", function(d) { return d.target.x; })
+		.attr("y2", function(d) { return d.target.y; });
 
-	force.start();
-	
-  });*/
+		node.attr("cx", function(d) { return d.x; })
+		.attr("cy", function(d) { return d.y; });
+
+		force.start();
+
+		});*/
 }
 
 function readd(a) {
