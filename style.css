@@ -142,9 +142,9 @@ div.horizontal ul {
   margin-right: 90px;
 }
 
-/*.node circle:hover {
-	opacity:0.8;
-}*/
+.node circle:hover {
+	opacity:0.8 !important;
+}
 
 .paths.selected {
   fill: GreenYellow !important;

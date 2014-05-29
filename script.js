@@ -1,4 +1,4 @@
-/* Garming Sam 300198721 
+/* Garming Sam 
  *
  * SWEN303 Data Visualization Project
  *
@@ -526,8 +526,7 @@ function graph2() {
 	  .attr("dy", ".3em")
 	  .style("text-anchor", "middle")
 	  .style("font", "10px sans-serif").attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";})
-	  .text(function(d) { return d.className.substring(0, d.r / 3); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).style('cursor', 'default').append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
-
+	  .text(function(d) { return d.className.substring(0, d.r / 3); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).on('mouseover', function(d){node.selectAll('circle').filter(function(e){console.log(e); return e.packageName == d.packageName && d.data.year == e.data.year;}).attr('opacity', 0.8);}).on('mouseout', function(d){node.selectAll('circle').filter(function(e){console.log(e); return e.packageName == d.packageName && d.data.year == e.data.year;}).attr('opacity', 1);}).style('cursor', 'default').append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
 	  // Returns a flattened hierarchy containing all leaf nodes under the root.
 	  function classes(root) {
 		  var classes = [];
