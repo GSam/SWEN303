@@ -169,3 +169,7 @@ body {
 .toHighlight:hover {
 	color:GreenYellow !important;
 }
+
+.opac:hover {
+	opacity: 0.2;
+}

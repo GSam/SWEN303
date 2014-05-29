@@ -514,21 +514,63 @@ function graph2() {
 	  .attr("class", "bubble");
 
 	  svg.append('title').text('Ratio of Home Wins to Away Wins');
+	  svg.append('text').text('Right click a bubble to compare').attr('x', diameter).attr('y', diameter).attr('dy', '-1em').style('text-anchor', 'end');
 
 	  var node = svg.append('g').attr('class', 'node');
 
 /*	  node.selectAll('title').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; })).enter().append("title")
 	  .text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});*/
-
+	  var bubbleOpen = null;
 	  node.selectAll('circle').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; })).enter().append("circle")
 	  .attr("r", 0)
-	  .style("fill", function(d) { return (teamCol === 'None' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato'));}).on('mouseover', function(e){ console.log(e); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";}).append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
+	  .style("fill", function(d) { return (teamCol === 'None' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato'));})
+	  //.on('mouseover', function(e){ console.log(e); })
+	  .on('click', function(e) {sTeam = e.packageName; switchTo('team');})
+	  .on('contextmenu', function(e) {
+			d3.event.preventDefault();
+			d3.selectAll('.toRemove').remove();
+			if (bubbleOpen === e.packageName) {bubbleOpen = null; return};
+			bubbleOpen = e.packageName;
+	  		var list = []; 
+			d3.selectAll('circle').filter(function(d){return d.packageName === e.packageName;}).each(function(e){list.push(e.data);}); 
+			// now we have a list of teams
+			list.sort(function(a,b){return a.year - b.year;});
+
+			var hWin = list.map(function(e) {return e.homeWin / (e.homeWin + e.homeLoss);});
+			var aWin = list.map(function(e) {return e.awayWin / (e.awayWin + e.awayLoss);});
+			hWin = hWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} );
+			aWin = aWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} );
+			graph.append('path').attr('class', 'toRemove labels').attr('d', line(hWin)).attr('fill','none').style('stroke', 'orange').style('stroke-width', '2px');
+			graph.append('path').attr('class', 'toRemove labels').attr('d', line(aWin)).attr('fill','none').style('stroke', 'gold').style('stroke-width', '2px');
+			graph.append('text').attr('class', 'toRemove labels').attr('x', 0).attr('y', y(hWin[0])).style('text-anchor', 'start').text(e.packageName + ' Home Wins');
+			graph.append('text').attr('class', 'toRemove labels').attr('x', 0).attr('y', y(aWin[0])).style('text-anchor', 'start').text(e.packageName + ' Away Wins');
+	  })
+	  .attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";}).append('svg:title').text(function(d) { /*console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); */return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
 
 	  node.selectAll('text').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; })).enter().append("text")
 	  .attr("dy", ".3em")
 	  .style("text-anchor", "middle")
 	  .style("font", "10px sans-serif").attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";})
-	  .text(function(d) { return d.className.substring(0, d.r / 3); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).on('mouseover', function(d){node.selectAll('circle').filter(function(e){console.log(e); return e.packageName == d.packageName && d.data.year == e.data.year;}).attr('opacity', 0.8);}).on('mouseout', function(d){node.selectAll('circle').filter(function(e){console.log(e); return e.packageName == d.packageName && d.data.year == e.data.year;}).attr('opacity', 1);}).style('cursor', 'default').append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
+	  .on('contextmenu', function(e) {
+			d3.event.preventDefault();
+			d3.selectAll('.toRemove').remove();
+			if (bubbleOpen === e.packageName) {bubbleOpen = null; return};
+			bubbleOpen = e.packageName;
+	  		var list = []; 
+			d3.selectAll('circle').filter(function(d){return d.packageName === e.packageName;}).each(function(e){list.push(e.data);}); 
+			// now we have a list of teams
+			list.sort(function(a,b){return a.year - b.year;});
+
+			var hWin = list.map(function(e) {return e.homeWin / (e.homeWin + e.homeLoss);});
+			var aWin = list.map(function(e) {return e.awayWin / (e.awayWin + e.awayLoss);});
+			hWin = hWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} );
+			aWin = aWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} );
+			graph.append('path').attr('class', 'toRemove labels').attr('d', line(hWin)).attr('fill','none').style('stroke', 'orange').style('stroke-width', '2px');
+			graph.append('path').attr('class', 'toRemove labels').attr('d', line(aWin)).attr('fill','none').style('stroke', 'gold').style('stroke-width', '2px');
+			graph.append('text').attr('class', 'toRemove labels').attr('x', 0).attr('y', y(hWin[0])).style('text-anchor', 'start').text(e.packageName + ' Home Wins');
+			graph.append('text').attr('class', 'toRemove labels').attr('x', 0).attr('y', y(aWin[0])).style('text-anchor', 'start').text(e.packageName + ' Away Wins');
+	  })
+	  .text(function(d) { return d.className.substring(0, d.r / 3); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).on('mouseover', function(d){node.selectAll('circle').filter(function(e){/*console.log(e); */return e.packageName == d.packageName && d.data.year == e.data.year;}).attr('opacity', 0.8);}).on('mouseout', function(d){node.selectAll('circle').filter(function(e){/*console.log(e); */return e.packageName == d.packageName && d.data.year == e.data.year;}).attr('opacity', 1);}).style('cursor', 'default').append('svg:title').text(function(d) { /*console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value)));*/ return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
 	  // Returns a flattened hierarchy containing all leaf nodes under the root.
 	  function classes(root) {
 		  var classes = [];
@@ -600,13 +642,14 @@ function graph2() {
 		var vv = graph.selectAll('.linepath').data([NZhomeWin, NZawayWin, AUhomeWin, AUawayWin]); 
 		vv.enter().append('path').attr('class', 'linepath');
 
-		vv.transition().delay(200).attr('d', function(d){console.log(d); return line(d);}).style("stroke", function(d,i){ return ['Blue', 'PowderBlue', 'Red', 'LightSalmon'][i];}).style("stroke-width","2").style("fill", "none");
+		vv.transition().delay(200).attr('d', function(d){/*console.log(d);*/ return line(d);}).style("stroke", function(d,i){ return ['Blue', 'PowderBlue', 'Red', 'LightSalmon'][i];}).style("stroke-width","2").style("fill", "none");
 		//graph.append("svg:path").attr("d", line(NZhomeWin));
 		//graph.append("svg:path").attr("d", line(NZawayWin)).style("stroke","PowderBlue").style("stroke-width","2").style("fill", "none");
 		//graph.append("svg:path").attr("d", line(AUhomeWin)).style("stroke","Red").style("stroke-width","2").style("fill", "none");
 		//graph.append("svg:path").attr("d", line(AUawayWin)).style("stroke","LightSalmon").style("stroke-width","2").style("fill", "none");
 
 		graph.selectAll('.labels').remove();
+		bubbleOpen = null;
 		graph.append("text").attr('class', 'labels')
 		.attr("transform", function(d) { return "translate(" + x(2013) + "," + (y(NZhomeWin[NZhomeWin.length-1]) - 4) + ")"; })
 		.attr("x", 3)
@@ -643,7 +686,8 @@ function graph2() {
 		 );
 		 var mmm = d3.selectAll('#matchview').selectAll('p').data(infiniteWin);
 		 mmm.enter().append('p').attr('class','remove toHighlight');
-		 mmm.text(function(d){return d.name + " (" + d.year + ")" ;}).style('color', function(d) {return isNewZealand[d.name] ? 'SteelBlue': 'Tomato';});
+		 mmm.text(function(d){return d.name + " (" + d.year + ")" ;}).style('color', function(d) {if (teamCol == 'None') return 'black';return isNewZealand[d.name] ? 'Blue': 'Red';})
+		 .on('click', function(d) { sTeam = d.name; switchTo('team');});
 		 mmm.exit().remove();
 	 }
 
@@ -698,6 +742,11 @@ function graph2() {
 	 function update3() {
 		 node.selectAll('circle')//.style('stroke', function(e) { return (teamCol === 'None' ? 'none' : (isNewZealand[e.packageName] ? 'blue':'red'));});
  .style("fill", function(d) {  return (teamCol === 'None' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato')) ; })
+		 var mmm = d3.selectAll('#matchview').selectAll('p').data(infiniteWin);
+		 mmm.enter().append('p').attr('class','remove toHighlight');
+		 mmm.text(function(d){return d.name + " (" + d.year + ")" ;}).style('color', function(d) {if (teamCol == 'None') return 'black';return isNewZealand[d.name] ? 'Blue': 'Red';})
+		 .on('click', function(d) { sTeam = d.name; switchTo('team');});
+		 mmm.exit().remove();
 	 }
 
 	 update1();
@@ -1186,6 +1235,7 @@ function switchTo(mode) {
 		graph2();	
 		d3.select('#homeview').classed('selected', true);
 	} else if (mode === 'rival') {
+		d3.selectAll('#selectCol').style('display', 'none');
 		forceDir();	
 		d3.select('#rivalview').classed('selected', true);
 	} else if (mode === 'overall') {
@@ -1518,31 +1568,49 @@ function forceDir() {
 	  node.append("title")
       .text(function(d) { return d.name; });
 
-/*	var closest10Games = c.sort(function(a,b) { 
-		  var scoreHome = parseInt(a.Score.split('-')[0], 10);
-		  var scoreAway = parseInt(a.Score.split('-')[1], 10);
-		  var scoreH = parseInt(b.Score.split('-')[0], 10);
-		  var scoreA = parseInt(b.Score.split('-')[1], 10);
-		  return Math.abs(scoreHome-scoreAway) - Math.abs(scoreH-scoreA);
-	  }).slice(0,10);
-
 	var y = d3.scale.ordinal()
 	.domain([0,1,2,3,4,5,6,7,8,9,10])
 	.rangeRoundBands([height/2, height], .1);
 
 	var x = d3.scale.ordinal()
 	.domain([0,1,2,3,4,5,6,7,8,9,10])
-	.rangeRoundBands([20, 100]);
+	.rangeRoundBands([40, 120]);
 
 	svg.append('text').style('text-anchor', 'start').text('10 Closest Matches').style('font-weight','bold')
 	.attr('x', '10px')
 	.attr('y', function(d) {return y(0);});
 
-	svg.selectAll('.rivalBars')
+	var closest10Games = c.sort(function(a,b) { 
+		var scoreHome = parseInt(a.Score.split('-')[0], 10);
+		var scoreAway = parseInt(a.Score.split('-')[1], 10);
+		var scoreH = parseInt(b.Score.split('-')[0], 10);
+		var scoreA = parseInt(b.Score.split('-')[1], 10);
+		if (scoreHome === scoreAway) return 1;
+		if (scoreH === scoreA) return -1;
+		return Math.abs(scoreHome-scoreAway) - Math.abs(scoreH-scoreA);
+	}).slice(0,10);
+	var hh = svg.selectAll('.rivalBars')
 	.data(closest10Games)
-	.enter().append('text').style('text-anchor', 'start').text(function(d) { return d['Home Team'] + " " + d.Score + " " + d['Away Team'];})
-	.attr('x', '10px')
-	.attr('y', function(d,i) {return y(i+1);}).append('line').attr('x1', 0).attr('x2', 100).attr('y', function(d,i) {return y(i+1);});*/
+	.enter().append('g').attr('class','opac').on('click', function(d) {
+		rival1 = d['Home Team'];
+		start = rival1;
+		rival2 = d['Away Team'];
+		d3.selectAll('.force-node').classed('selected', function(d) {return d.name == rival1;});
+		d3.selectAll('.force-node').classed('selected', function(d) {if ( d.name === rival2 ) {oldEnd = d3.select(this); return true;} return d.name === rival1;});
+		showRival();
+	});
+	hh.append('rect').attr('x', 0).attr('y', function(d,i) {return y(i+1) - y.rangeBand()/2;}).attr('width', 120).attr('height', y.rangeBand()).style('fill','white');
+	hh.append('title').text(function(d) {return d['Home Team'] + " " + d.Score + " " + d['Away Team'];});
+	hh.append('text').style('text-anchor', 'start').text(function(d) {return parseInt(d.Score.split('-')[0], 10); return d['Home Team'] + " " + d.Score + " " + d['Away Team'];})
+	.attr('x', function(d,i) {return 10;})
+	.attr('y', function(d,i) {return y(i+1);}).append('line').attr('x1', 0).attr('x2', 100).attr('y', function(d,i) {return y(i+1);});
+
+	hh.append('text').style('text-anchor', 'end').text(function(d) {return parseInt(d.Score.split('-')[1], 10); return d['Home Team'] + " " + d.Score + " " + d['Away Team'];})
+	.attr('x', function(d,i) {return x(i+1);})
+	.attr('y', function(d,i) {return y(i+1);}).append('line').attr('x1', 0).attr('x2', 100).attr('y', function(d,i) {return y(i+1);});
+
+	hh.append('line').attr('x1', 10).attr('x2', function(d,i) {return x(i+1);}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) {return isNewZealand[d['Home Team']] ? 'blue': 'red'});
+	hh.append('line').attr('x1', 10).attr('x2', function(d,i) {return 10 + (x(i+1) - 10)/2;}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) { return isNewZealand[d['Away Team']] ? 'blue': 'red'});
 
 	function update() {
 		c = [];	
@@ -1587,6 +1655,41 @@ function forceDir() {
 	
 		force.links(graph1);
 		force.start();
+
+		var closest10Games = c.sort(function(a,b) { 
+			var scoreHome = parseInt(a.Score.split('-')[0], 10);
+			var scoreAway = parseInt(a.Score.split('-')[1], 10);
+			var scoreH = parseInt(b.Score.split('-')[0], 10);
+			var scoreA = parseInt(b.Score.split('-')[1], 10);
+			if (scoreHome === scoreAway) return 1;
+			if (scoreH === scoreA) return -1;
+			return Math.abs(scoreHome-scoreAway) - Math.abs(scoreH-scoreA);
+		}).slice(0,10);
+		svg.selectAll('.opac').remove();
+		var ggg = svg.selectAll('.rivalBars')
+		.data(closest10Games)
+		var hh = ggg.enter().append('g').attr('class','opac').on('click', function(d) {
+			rival1 = d['Home Team'];
+			start = rival1;
+			rival2 = d['Away Team'];
+			d3.selectAll('.force-node').classed('selected', function(d) {return d.name == rival1;});
+			d3.selectAll('.force-node').classed('selected', function(d) {if ( d.name === rival2 ) {oldEnd = d3.select(this); return true;} return d.name === rival1;});
+			showRival();
+		});
+		hh.append('rect').attr('x', 0).attr('y', function(d,i) {return y(i+1) - y.rangeBand()/2;}).attr('width', 120).attr('height', y.rangeBand()).style('fill','white');
+		hh.append('title').text(function(d) {return d['Home Team'] + " " + d.Score + " " + d['Away Team'];});
+	hh.append('text').style('text-anchor', 'start').text(function(d) {return parseInt(d.Score.split('-')[0], 10); return d['Home Team'] + " " + d.Score + " " + d['Away Team'];})
+	.attr('x', function(d,i) {return 10;})
+	.attr('y', function(d,i) {return y(i+1);}).append('line').attr('x1', 0).attr('x2', 100).attr('y', function(d,i) {return y(i+1);});
+
+	hh.append('text').style('text-anchor', 'end').text(function(d) {return parseInt(d.Score.split('-')[1], 10); return d['Home Team'] + " " + d.Score + " " + d['Away Team'];})
+	.attr('x', function(d,i) {return x(i+1);})
+	.attr('y', function(d,i) {return y(i+1);}).append('line').attr('x1', 0).attr('x2', 100).attr('y', function(d,i) {return y(i+1);});
+
+	hh.append('line').attr('x1', 10).attr('x2', function(d,i) {return x(i+1);}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) {return isNewZealand[d['Home Team']] ? 'blue': 'red'});
+	hh.append('line').attr('x1', 10).attr('x2', function(d,i) {return 10 + (x(i+1) - 10)/2;}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) { return isNewZealand[d['Away Team']] ? 'blue': 'red'});
+		console.log(closest10Games);
+
 		showRival();
 	}
 
@@ -1660,6 +1763,9 @@ function forceDir() {
 		d3.selectAll('.force-node').classed('selected', function(d) {if ( d.name === rival2 ) {oldEnd = d3.select(this); return true;} return d.name === rival1;});
 	}
 
+
+
+	
 	/*  d3.select('body').on("keydown", function() {
 		var r = [10 / 2, -10 / 2, projection.rotate()[2]]; s = projection.rotate(r);console.log(projection.rotate(r)); 
 		link.attr("x1", function(d) { return d.source.x; })
