@@ -188,3 +188,7 @@ g.opt:hover{
 	fill:black;
 	fill-opacity:0.1;
 }
+g.opt.selected{
+	fill:black;
+	fill-opacity:0.1;
+}

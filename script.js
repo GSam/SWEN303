@@ -31,6 +31,9 @@ var rival2 = null;
 
 var isNewZealand = {'Central Pulse':true, 'Queensland Firebirds':false, 'Northern Mystics':true, 'Waikato Bay of Plenty Magic':true, 'New South Wales Swifts':false, 'Canterbury Tactix':true, 'Melbourne Vixens':false, 'West Coast Fever':false, 'Adelaide Thunderbirds':false, 'Southern Steel':true}
 var listTeams = ['Central Pulse', 'Queensland Firebirds', 'Northern Mystics', 'Waikato Bay of Plenty Magic', 'New South Wales Swifts', 'Canterbury Tactix', 'Melbourne Vixens', 'West Coast Fever', 'Adelaide Thunderbirds', 'Southern Steel']
+var mList = listTeams.slice();
+var nList = listTeams.slice();
+
 var listYears = [2008, 2009, 2010, 2011, 2012, 2013];
 
 var colors = ["Gold", "Silver", "#CD7F32", "SlateGrey"]
@@ -129,23 +132,28 @@ function winRatio(a,b) {
 	}
 	return b.wins/(b.wins + b.losses) - a.wins/(a.wins + a.losses);
 }
-var currentSort = null;
+var currentSort = {'name':'%', 'des':'Win Proportion', 'sort':winRatio, 'map':function(e){return e.wins/(e.wins+e.losses);}};
 function graph1() {
 
 	var margin = {top: 20, right: 110, bottom: 30, left: 180},
 	width = 970 - margin.left - margin.right,
 	height = 500 - margin.top - margin.bottom;
-
+	
+	
 	var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
-	data1.sort(winRatio);
+	data1.sort(currentSort.sort);
 
-	var data = data1.map(function(e) {return e.wins/(e.wins + e.losses);});
+	var data = data1.map(currentSort.map);
 	console.log(data);
 	console.log(data1);
 
+	nList = data1.map(function(e){return e.name;});
+
 	var x = d3.scale.linear()
-	.domain([0, d3.max(data, function(e){return e;})])
+	.domain(currentSort.name === 'pts' || currentSort.name ==='+/-' ? d3.extent(data) : [0, d3.max(data, function(e){return e;})])
 	.range([0, width]);
+
+	if (currentSort.name === 'pts' || currentSort.name =='+/-') x.nice();
 
 	var y = d3.scale.ordinal()
 	.domain(data1.map(function(e){return e.name;}))
@@ -177,9 +185,10 @@ function graph1() {
 
 	//var color = d3.scale.category10();
 	bs.selectAll('rect').data(data).enter().append("rect").attr('class', 'bar')
-	.attr("width", function(d) {if (!isNumber(d)) return 0; return x(d);})
+	.attr("width", function(d) {if (currentSort.name ==='+/-') return Math.abs(x(d) - x(0)); if (!isNumber(d)) return 0; test = x;console.log(x(d) + " " + d);return x(d);})
 	.attr("height", y.rangeBand()).style('fill', function(d, i) {return (teamCol === 'None' ? 'steel blue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
-	.attr('y', function(d, i) {return y(data1[i].name);}).on('click', function(e,i) {sTeam = data1[i].name; switchTo('team');});
+	.attr('y', function(d, i) {return y(data1[i].name);}).on('click', function(e,i) {sTeam = data1[i].name; switchTo('team');})
+	.attr('x', function(d){if (currentSort.name==='+/-') return x(Math.min(0, d)); return 0;})
 
 	bs.selectAll('text').data(data).enter().append("text")
 	.attr("x", function(d) {if (!isNumber(d)) return 10;  return Math.max(x(d) - 6, 5); })
@@ -192,7 +201,10 @@ function graph1() {
 	ggg.append('text').html(function(d){return d.name;}).style('text-anchor', 'middle').attr('dy','0.3em');
 	ggg.append('title').text(function(d){return d.des;});
 
+	d3.selectAll('.opt').classed('selected', function(d) {return d.name===currentSort.name;});
+
 	function update() {
+		d3.selectAll('.opt').classed('selected', function(d) {return d.name===currentSort.name;});
 		(function (){var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
 		data1.sort(currentSort.sort);
 
@@ -200,6 +212,8 @@ function graph1() {
 		console.log(data);
 		console.log(data1);
 	
+		nList = data1.map(function(e){return e.name;});
+
 		console.log( d3.max(data, function(e){return e;}));
 		y.domain(data1.map(function(e){return e.name;}))
 		var yAxis = d3.svg.axis()
@@ -210,7 +224,7 @@ function graph1() {
 		
 		var x = d3.scale.linear()
 		.domain(currentSort.name === 'pts' || currentSort.name ==='+/-' ? d3.extent(data) : [0, d3.max(data, function(e){return e;})])
-		.range([0, width]);console.log(width);
+		.range([0, width]);
 		if (currentSort.name === 'pts' || currentSort.name =='+/-') x.nice();
 
 		bs.selectAll('rect').data(data)
@@ -260,7 +274,9 @@ function otherhalf() {
 
 	var parseDate = d3.time.format("%b %Y").parse;
 
-	var x = d3.fisheye.scale(d3.time.scale).range([0, width]).distortion(0),
+	var divv = d3.select('#matchview').append('div').attr('class', 'remove');
+
+	var x = d3.time.scale().range([0, width]).distortion(0),
 	x2 = d3.time.scale().range([0, width]),
 	y = d3.scale.ordinal().rangeRoundBands([0,height], .1),
 	y2 = d3.scale.ordinal().range([0, height2]);
@@ -282,10 +298,15 @@ function otherhalf() {
 	.x(function(d) { return x2(d.date); })
 	//.y0(height2)
 	.y(function(d) { return y2(d.price); });
-	d3.select('#matchview').append('div').attr('class', 'remove').append('h2').text('MATCH VIEWER - Timeline of All Games').style('padding-top', '50px');
-	var svg = d3.select("#matchview").append("svg")
+
+	var svg = d3.select("#matchview").append("svg").attr('class','remove')
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom);
+
+	divv.append('h2').text('MATCH VIEWER - Timeline of All Games').style('padding-top', '50px');
+	divv.append('input').attr('type', 'button').attr('value', 'Reorder teams to above order').on('click', function(e){
+	mList = nList;
+	d3.selectAll('.remove').remove(); otherhalf();});
 
 	svg.append("defs").append("clipPath")
 	.attr("id", "clip")
@@ -301,9 +322,9 @@ function otherhalf() {
 	.attr("class", "context")
 	.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 var data = [type({"date": "Apr 2008", "price":"Central Pulse"}),type({"date": "Mar 2008", "price":"New South Wales Swifts"}),type({"date": "Aug 2013", "price":"Queensland Firebirds"}) ];
-console.log(data);
+//console.log(data);
 		x.domain(d3.extent(data.map(function(d) { return d.date; })));
-		y.domain(listTeams);
+		y.domain(mList);
 		x2.domain(x.domain());
 		y2.domain(y.domain());
 		thisss = y
@@ -355,7 +376,7 @@ console.log(data);
 		.attr('cy', function(d,i) {;return y(d[1].price) + y.rangeBand()/2;})
 		.attr('r', 5).style('opacity', show ? 0.4 : 0);
 
-	var zoom = d3.behavior.zoom().scaleExtent([5,20])
+	/*var zoom = d3.behavior.zoom().scaleExtent([5,20])
     .on("zoom", function(){
 		x.distortion(d3.event.scale-5).focus(width/2);
 		focus.selectAll(".area").attr("d", area);
@@ -367,7 +388,7 @@ console.log(data);
 		.attr('cy', function(d,i) {return y(d[1].price) + y.rangeBand()/2;})
 		.attr('cx', function(d,i) {return x(d[0].date);})
     
-    });
+    });*/
 	svg.on('click', function(e) {show = !show; svg.selectAll('circle').style('opacity', show ? 0.4 : 0);});
 		context.append("g")
 		.attr("class", "x brush")
@@ -377,7 +398,7 @@ console.log(data);
 		.attr("height", height2 + 7);
 
 
-	svg.call(zoom);
+	/*svg.call(zoom);*/
 
 	function brushed() {
 		x.domain(brush.empty() ? x2.domain() : brush.extent());
