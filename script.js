@@ -127,8 +127,8 @@ function winRatio(a,b) {
 
 function graph1() {
 
-	var margin = {top: 20, right: 30, bottom: 30, left: 180},
-	width = 960 - margin.left - margin.right,
+	var margin = {top: 20, right: 110, bottom: 30, left: 180},
+	width = 970 - margin.left - margin.right,
 	height = 500 - margin.top - margin.bottom;
 
 	var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
@@ -181,6 +181,11 @@ function graph1() {
 	.attr('y', function(d, i) {return y(data1[i].name) + y.rangeBand()/2;})
 	.text(function(d) { return Math.round(d*100)/100; });
 
+	var ggg = chart.selectAll('.opt').data([{'name':'%', 'des':'Win Proportion'}, {'name':'&#10003;','des':'Win Count'}, {'name':'x','des':'Loss Count'}, {'name':'pts','des':'Points Scored'}, {'name':'+/-','des':'Wins - Losses'}]).enter().append('g').attr('class', 'opt').attr('transform', function(d,i) { return 'translate(' + (width+70) + "," +( i*height/5 + 50)+")";});
+	ggg.append('circle').attr('r', 30)
+	ggg.append('text').html(function(d){return d.name;}).style('text-anchor', 'middle').attr('dy','0.3em');
+	ggg.append('title').text(function(d){return d.des;});
+
 	function update() {
 		var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
 		data1.sort(winRatio);
@@ -194,19 +199,23 @@ function graph1() {
 		var yAxis = d3.svg.axis()
 		.scale(y)
 		.orient("left");
-		sss.call(yAxis);
+
+		sss.transition().duration(300).call(yAxis).selectAll('g').delay(function(d,i) {return i * 100;});
 		
 		var x = d3.scale.linear()
 		.domain([0, d3.max(data, function(e){return e;})])
 		.range([0, width]);console.log(width);
 
 		bs.selectAll('rect').data(data)
+		.transition().delay(function(d,i) {return i * 50;})
+		.attr('y', function(d, i) {return y(data1[i].name);}).style('fill', function(d, i) {return (teamCol === 'None' ? 'steelblue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
+		.each('end',function() {
+		d3.select(this).transition()
 		.attr("width", function(d) {if (!isNumber(d)) return 0; test = x;console.log(x(d) + " " + d);return x(d);})
-		.attr("height", y.rangeBand()).style('fill', function(d, i) {return (teamCol === 'None' ? 'steelblue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
-
-		.attr('y', function(d, i) {return y(data1[i].name);});
+		.attr("height", y.rangeBand())});
 
 		bs.selectAll('text').data(data)
+		.transition().delay(function(d,i) {return i * 50;})
 		.attr("x", function(d) {if (!isNumber(d)) return 10;  return Math.max(x(d) - 6, 5); })
 		.attr("dy", ".35em")
 		.attr('y', function(d, i) {return y(data1[i].name) + y.rangeBand()/2;})
@@ -248,8 +257,8 @@ function otherhalf() {
 
 	var x = d3.fisheye.scale(d3.time.scale).range([0, width]).distortion(0),
 	x2 = d3.time.scale().range([0, width]),
-	y = d3.scale.ordinal().rangeRoundBands([height, 0], .1),
-	y2 = d3.scale.ordinal().range([height2, 0]);
+	y = d3.scale.ordinal().rangeRoundBands([0,height], .1),
+	y2 = d3.scale.ordinal().range([0, height2]);
 
 	var xAxis = d3.svg.axis().scale(x).orient("bottom"),
 	xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
@@ -260,13 +269,11 @@ function otherhalf() {
 	.on("brush", brushed);
 
 	var area = d3.svg.line()
-	.interpolate("monotone")
 	.x(function(d) { return x(d.date); })
 	//.y0(height)
 	.y(function(d) { return y(d.price) + y.rangeBand()/2; });
 
 	var area2 = d3.svg.line()
-	.interpolate("monotone")
 	.x(function(d) { return x2(d.date); })
 	//.y0(height2)
 	.y(function(d) { return y2(d.price); });
@@ -305,13 +312,6 @@ console.log(data);
 		.attr("class", "x axis")
 		.attr("transform", "translate(0," + height2 + ")")
 		.call(xAxis2);
-
-		context.append("g")
-		.attr("class", "x brush")
-		.call(brush)
-		.selectAll("rect")
-		.attr("y", -6)
-		.attr("height", height2 + 7);
 
 		focus.append("g")
 		.attr("class", "y axis")
@@ -364,6 +364,13 @@ console.log(data);
     
     });
 	svg.on('click', function(e) {show = !show; svg.selectAll('circle').style('opacity', show ? 0.4 : 0);});
+		context.append("g")
+		.attr("class", "x brush")
+		.call(brush)
+		.selectAll("rect")
+		.attr("y", -6)
+		.attr("height", height2 + 7);
+
 
 	svg.call(zoom);
 
@@ -570,7 +577,7 @@ function graph2() {
 			graph.append('text').attr('class', 'toRemove labels').attr('x', 0).attr('y', y(hWin[0])).style('text-anchor', 'start').text(e.packageName + ' Home Wins');
 			graph.append('text').attr('class', 'toRemove labels').attr('x', 0).attr('y', y(aWin[0])).style('text-anchor', 'start').text(e.packageName + ' Away Wins');
 	  })
-	  .text(function(d) { return d.className.substring(0, d.r / 3); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).on('mouseover', function(d){node.selectAll('circle').filter(function(e){/*console.log(e); */return e.packageName == d.packageName && d.data.year == e.data.year;}).attr('opacity', 0.8);}).on('mouseout', function(d){node.selectAll('circle').filter(function(e){/*console.log(e); */return e.packageName == d.packageName && d.data.year == e.data.year;}).attr('opacity', 1);}).style('cursor', 'default').append('svg:title').text(function(d) { /*console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value)));*/ return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
+	  .text(function(d) { return d.className.substring(0, d.r / 3); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).on('mouseover', function(d){node.selectAll('circle').filter(function(e){/*console.log(e); */return e.packageName == d.packageName && d.data.year == e.data.year;}).attr('opacity', 0.2);}).on('mouseout', function(d){node.selectAll('circle').filter(function(e){/*console.log(e); */return e.packageName == d.packageName && d.data.year == e.data.year;}).attr('opacity', 1);}).style('cursor', 'default').append('svg:title').text(function(d) { /*console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value)));*/ return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
 	  // Returns a flattened hierarchy containing all leaf nodes under the root.
 	  function classes(root) {
 		  var classes = [];
@@ -1514,7 +1521,7 @@ function forceDir() {
       .data(graph.links)
     .enter().append("line")
       .attr("class", "link")
-      .style("stroke-width", function(d) { return Math.sqrt(d.value); })
+      .style("stroke-width", function(d) { return 1;/*Math.sqrt(d.value);*/ })
 	  .style("stroke","#999");
 
 	var start = null;
@@ -1725,8 +1732,7 @@ function forceDir() {
 		.style("stroke-width", function(d) { return 1; })
 		.style("stroke","#999");
 
-		svg.selectAll(".link")
-		.data(graph1).exit().remove();
+		link.exit().remove();
 
 		// make sure nodes are on top
 		svg.selectAll('.link,.force-node').sort(function(a,b) {return a.source === undefined;});

@@ -16,7 +16,7 @@ background-repeat:no-repeat;
 }
 
 #chart rect:hover {
-  fill: brown;
+	opacity:0.2;
 }
 
 .force-node:hover {
@@ -143,7 +143,7 @@ div.horizontal ul {
 }
 
 .node circle:hover {
-	opacity:0.8 !important;
+	opacity:0.2 !important;
 }
 
 .paths.selected {
@@ -172,4 +172,19 @@ body {
 
 .opac:hover {
 	opacity: 0.2;
+}
+
+.opt {
+	fill:white;
+	stroke:black;
+}
+.opt text {
+	fill:black;
+	stroke:none;
+	fill-opacity:1;
+}
+
+g.opt:hover{
+	fill:black;
+	fill-opacity:0.1;
 }
