@@ -97,8 +97,8 @@ function getAllTeamStats(tempYears) {
 				data[listTeams.indexOf(e['Home Team'])].losses++;
 			} else {
 				// draw - only one such case
-				console.log(e['Home Team']  + " " + e['Away Team']);
-				console.log(listTeams.indexOf(e['Home Team'])  + " " + listTeams.indexOf(e['Away Team']));
+				//console.log(e['Home Team']  + " " + e['Away Team']);
+				//console.log(listTeams.indexOf(e['Home Team'])  + " " + listTeams.indexOf(e['Away Team']));
 				data[listTeams.indexOf(e['Home Team'])].draws++;
 				data[listTeams.indexOf(e['Home Team'])].points++;
 				data[listTeams.indexOf(e['Away Team'])].draws++;
@@ -106,7 +106,7 @@ function getAllTeamStats(tempYears) {
 			}
 		});
 	}
-	console.log(data);
+	//console.log(data);
 	return data;
 }
 
@@ -159,8 +159,8 @@ function graph1() {
 	}
 
 	var data = data1.map(currentSort.map);
-	console.log(data);
-	console.log(data1);
+	//console.log(data);
+	//console.log(data1);
 
 	nList = data1.map(function(e){return e.name;});
 
@@ -200,7 +200,7 @@ function graph1() {
 
 	//var color = d3.scale.category10();
 	bs.selectAll('rect').data(data).enter().append("rect").attr('class', 'bar')
-	.attr("width", function(d) {if (currentSort.name ==='+/-') return Math.abs(x(d) - x(0)); if (!isNumber(d)) return 0; test = x;console.log(x(d) + " " + d);return x(d);})
+	.attr("width", function(d) {if (currentSort.name ==='+/-') return Math.abs(x(d) - x(0)); if (!isNumber(d)) return 0; test = x;return x(d);})
 	.attr("height", y.rangeBand()).style('fill', function(d, i) {return (teamCol === 'No Special Colouring' ? 'steel blue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
 	.attr('y', function(d, i) {return y(data1[i].name);}).on('click', function(e,i) {sTeam = data1[i].name; switchTo('team');})
 	.attr('x', function(d){if (currentSort.name==='+/-') return x(Math.min(0, d)); return 0;})
@@ -211,7 +211,7 @@ function graph1() {
 	.attr('y', function(d, i) {return y(data1[i].name) + y.rangeBand()/2;})
 	.text(function(d) { return Math.round(d*100)/100; });
 
-	var ggg = chart.selectAll('.opt').data([{'name':'%', 'des':'Win Proportion', 'sort':winRatio, 'map':function(e){return e.wins/(e.wins+e.losses);}}, {'name':'&#10003;','des':'Win Count','sort':winCount,'map':function(e){return e.wins;}}, {'name':'x','des':'Loss Count','sort':lossCount,'map':function(e){return e.losses;}}, {'name':'pts','des':'Points Scored','sort':ptCount,'map':function(e){return e.gamePoints;}}, {'name':'+/-','des':'Wins - Losses','sort':winLoss,'map':function(e){return e.wins-e.losses;}}]).enter().append('g').attr('class', 'opt').attr('transform', function(d,i) { return 'translate(' + (width+70) + "," +( i*height/5 + 50)+")";}).on('click', function(d){console.log("he");currentSort = d; update();});
+	var ggg = chart.selectAll('.opt').data([{'name':'%', 'des':'Win Proportion', 'sort':winRatio, 'map':function(e){return e.wins/(e.wins+e.losses);}}, {'name':'&#10003;','des':'Win Count','sort':winCount,'map':function(e){return e.wins;}}, {'name':'x','des':'Loss Count','sort':lossCount,'map':function(e){return e.losses;}}, {'name':'pts','des':'Points Scored','sort':ptCount,'map':function(e){return e.gamePoints;}}, {'name':'+/-','des':'Wins - Losses','sort':winLoss,'map':function(e){return e.wins-e.losses;}}]).enter().append('g').attr('class', 'opt').attr('transform', function(d,i) { return 'translate(' + (width+70) + "," +( i*height/5 + 50)+")";}).on('click', function(d){currentSort = d; update();});
 	ggg.append('circle').attr('r', 30)
 	ggg.append('text').html(function(d){return d.name;}).style('text-anchor', 'middle').attr('dy','0.3em');
 	ggg.append('title').text(function(d){return d.des;});
@@ -311,12 +311,12 @@ function graph1() {
 		}
 
 		var data = data1.map(currentSort.map);
-		console.log(data);
-		console.log(data1);
+		/*console.log(data);
+		console.log(data1);*/
 	
 		nList = data1.map(function(e){return e.name;});
 
-		console.log( d3.max(data, function(e){return e;}));
+		//console.log( d3.max(data, function(e){return e;}));
 		y.domain(data1.map(function(e){return e.name;}))
 		var yAxis = d3.svg.axis()
 		.scale(y)
@@ -332,7 +332,7 @@ function graph1() {
 		bs.selectAll('rect').data(data)
 		.transition().delay(function(d,i) {return i * 50;})
 		.attr('y', function(d, i) {return y(data1[i].name);}).style('fill', function(d, i) {return (teamCol === 'No Special Colouring' ? 'steelblue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
-		.attr("width", function(d) {if (currentSort.name ==='+/-') return Math.abs(x(d) - x(0)); if (!isNumber(d)) return 0; test = x;console.log(x(d) + " " + d);return x(d);})
+		.attr("width", function(d) {if (currentSort.name ==='+/-') return Math.abs(x(d) - x(0)); if (!isNumber(d)) return 0; test = x;return x(d);})
 		.attr("height", y.rangeBand()).attr('x', function(d){if (currentSort.name==='+/-') return x(Math.min(0, d)); return 0;})
 
 		bs.selectAll('text').data(data)
@@ -522,7 +522,7 @@ var data = [type({"date": "Apr 2008", "price":"Central Pulse"}),type({"date": "M
 
 		games = games.map(function(e) {var dat = new Date(e.Date + " " +e.year); if (dat == undefined || isNaN(dat.getTime())) return; return [{"date":dat, "price":e['Home Team'], 'game':e},{"date":dat, "price":e['Away Team'], 'game':e}];});
 		games = games.filter(function(e) {if(e == undefined) return false; return e[0].price !== "" && e[1].price !== "";});
-		console.log(games);
+		//console.log(games);
 		// paths
 		var ctx = context.selectAll('.dots').data(games).enter();
 		ctx.append("path")
@@ -580,7 +580,7 @@ var data = [type({"date": "Apr 2008", "price":"Central Pulse"}),type({"date": "M
 			svg.selectAll('circle').style('opacity', show ? 0.4 : 0);
 		}
 		svg.selectAll('.fir').style('fill', function(d) {if (!colored) return 'black'; 
-			console.log(d);	
+			//console.log(d);	
 			var scoreHome = parseInt(d[0].game.Score.split('-')[0], 10);
 			var scoreAway = parseInt(d[0].game.Score.split('-')[1], 10);
 			if (scoreHome === scoreAway) return 'black';
@@ -596,7 +596,7 @@ var data = [type({"date": "Apr 2008", "price":"Central Pulse"}),type({"date": "M
 	svg.selectAll('circle').on('click', function(e) {
 		show = !show; svg.selectAll('circle').style('opacity', show ? 0.4 : 0);
 		var game = e[0].game;
-		console.log(game);
+		//console.log(game);
 		bottomdiv.selectAll('p').remove();
 		bottomdiv.append('p').text(function(d) {if (+game.Round == 15) return 'Semi Finals'; if (+game.Round == 16) return 'Preliminary Finals'; if (+game.Round == 17) return 'GRAND FINAL'; return 'Round '+ game.Round;});
 		bottomdiv.append('p').text(game.Date + " " + game.year);
@@ -671,8 +671,8 @@ function graph2() {
 			}
 			e.year = listYears[i];
 		});
-		console.log(NZ);
-		console.log(AU);
+		//console.log(NZ);
+		//console.log(AU);
 		NZhomeWin.push(NZ.homeWin / (NZ.homeWin + NZ.homeLoss));
 		NZawayWin.push(NZ.awayWin / (NZ.awayWin + NZ.awayLoss));
 		AUhomeWin.push(AU.homeWin / (AU.homeWin + AU.homeLoss));
@@ -680,11 +680,11 @@ function graph2() {
 
 		yearly.push(tem);
 	}
-	console.log(NZhomeWin);
-	console.log(NZawayWin);
-	console.log(AUhomeWin);
-	console.log(AUawayWin);
-	console.log(yearly);
+	//console.log(NZhomeWin);
+	//console.log(NZawayWin);
+	//console.log(AUhomeWin);
+	//console.log(AUawayWin);
+	//console.log(yearly);
 
 	var x = d3.scale.ordinal().domain(listYears).rangeRoundBands([0, w], 0);
 	var y = d3.scale.linear().domain([0, 1]).range([h, 0]);
@@ -743,7 +743,7 @@ function graph2() {
 		tree.children.push({"name":e, "children":t});
 
 	}
-	console.log(tree);
+	//console.log(tree);
 
 	  var diameter = 480,
 	  format = d3.format(",.2f"),
@@ -863,8 +863,8 @@ function graph2() {
 				}
 				e.year = listYears[i];
 			});
-			console.log(NZ);
-			console.log(AU);
+			//console.log(NZ);
+			//console.log(AU);
 			NZhomeWin.push(NZ.homeWin / (NZ.homeWin + NZ.homeLoss));
 			NZawayWin.push(NZ.awayWin / (NZ.awayWin + NZ.awayLoss));
 			AUhomeWin.push(AU.homeWin / (AU.homeWin + AU.homeLoss));
@@ -872,11 +872,11 @@ function graph2() {
 
 			yearly.push(tem);
 		}
-		console.log(NZhomeWin);
-		console.log(NZawayWin);
-		console.log(AUhomeWin);
-		console.log(AUawayWin);
-		console.log(yearly);
+		//console.log(NZhomeWin);
+		//console.log(NZawayWin);
+		//console.log(AUhomeWin);
+		//console.log(AUawayWin);
+		//console.log(yearly);
 
 		NZhomeWin = NZhomeWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} );
 		NZawayWin = NZawayWin.map(function(e) {if (!isNumber(e)) return -0.05; return e;} );
@@ -974,13 +974,15 @@ function graph2() {
 		 }
 	  node.selectAll('circle').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; }))
 	  .attr("r", 0)
-	  .style("fill", function(d) { return (teamCol === 'No Special Colouring' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato'));}).on('mouseover', function(e){ console.log(e); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";}).append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
+	  .style("fill", function(d) { return (teamCol === 'No Special Colouring' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato'));})
+	  //.on('mouseover', function(e){ console.log(e); })
+	  .on('click', function(e) {sTeam = e.packageName; switchTo('team');}).attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";}).append('svg:title').text(function(d) { return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
 
 	  node.selectAll('text').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; }))
 	  .attr("dy", ".3em")
 	  .style("text-anchor", "middle")
 	  .style("font", "10px sans-serif").attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";})
-	  .text(function(d) { return d.className.substring(0, d.r / 3); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).style('cursor', 'default').append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
+	  .text(function(d) { return d.className.substring(0, d.r / 3); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).style('cursor', 'default').append('svg:title').text(function(d) { return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
 	 
 	 	update1(); // make a better transition
 	 }
@@ -1025,7 +1027,7 @@ function graph3() {
 			data.push({"label":key, "value": temp.length}); 
 		}
 	}
-	console.log(data);
+	//console.log(data);
 
 	var vis = d3.select("#chart")
 	.append("svg:svg")              //create the SVG element inside the <body>
@@ -1057,7 +1059,7 @@ function graph3() {
 		.attr("d", arc).style("stroke", "#fff")
 		.on('mouseover', 
 			function(e){
-				console.log(e.data);
+				//console.log(e.data);
 				d3.select('#middletext').text(e.data.label);
 				d3.select('#middlevalue').text(e.data.value);
 			})
@@ -1119,7 +1121,7 @@ function graph3() {
 
 			games = games.filter(function(e) { if (showYear === 'All') return true; return e.year === +showYear;});
 			home = (games.length !== 0) ? games[0]['Home Team'] : "";
-			console.log(home);
+			//console.log(home);
 			var selection = vis.selectAll('.listTeams').data(teamRank(games).sort(winRatio));
 			selection = selection.enter().append('g');
 
@@ -1245,7 +1247,7 @@ function graph4() {
 // Load all the csv files
 // They are embedded one after another in callbacks because this is async code.
 d3.csv('2008-Table1.csv', function(e){
-	console.log(e);
+	//console.log(e);
 	/*for (var i = 0; i < e.length; i++) {
 		console.log(e[i].Score);
 		}*/
@@ -1404,9 +1406,9 @@ d3.csv('2008-Table1.csv', function(e){
 							delete allVenues[undefined];
 							delete allVenues[''];
 
-							console.log(allGames);
-							console.log(allTeams);
-							console.log(allVenues);
+							//console.log(allGames);
+							//console.log(allTeams);
+							//console.log(allVenues);
 							var div = d3.select('.horizontal').append('div');
 
 							var select = div.append('select').attr('id', 'selectYear').attr('class', 'picker');
@@ -1602,7 +1604,7 @@ function teamRank(dat) {
 		} else {
 			// draw - only one such case
 			//console.log(e['Home Team']  + " " + e['Away Team']);
-			console.log(listTeams.indexOf(e['Home Team'])  + " " + listTeams.indexOf(e['Away Team']));
+			//console.log(listTeams.indexOf(e['Home Team'])  + " " + listTeams.indexOf(e['Away Team']));
 			data[listTeams.indexOf(e['Home Team'])].draws++;
 			data[listTeams.indexOf(e['Home Team'])].points++;
 			data[listTeams.indexOf(e['Away Team'])].draws++;
@@ -1715,7 +1717,7 @@ function forceDir() {
 		}
 	);	
 	graph0 = rivalries(c);
-	console.log(graph0);
+	//console.log(graph0);
 	var graph1 = [];
 	for (var i = 0; i < graph0.length; i++) {
 		var e = graph0[i];	
@@ -1808,7 +1810,7 @@ function forceDir() {
 		}
 
 		if (oldEnd !== null) {
-			console.log(oldEnd);
+			//console.log(oldEnd);
 			oldEnd.classed({'selected':false});
 		}
 
@@ -1817,7 +1819,7 @@ function forceDir() {
 		cc.classed({'selected':true});
 
 		
-		console.log(start + " - " + end);
+		//console.log(start + " - " + end);
 		rival1 = start;
 		rival2 = end;
 		showRival();
@@ -1877,15 +1879,15 @@ function forceDir() {
 				c = c.concat(allGames[e]);
 			}
 		});
-		console.log(c.length + "");
+		//console.log(c.length + "");
 		c = c.filter(
 			function(e) { 
 				if (showFinal === 'Finals') return e.Round >= 15; if (showFinal === 'Regular') return e.Round < 15; return true;
 			}
 		);	
-		console.log(c.length + "");
+		//console.log(c.length + "");
 		graph0 = rivalries(c);
-		console.log(graph0);
+		//console.log(graph0);
 		var graph1 = [];
 		for (var i = 0; i < graph0.length; i++) {
 			var e = graph0[i];	
@@ -1946,36 +1948,36 @@ function forceDir() {
 
 	hh.append('line').attr('x1', 20).attr('x2', function(d,i) {return x(i+1);}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) {return isNewZealand[d['Home Team']] ? 'blue': 'red'});
 	hh.append('line').attr('x1', 20).attr('x2', function(d,i) {return 20 + (x(i+1) - 20)/2;}).attr('y1', function(d,i) {return y(i+1)+4;}).attr('y2', function(d,i){return y(i+1) + 4;}).style('stroke-width', 2).style('stroke', function(d) { return isNewZealand[d['Away Team']] ? 'blue': 'red'});
-		console.log(closest10Games);
+		//console.log(closest10Games);
 
 		showRival();
 	}
 
 	var zoom = 1;
 	function zoomed(ddd) {
-		if (d3.event.scale > zoom) {
+		/*if (d3.event.scale > zoom) {
 			console.log("IN");
 		} else if (d3.event.scale < zoom) {
 			console.log("OUT");	
-		}
+		}*/
 	//	console.log("scale  " + d3.event.scale + " " +zoom);
 		var isZooming = d3.event.scale > zoom;
 		if (zoom === d3.event.scale) return;
 		zoom = d3.event.scale;
-		console.log("scale  " + d3.event.scale + " " +isZooming + ' ' + percent);
+		//console.log("scale  " + d3.event.scale + " " +isZooming + ' ' + percent);
 		var prev = percent;
 		percent = Math.max(0, Math.min(0.53, percent + (isZooming ? 0.02 : -0.02)));
 		if (prev !== 0 && percent === 0 || percent === 0.53) return;
 		force.stop();
 		force.gravity( (percent <= 0.25 ? 0.1 : force.gravity() + 0.05));
 		graph1 = [];
-		console.log(percent);
+		//console.log(percent);
 		for (var i = 0; i < graph0.length; i++) {
 			var e = graph0[i];
 			if (e.value >= percent) 
 				graph1.push(e);
 		}
-		console.log(graph1.length);
+		//console.log(graph1.length);
 		link = svg.selectAll(".link")
 		.data(graph1);
 		link.enter().append("line")
@@ -2063,7 +2065,7 @@ function graph5(a) {
 			venue.push(e);
 		}
 	});
-	console.log(dict);
+	//console.log(dict);
 
 	for (var key in dict) {
 		if (allVenues.hasOwnProperty(key)) {
@@ -2080,7 +2082,7 @@ function graph5(a) {
 		}
 	}
 
-	console.log(data);
+	//console.log(data);
 
 	data.sort(function(a,b) {
 		if (!isNumber(b.wins/(b.wins + b.losses))) {
@@ -2097,8 +2099,8 @@ function graph5(a) {
 	});
 
 data = data.filter(function(e) {return e.wins + e.losses !== 0;});
-console.log(data.slice(0,5));
-console.log(data.slice(-5).reverse());
+//console.log(data.slice(0,5));
+//console.log(data.slice(-5).reverse());
 
 var vis = d3.select('#chart')
 	.append('svg:svg')
@@ -2364,7 +2366,7 @@ function graph6() {
 					}
 					data.push(teamRank(games).sort(function(a,b){ return b.points - a.points;}));
 				}
-				console.log(data);
+				//console.log(data);
 
 				var rData = data.map(function(e) { 
 					for (var i = 0; i < e.length; i++) {
@@ -2374,7 +2376,7 @@ function graph6() {
 					}
 				});
 				var r = rank(x).indexOf(qTeam) + 1;
-				console.log(r);
+				//console.log(r);
 				if (r !== -1) {
 					// if they ranked
 					var rr = rData[rData.length - 1];
@@ -2411,7 +2413,7 @@ function graph6() {
 				totalData[hello] = totalData[hello]/incre[hello];
 			}	
 			rData = totalData;
-			console.log(rData);
+			//console.log(rData);
 		} else {
 			var yearGames = allGames[sYear];
 			var index = 0;
@@ -2427,7 +2429,7 @@ function graph6() {
 				//console.log(index);
 				data.push(teamRank(games).sort(function(a,b){ return b.points - a.points;}));
 			}
-			console.log(data);
+			//console.log(data);
 
 			var rData = data.map(function(e) { 
 				for (var i = 0; i < e.length; i++) {
@@ -2437,7 +2439,7 @@ function graph6() {
 				}
 			});
 			var r = rank(sYear).indexOf(qTeam) + 1;
-			console.log(r);
+			//console.log(r);
 			if (r !== -1) {
 				// if they ranked
 				var rr = rData[rData.length - 1];
@@ -2471,8 +2473,8 @@ function graph6() {
 		ctx.enter().append('g').attr('class', 'line').attr('team',qTeam).attr('year',sYear).on('click', function(){
 			d3.select('.line').classed('selected',false);
 			var t = d3.select(this).attr('team');
-			console.log(t);
-			console.log(toReview);
+			//console.log(t);
+			//console.log(toReview);
 			if (t == toReview) {
 				d3.select(this).classed('selected', false);
 				toReview = null;
@@ -2512,14 +2514,14 @@ function graph6() {
 			};
 		});
 
-		ctx.on('contextmenu', function(data, index) {console.log(this);d3.event.preventDefault();d3.select(this).remove();});
+		ctx.on('contextmenu', function(data, index) {d3.event.preventDefault();d3.select(this).remove();});
 
 		var circ = ctx.selectAll('circle').data(rData)
 		.enter().append('circle').transition().delay(200)
 		.attr('cx', function (d, i) { return x(i+1); })
 		.attr('cy', function (d) { return y(d); })
 		.attr('r', 4);
-		console.log(rData);
+		//console.log(rData);
 	}
 
 	update();
