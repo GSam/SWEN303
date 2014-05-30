@@ -217,10 +217,83 @@ function graph1() {
 	ggg.append('title').text(function(d){return d.des;});
 
 	d3.selectAll('.opt').classed('selected', function(d) {return d.name===currentSort.name;});
+	
+
+	var w = 330;
+	var h = 200;
+	var r = h/2;
+
+	var NZ = new TeamData('NZ');
+	var AUS = new TeamData('AUS');
+
+	data1.forEach(function(e) {
+		if (isNewZealand[e.name]) {
+			NZ.wins += e.wins;
+			NZ.losses += e.losses;
+			NZ.gamePoints += e.gamePoints;
+		} else {
+			AUS.wins += e.wins;
+			AUS.losses += e.losses;
+			AUS.gamePoints += e.gamePoints;
+		}
+	}); 
+	var data = [{'label':'NZ', 'value':NZ.wins + NZ.losses}, {'label':'AUS', 'value':AUS.wins + AUS.losses}];
+
+	var vis = d3.select('#chart').append("svg:svg").attr('class','pies').data([data]).attr("width", w).attr("height", h + 50).append("svg:g").attr("transform", "translate(" + (r+60) + "," + (r+10) + ")");
+	var arc = d3.svg.arc().outerRadius(r);
+	var pie = d3.layout.pie().value(function(d){return d.value;
+	});
+	var arcs = vis.selectAll("g.slicer").data(pie).enter().append("svg:g").attr("class", "slicer");
+	arcs.append('title').text(function(d,i) {return data[i].label;});
+	arcs.append("svg:path").attr("fill", function(d, i){
+		return ['PowderBlue','Tomato'][i];}).attr("d", arc);
+		arcs.append("svg:text").attr("transform", function(d){
+			d.innerRadius = 0;
+			d.outerRadius = r;
+			return "translate(" + arc.centroid(d) + ")";}).attr("text-anchor", "middle").text( function(d, i) {
+				return data[i].value;}
+			);
+	vis.append('g').append('text').text('NZ vs AUS Matches Played Each').style('text-anchor','middle').attr('x', 0).attr('y',h/2).attr('dy', '1.5em');
+
+	var data = [{'label':'NZ', 'value':NZ.wins}, {'label':'AUS', 'value':AUS.wins}];
+	var vis = d3.select('#chart').append("svg:svg").attr('class','pies').data([data]).attr("width", w).attr("height", h + 50).append("svg:g").attr("transform", "translate(" + (r+60) + "," + (r+10) + ")");
+	var arc = d3.svg.arc().outerRadius(r);
+	var pie = d3.layout.pie().value(function(d){return d.value;
+	});
+	var arcs = vis.selectAll("g.slicer").data(pie).enter().append("svg:g").attr("class", "slicer");
+	arcs.append('title').text(function(d,i) {return data[i].label;});
+	arcs.append("svg:path").attr("fill", function(d, i){
+		return ['PowderBlue','Tomato'][i];}).attr("d", arc);
+		arcs.append("svg:text").attr("transform", function(d){
+			d.innerRadius = 0;
+			d.outerRadius = r;
+			return "translate(" + arc.centroid(d) + ")";}).attr("text-anchor", "middle").text( function(d, i) {
+				return data[i].value;}
+			);
+
+	vis.append('g').append('text').text('NZ vs AUS Wins Each').style('text-anchor','middle').attr('x', 0).attr('y',h/2).attr('dy', '1.5em');
+
+	var data = [{'label':'NZ', 'value':NZ.gamePoints}, {'label':'AUS', 'value':AUS.gamePoints}];
+	var vis = d3.select('#chart').append("svg:svg").attr('class','pies').data([data]).attr("width", w).attr("height", h + 50).append("svg:g").attr("transform", "translate(" + (r+60) + "," + (r+10) + ")");
+	var arc = d3.svg.arc().outerRadius(r);
+	var pie = d3.layout.pie().value(function(d){return d.value;
+	});
+	var arcs = vis.selectAll("g.slicer").data(pie).enter().append("svg:g").attr("class", "slicer");
+	arcs.append('title').text(function(d,i) {return data[i].label;});
+	arcs.append("svg:path").attr("fill", function(d, i){
+		return ['PowderBlue','Tomato'][i];}).attr("d", arc);
+		arcs.append("svg:text").attr("transform", function(d){
+			d.innerRadius = 0;
+			d.outerRadius = r;
+			return "translate(" + arc.centroid(d) + ")";}).attr("text-anchor", "middle").text( function(d, i) {
+				return data[i].value;}
+			);
+
+	vis.append('g').append('text').text('NZ vs AUS Points Scored Each').style('text-anchor','middle').attr('x', 0).attr('y',h/2).attr('dy', '1.5em');
 
 	function update() {
 		d3.selectAll('.opt').classed('selected', function(d) {return d.name===currentSort.name;});
-		(function (){var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
+		var data1 = getAllTeamStats((showYear === 'All') ? listYears : [+showYear]);
 		data1.sort(currentSort.sort);
 
 		if (sorter === 'Default sort') {
@@ -267,7 +340,76 @@ function graph1() {
 		.attr("x", function(d) {if (!isNumber(d)) return 10;  return Math.max(x(d) - 6, 5); })
 		.attr("dy", ".35em")
 		.attr('y', function(d, i) {return y(data1[i].name) + y.rangeBand()/2;})
-		.text(function(d) { return Math.round(d*100)/100; });})();
+		.text(function(d) { return Math.round(d*100)/100; });
+
+		d3.selectAll('.pies').remove();
+
+		var NZ = new TeamData('NZ');
+		var AUS = new TeamData('AUS');
+
+		data1.forEach(function(e) {
+			if (isNewZealand[e.name]) {
+				NZ.wins += e.wins;
+				NZ.losses += e.losses;
+				NZ.gamePoints += e.gamePoints;
+			} else {
+				AUS.wins += e.wins;
+				AUS.losses += e.losses;
+				AUS.gamePoints += e.gamePoints;
+			}
+		}); 
+		var data = [{'label':'NZ', 'value':NZ.wins + NZ.losses}, {'label':'AUS', 'value':AUS.wins + AUS.losses}];
+
+		var vis = d3.select('#chart').append("svg:svg").attr('class','pies').data([data]).attr("width", w).attr("height", h + 50).append("svg:g").attr("transform", "translate(" + (r+60) + "," + (r+10) + ")");
+		var arc = d3.svg.arc().outerRadius(r);
+		var pie = d3.layout.pie().value(function(d){return d.value;
+		});
+		var arcs = vis.selectAll("g.slicer").data(pie).enter().append("svg:g").attr("class", "slicer");
+		arcs.append("svg:path").attr("fill", function(d, i){
+			return ['PowderBlue','Tomato'][i];}).attr("d", arc);
+			arcs.append("svg:text").attr("transform", function(d){
+				d.innerRadius = 0;
+				d.outerRadius = r;
+				return "translate(" + arc.centroid(d) + ")";}).attr("text-anchor", "middle").text( function(d, i) {
+					return data[i].value;}
+				);
+				vis.append('g').append('text').text('NZ vs AUS Matches Played Each').style('text-anchor','middle').attr('x', 0).attr('y',h/2).attr('dy', '1.5em');
+
+				var data = [{'label':'NZ', 'value':NZ.wins}, {'label':'AUS', 'value':AUS.wins}];
+				var vis = d3.select('#chart').append("svg:svg").attr('class','pies').data([data]).attr("width", w).attr("height", h + 50).append("svg:g").attr("transform", "translate(" + (r+60) + "," + (r+10) + ")");
+				var arc = d3.svg.arc().outerRadius(r);
+				var pie = d3.layout.pie().value(function(d){return d.value;
+				});
+				var arcs = vis.selectAll("g.slicer").data(pie).enter().append("svg:g").attr("class", "slicer");
+				arcs.append("svg:path").attr("fill", function(d, i){
+					return ['PowderBlue','Tomato'][i];}).attr("d", arc);
+					arcs.append("svg:text").attr("transform", function(d){
+						d.innerRadius = 0;
+						d.outerRadius = r;
+						return "translate(" + arc.centroid(d) + ")";}).attr("text-anchor", "middle").text( function(d, i) {
+							return data[i].value;}
+						);
+
+						vis.append('g').append('text').text('NZ vs AUS Wins Each').style('text-anchor','middle').attr('x', 0).attr('y',h/2).attr('dy', '1.5em');
+
+						var data = [{'label':'NZ', 'value':NZ.gamePoints}, {'label':'AUS', 'value':AUS.gamePoints}];
+						var vis = d3.select('#chart').append("svg:svg").attr('class','pies').data([data]).attr("width", w).attr("height", h + 50).append("svg:g").attr("transform", "translate(" + (r+60) + "," + (r+10) + ")");
+						var arc = d3.svg.arc().outerRadius(r);
+						var pie = d3.layout.pie().value(function(d){return d.value;
+						});
+						var arcs = vis.selectAll("g.slicer").data(pie).enter().append("svg:g").attr("class", "slicer");
+						arcs.append("svg:path").attr("fill", function(d, i){
+							return ['PowderBlue','Tomato'][i];}).attr("d", arc);
+							arcs.append("svg:text").attr("transform", function(d){
+								d.innerRadius = 0;
+								d.outerRadius = r;
+								return "translate(" + arc.centroid(d) + ")";}).attr("text-anchor", "middle").text( function(d, i) {
+									return data[i].value;}
+								);
+
+	vis.append('g').append('text').text('NZ vs AUS Points Scored Each').style('text-anchor','middle').attr('x', 0).attr('y',h/2).attr('dy', '1.5em');
+
+
 	}
 
 	d3.selectAll('.picker').on('change', function(e){update();});
@@ -336,6 +478,7 @@ function otherhalf() {
 	divv.append('input').attr('type', 'button').attr('value', 'Reorder teams to above order').on('click', function(e){
 	mList = nList;
 	d3.selectAll('.remove').remove(); otherhalf();});
+	divv.append('p').text('Left click allows for easier identification of games once zoomed in. Right click indicates match results.').style('font','10px sans-serif');
 
 	svg.append("defs").append("clipPath")
 	.attr("id", "clip")
@@ -419,29 +562,53 @@ var data = [type({"date": "Apr 2008", "price":"Central Pulse"}),type({"date": "M
 		.attr('cx', function(d,i) {return x(d[0].date);})
     
     });*/
+	var bottomdiv = d3.select('#matchview').append('div').attr('class','gamedetails remove').style('padding-top','20px').style('padding-bottom', '150px');
+	bottomdiv.append('h3').text('Game information:');
+
 	svg.on('click', function(e) {show = !show; svg.selectAll('circle').style('opacity', show ? 0.4 : 0);});
-		context.append("g")
-		.attr("class", "x brush")
-		.call(brush)
-		.selectAll("rect")
-		.attr("y", -6)
-		.attr("height", height2 + 7);
+	context.append("g")
+	.attr("class", "x brush")
+	.call(brush)
+	.selectAll("rect")
+	.attr("y", -6)
+	.attr("height", height2 + 7);
 
-		svg.on('contextmenu', function(e) {colored = !colored; 
-			d3.event.preventDefault();
-			svg.selectAll('.fir').style('fill', function(d) {if (!colored) return 'black'; 
-		console.log(d);	
-				var scoreHome = parseInt(d[0].game.Score.split('-')[0], 10);
-				var scoreAway = parseInt(d[0].game.Score.split('-')[1], 10);
+	svg.on('contextmenu', function(e) {colored = !colored; 
+		d3.event.preventDefault();
+		if(!show) {
+			show = !show; 
+			svg.selectAll('circle').style('opacity', show ? 0.4 : 0);
+		}
+		svg.selectAll('.fir').style('fill', function(d) {if (!colored) return 'black'; 
+			console.log(d);	
+			var scoreHome = parseInt(d[0].game.Score.split('-')[0], 10);
+			var scoreAway = parseInt(d[0].game.Score.split('-')[1], 10);
 			if (scoreHome === scoreAway) return 'black';
-			return scoreHome > scoreAway ? 'green':'red';});
-			svg.selectAll('.sec').style('fill', function(d) {if (!colored) return 'black'; 
-				var scoreHome = parseInt(d[0].game.Score.split('-')[0], 10);
-				var scoreAway = parseInt(d[0].game.Score.split('-')[1], 10);
+		return scoreHome > scoreAway ? 'green':'red';});
+		svg.selectAll('.sec').style('fill', function(d) {if (!colored) return 'black'; 
+			var scoreHome = parseInt(d[0].game.Score.split('-')[0], 10);
+			var scoreAway = parseInt(d[0].game.Score.split('-')[1], 10);
 			if (scoreHome === scoreAway) return 'black';
-			return scoreHome < scoreAway ? 'green':'red';});
+		return scoreHome < scoreAway ? 'green':'red';});
 
-		});
+	});
+
+	svg.selectAll('circle').on('click', function(e) {
+		show = !show; svg.selectAll('circle').style('opacity', show ? 0.4 : 0);
+		var game = e[0].game;
+		console.log(game);
+		bottomdiv.selectAll('p').remove();
+		bottomdiv.append('p').text(function(d) {if (+game.Round == 15) return 'Semi Finals'; if (+game.Round == 16) return 'Preliminary Finals'; if (+game.Round == 17) return 'GRAND FINAL'; return 'Round '+ game.Round;});
+		bottomdiv.append('p').text(game.Date + " " + game.year);
+		bottomdiv.append('p').html("<span id='hh' style='color:" +(isNewZealand[game['Home Team']] ? 'blue': 'red') + "' class='hovered'>" +game['Home Team']  + "</span> vs. <span id='gg' style='color:" +(isNewZealand[game['Away Team']] ? 'blue': 'red')+ "' class='hovered'>" + game['Away Team']+'</span>');
+		bottomdiv.select('#hh').on('click', function(e) {sTeam = game['Home Team']; switchTo('team');});
+		bottomdiv.select('#gg').on('click', function(e) {sTeam = game['Away Team']; switchTo('team');});
+		bottomdiv.append('p').attr('class','hovered').text('Venue: ' + game.Venue).on('click', function(e) {sVenue = game.Venue; switchTo('venue');});
+		bottomdiv.append('p').text(game.Score);
+		bottomdiv.append('p').attr('class', 'hovered').text('SEE RIVALRY').on('click', function(e) {rival1 = game['Home Team']; rival2 = game['Away Team']; switchTo('rival');}).style('color','green').style('text-decoration','underline');
+	
+	
+	});
 
 	/*svg.call(zoom);*/
 
@@ -461,6 +628,7 @@ var data = [type({"date": "Apr 2008", "price":"Central Pulse"}),type({"date": "M
 		d.date = parseDate(d.date);
 		return d;
 	}
+
 
 }
 

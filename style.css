@@ -94,12 +94,12 @@ div.horizontal li {
 }
 
 div.horizontal li:hover {
-	background-color:blue;
+	background-color:cadetblue;
 	color:GreenYellow;
 }
 
 div.horizontal .selected {
-	background-color:blue;
+	background-color:cadetblue;
 	color:GreenYellow;
 }
 
@@ -167,7 +167,7 @@ body {
 }
 
 .toHighlight:hover {
-	color:GreenYellow !important;
+	color:Grey !important;
 }
 
 .opac:hover {
@@ -201,3 +201,6 @@ g.opt.selected{
 	opacity:1!important;
 }
 
+.hovered:hover {
+	color:grey!important;
+}
