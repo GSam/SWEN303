@@ -204,3 +204,12 @@ g.opt.selected{
 .hovered:hover {
 	color:grey!important;
 }
+
+.line:hover {
+	opacity:0.2;
+}
+
+
+.line.selected {
+	opacity:0.2;
+}

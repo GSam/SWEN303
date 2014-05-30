@@ -21,7 +21,7 @@ var allVenues = {};
 
 var showYear = 'All';
 var showFinal = 'Both';
-var sTeam = 'Melbourne Vixens';
+var sTeam = 'Central Pulse';
 var teamCol = "No Special Colouring";
 var sVenue = null;
 var sVenueTemp = "";
@@ -37,7 +37,7 @@ var nList = listTeams.slice();
 
 var listYears = [2008, 2009, 2010, 2011, 2012, 2013];
 
-var colors = ["Gold", "Silver", "#CD7F32", "SlateGrey"]
+var colors = ["SlateGrey", "#CD7F32", "Silver", "Gold"]
 
 function TeamData (n) {
 	this.wins = 0;
@@ -1486,7 +1486,7 @@ function switchTo(mode) {
 	} else if (mode === 'team') {
 		d3.selectAll('#selectCol').style('display', 'none');
 		graph6();
-		graph5('Central Pulse');
+		graph5(sTeam);
 		d3.select('#teamview').classed('selected', true);
 	} else if (mode === 'home') {
 		graph2();	
@@ -2279,10 +2279,18 @@ function graph6() {
 		return y(d); 
 	})
 
+	var qTeam = sTeam;
+	sYear = showYear;
+
 	var titleDiv = d3.select('#chart').append('div').attr('class','remove').style('padding-top', '20px').style('text-align', 'center').html('<h2>Team: <span id="teamname">' + sTeam + '</span></h2>');
 	titleDiv.select('#teamname').style('color', isNewZealand[sTeam] ? 'Blue' : 'Red');
 	var select = titleDiv.append('div').attr('class','remove').append('select').on('change', function(e){sTeam = this.value;d3.select('#teamname').html(sTeam);titleDiv.select('#teamname').style('color', isNewZealand[sTeam] ? 'Blue' : 'Red');
 		graph5(sTeam);
+
+		graph.selectAll('.area').remove();
+		graph.selectAll('circle').remove();
+		qTeam = sTeam; sYear = showYear; selectA.property('value', showYear); selectB.property('value',sTeam); update()
+
 });
 
 	select.selectAll('option')
@@ -2293,9 +2301,12 @@ function graph6() {
 		.text(function(d){return d;});
 	
 	select.property('value', sTeam);
+	var other = select;
+
+	titleDiv.append('p').attr('class', 'hovertext').text('Click a line for more options. Right click to delete a single line.');
 
 	// Add an SVG element with the desired dimensions and margin.
-	var graph = d3.select("#chart").append("svg:svg")
+	var graph = d3.select("#chart").append('div').attr('class','remove').style('text-align','center').append("svg:svg").style('text-align','center')
 	.attr("width", w + m[1] + m[3])
 	.attr("height", h + m[0] + m[2])
 	.append("svg:g")
@@ -2317,7 +2328,7 @@ function graph6() {
 	graph.append('rect').attr('x', x(14.5)).attr('y',0)
 	.attr('width', 2.5*w/16).attr('height', h)
 	.style('fill', 'yellow').style('opacity', '0.5')
-	.on('mouseover', function(e) {var s = d3.select(this); s.style('fill', 'gold');} )
+	.on('mouseover', function(e) {var s = d3.select(this); s.style('fill', 'gold');} ).on('click', function(){createFinals();})
 	.on('mouseout', function(e) {var s = d3.select(this); s.style('fill', 'yellow'); /*graph.selectAll('.temp').remove();*/});
 	graph.append('svg:g').append('svg:text').attr('class','temp').text('FINALS').style('font-weight', 'bold').attr('x',x(16.0)).attr('y', y(9.5));
 
@@ -2337,67 +2348,162 @@ function graph6() {
 
 	function update() {
 		// tabulate round data
-		var yearGames = allGames[sYear];
-		console.log(sYear);
-		var index = 0;
-		var games = [];
-		var data = [];
-		for (var i = 1; i < 15; i++) {
-			// while you haven't got to the next round yet
-			while (yearGames[index].Round <= i) {
-				games.push(yearGames[index]);
-				index++;
-			}
-			//console.log(i);
-			//console.log(index);
-			data.push(teamRank(games).sort(function(a,b){ return b.points - a.points;}));
-		}
-		console.log(data);
+		if (sYear === "All") {
+			var totalData = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+			var incre = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+			listYears.forEach(function(x){	
+				var yearGames = allGames[x];
+				var index = 0;
+				var games = [];
+				var data = [];
+				for (var i = 1; i < 15; i++) {
+					// while you haven't got to the next round yet
+					while (yearGames[index].Round <= i) {
+						games.push(yearGames[index]);
+						index++;
+					}
+					data.push(teamRank(games).sort(function(a,b){ return b.points - a.points;}));
+				}
+				console.log(data);
 
-		var rData = data.map(function(e) { 
-			for (var i = 0; i < e.length; i++) {
-				if (e[i].name === sTeam) {
-					return i+1;
+				var rData = data.map(function(e) { 
+					for (var i = 0; i < e.length; i++) {
+						if (e[i].name === qTeam) {
+							return i+1;
+						}
+					}
+				});
+				var r = rank(x).indexOf(qTeam) + 1;
+				console.log(r);
+				if (r !== -1) {
+					// if they ranked
+					var rr = rData[rData.length - 1];
+					if (rr <= 2) {
+						if (r === 3) {rData.push(2); rData.push(3);} else {
+							var rrr = yearGames[index];
+							var sss = teamRank([rrr]).filter(function(e) {return e.name === qTeam;})[0];
+							if (sss.points > 0) {
+								rData.push(1);
+								rData.push(1);
+							} else {
+								rData.push(2);
+								rData.push(2);
+							}
+							rData.push(r);
+						}
+					} else {
+						if (r === 4) {rData.push(4);}
+						if (r === 3) {rData.push(3); rData.push(3);}
+						if (r === 2) {rData.push(3); rData.push(2); rData.push(2);}
+						if (r === 1) {rData.push(3); rData.push(2); rData.push(1);}
+					}
+				}	
+				for (var i = 0; i < rData.length; i++) {
+					totalData[i] += rData[i];
+					incre[i]++;
 				}
+			});
+			for(var hello = 0; hello < totalData.length; hello++) {
+				if (incre[hello] === 0) {
+					totalData = totalData.slice(0,hello);
+					break;
+				}
+				totalData[hello] = totalData[hello]/incre[hello];
+			}	
+			rData = totalData;
+			console.log(rData);
+		} else {
+			var yearGames = allGames[sYear];
+			var index = 0;
+			var games = [];
+			var data = [];
+			for (var i = 1; i < 15; i++) {
+				// while you haven't got to the next round yet
+				while (yearGames[index].Round <= i) {
+					games.push(yearGames[index]);
+					index++;
+				}
+				//console.log(i);
+				//console.log(index);
+				data.push(teamRank(games).sort(function(a,b){ return b.points - a.points;}));
 			}
-		});
-		var r = rank(sYear).indexOf(sTeam) + 1;
-		console.log(r);
-		if (r !== -1) {
-			// if they ranked
-			var rr = rData[rData.length - 1];
-			if (rr <= 2) {
-				if (r === 3) {rData.push(2); rData.push(3);} else {
-				var rrr = yearGames[index];
-				var sss = teamRank([rrr]).filter(function(e) {return e.name === sTeam;})[0];
-				if (sss.points > 0) {
-					rData.push(1);
-					rData.push(1);
+			console.log(data);
+
+			var rData = data.map(function(e) { 
+				for (var i = 0; i < e.length; i++) {
+					if (e[i].name === qTeam) {
+						return i+1;
+					}
+				}
+			});
+			var r = rank(sYear).indexOf(qTeam) + 1;
+			console.log(r);
+			if (r !== -1) {
+				// if they ranked
+				var rr = rData[rData.length - 1];
+				if (rr <= 2) {
+					if (r === 3) {rData.push(2); rData.push(3);} else {
+						var rrr = yearGames[index];
+						var sss = teamRank([rrr]).filter(function(e) {return e.name === qTeam;})[0];
+						if (sss.points > 0) {
+							rData.push(1);
+							rData.push(1);
+						} else {
+							rData.push(2);
+							rData.push(2);
+						}
+						rData.push(r);
+					}
 				} else {
-					rData.push(2);
-					rData.push(2);
+					if (r === 4) {rData.push(4);}
+					if (r === 3) {rData.push(3); rData.push(3);}
+					if (r === 2) {rData.push(3); rData.push(2); rData.push(2);}
+					if (r === 1) {rData.push(3); rData.push(2); rData.push(1);}
 				}
-				rData.push(r);
-				}
-			} else {
-				if (r === 4) {rData.push(4);}
-				if (r === 3) {rData.push(3); rData.push(3);}
-				if (r === 2) {rData.push(3); rData.push(2); rData.push(2);}
-				if (r === 1) {rData.push(3); rData.push(2); rData.push(1);}
-			}
-		}	
+			}	
+		}
 
 		var ctx = graph.selectAll('.dots').data([rData]);
 
-		ctx.enter().append('g').attr('class', 'line');
+		var toReview = null;
+		var yearR = null;
+
+		ctx.enter().append('g').attr('class', 'line').attr('team',qTeam).attr('year',sYear).on('click', function(){
+			d3.select('.line').classed('selected',false);
+			var t = d3.select(this).attr('team');
+			console.log(t);
+			console.log(toReview);
+			if (t == toReview) {
+				d3.select(this).classed('selected', false);
+				toReview = null;
+				return;
+			}
+			toReview = t;
+			yearR = d3.select(this).attr('year');
+			d3.select(this).classed('selected',true);
+		}).on('mouseover', function() {d3.selectAll('.hovertext').text(d3.select(this).attr('team') + " (" + d3.select(this).attr('year')+ ")");})
+		.on('mouseout', function() {
+			if (toReview == null) {
+				d3.selectAll('.hovertext').text('Click a line for more options. Right click to delete a single line.'); return;
+			}
+			d3.selectAll('.hovertext').html('<span id="span1" class="hovered"> See Rivalry With This Team </span> ' + toReview + " (" + yearR + ") <span id='span2' class='hovered'> Switch To This Team </span>");
+			d3.selectAll('#span1').on('click', function(e) {if (sTeam == toReview) {alert("You can't have a rivalry with yourself."); return;}rival1 = sTeam; rival2 = toReview; switchTo('rival');}).style('margin-right','50px').style('color','green').style('text-decoration','underline');
+			d3.selectAll('#span2').on('click', function(e) {
+				sTeam = toReview;
+				graph.selectAll('.area').remove();
+				graph.selectAll('circle').remove();
+				qTeam = sTeam; selectB.property('value',sTeam); update();
+				other.property('value', sTeam);
+				d3.selectAll('#teamname').html(sTeam);
+			}).style('margin-left', '50px').style('color','red').style('text-decoration', 'underline');
+		});
 
 		ctx.selectAll('path').data(function(d) {return [d];}).enter().append("path")
 		.attr("class", "area")
-		//.attr("d", line)
-		.style('stroke', function(d) {return color(sTeam + "" + sYear);}).style('stroke-width', '2').style('fill', 'none')
+		.style('stroke', function(d) {if (qTeam == sTeam && sYear == showYear) return 'black';return color(qTeam + "" + sYear);}).style('stroke-width', '4').style('fill', 'none')
 		.transition()
-    .duration(2000)
-    .attrTween('d', function(data) {
+		.duration(2000)
+		.attrTween('d', function(data) {
 			var interpolate = d3.scale.quantile()
 			.domain([0,1])
 			.range(d3.range(1, 18));
@@ -2412,53 +2518,83 @@ function graph6() {
 		.enter().append('circle').transition().delay(200)
 		.attr('cx', function (d, i) { return x(i+1); })
 		.attr('cy', function (d) { return y(d); })
-		.attr('r', 3);
+		.attr('r', 4);
 		console.log(rData);
 	}
 
 	update();
 
 	var divvy = d3.select('#chart').append('div').attr('class','remove').style('text-align','center');
-	var select = divvy.append('select').on('change', function(e){sTeam = this.value;});
+	var selectB = divvy.append('select').on('change', function(e){qTeam = this.value;});
 
-	select.selectAll('option')
+	selectB.selectAll('option')
 	.data(listTeams).enter()
 	.append('option')
 	.attr('value', function(e){ 
 		return e;})
 		.text(function(d){return d;});
-	select.property('value', sTeam);
+	selectB.property('value', sTeam);
+	qTeam = sTeam;
 
-	var select = divvy.append('select').on('change', function(e){sYear = this.value;});
+	var selectA = divvy.append('select').on('change', function(e){sYear = this.value;});
 
-	select.selectAll('option')
-	.data(listYears).enter()
+	selectA.selectAll('option')
+	.data(['All'].concat(listYears)).enter()
 	.append('option')
 	.attr('value', function(e){ 
 		return e;})
 		.text(function(d){return d;});
-	select.property('value', sYear);
+	selectA.property('value', showYear);
 
 	var select = divvy.append('input').attr('type', 'button').attr('value', 'Add line').on('click', function(e){update();});
 
 
 
 	var select = divvy.append('input').attr('type', 'button').attr('value', 'Reset').on('click', function(e){
-	console.log(graph.selectAll('.area').remove());
-	console.log(graph.selectAll('circle').remove());
+		graph.selectAll('.area').remove();
+		graph.selectAll('circle').remove();
+		qTeam = sTeam; sYear = showYear; selectA.property('value', showYear); selectB.property('value',sTeam); /*update()*/
+
 	;});
 
 	var select = divvy.append('input').attr('type', 'button').attr('value', 'All Years For Team').on('click', function(e){
+		var temp = sYear;
 		listYears.forEach(function(e) {sYear = e; update();});
+		sYear = temp;
 	;});
 
 	var select = divvy.append('input').attr('type', 'button').attr('value', 'All Teams For Year').on('click', function(e){
-		listTeams.forEach(function(e) {sTeam = e; update();});
+		var temp = qTeam;
+		listTeams.forEach(function(e) {qTeam = e; update();});
+		qTeam = temp;
 	;});
 
-	d3.selectAll('.picker').on('change', function(e){update();});
-
+	d3.selectAll('.picker').on('change', function(e){
 	graph5(sTeam);
+		graph.selectAll('.area').remove();
+		graph.selectAll('circle').remove();
+	qTeam = sTeam; sYear = showYear; selectA.property('value', showYear); selectB.property('value',sTeam); update();});
+
+}
+
+function createFinals() {
+	d3.selectAll('.rankings').remove();
+	var gra = d3.selectAll('#chart').append('svg').attr('class', 'rankings toRemove').attr('width', 200).attr('height', 500).append('g');
+	gra.append('text').attr('text-anchor','start').attr('x',150).attr('y',50).text('Overall placings in finals');
+	var ranks = [0,0,0,0];
+	listYears.forEach(function(e){
+		var rr = rank(e)
+		if (rr.indexOf(sTeam) !== -1) {
+			ranks[rr.indexOf(sTeam)]++;	
+		}
+	});
+	ranks[1] = ranks[0] + ranks[1];
+	ranks[2] = ranks[2] + ranks[1];
+	ranks[3] = ranks[3] + ranks[2];
+	gra = gra.selectAll('rect').data(ranks.reverse()).enter().append('g')
+	gra.append('rect').attr('x',0).attr('y',60).transition().delay(function(d,i){return(4-i) * 30;}).attr('width',function(d) {return d*30;}).attr('height', 30)
+	.style('fill', function(d,i) {return colors[i];});
+	gra.append('title').text(function(d,i){return 4-i;});
 }
 
 function sssssss() {
