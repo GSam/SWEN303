@@ -22,7 +22,7 @@ var allVenues = {};
 var showYear = 'All';
 var showFinal = 'Both';
 var sTeam = 'Melbourne Vixens';
-var teamCol = "None";
+var teamCol = "No Special Colouring";
 var sVenue = null;
 var sVenueTemp = "";
 var sorter = 'Default sort';
@@ -182,7 +182,7 @@ function graph1() {
 	var chart = d3.select("#chart").append('svg:svg')
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom).append("g")
-	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	.attr("transform", "translate(" + margin.left + "," + margin.top + ")").attr('class','first');
 
 	var bs = chart.append('g').attr("transform", function(d, i) { return "translate(10,0)"; });
 
@@ -201,7 +201,7 @@ function graph1() {
 	//var color = d3.scale.category10();
 	bs.selectAll('rect').data(data).enter().append("rect").attr('class', 'bar')
 	.attr("width", function(d) {if (currentSort.name ==='+/-') return Math.abs(x(d) - x(0)); if (!isNumber(d)) return 0; test = x;console.log(x(d) + " " + d);return x(d);})
-	.attr("height", y.rangeBand()).style('fill', function(d, i) {return (teamCol === 'None' ? 'steel blue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
+	.attr("height", y.rangeBand()).style('fill', function(d, i) {return (teamCol === 'No Special Colouring' ? 'steel blue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
 	.attr('y', function(d, i) {return y(data1[i].name);}).on('click', function(e,i) {sTeam = data1[i].name; switchTo('team');})
 	.attr('x', function(d){if (currentSort.name==='+/-') return x(Math.min(0, d)); return 0;})
 
@@ -331,7 +331,7 @@ function graph1() {
 
 		bs.selectAll('rect').data(data)
 		.transition().delay(function(d,i) {return i * 50;})
-		.attr('y', function(d, i) {return y(data1[i].name);}).style('fill', function(d, i) {return (teamCol === 'None' ? 'steelblue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
+		.attr('y', function(d, i) {return y(data1[i].name);}).style('fill', function(d, i) {return (teamCol === 'No Special Colouring' ? 'steelblue' : (isNewZealand[data1[i].name] ? 'PowderBlue':'Tomato'));})
 		.attr("width", function(d) {if (currentSort.name ==='+/-') return Math.abs(x(d) - x(0)); if (!isNumber(d)) return 0; test = x;console.log(x(d) + " " + d);return x(d);})
 		.attr("height", y.rangeBand()).attr('x', function(d){if (currentSort.name==='+/-') return x(Math.min(0, d)); return 0;})
 
@@ -769,7 +769,7 @@ function graph2() {
 	  var bubbleOpen = null;
 	  node.selectAll('circle').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; })).enter().append("circle")
 	  .attr("r", 0)
-	  .style("fill", function(d) { return (teamCol === 'None' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato'));})
+	  .style("fill", function(d) { return (teamCol === 'No Special Colouring' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato'));})
 	  //.on('mouseover', function(e){ console.log(e); })
 	  .on('click', function(e) {sTeam = e.packageName; switchTo('team');})
 	  .on('contextmenu', function(e) {
@@ -932,7 +932,7 @@ function graph2() {
 		 );
 		 var mmm = d3.selectAll('#matchview').selectAll('p').data(infiniteWin);
 		 mmm.enter().append('p').attr('class','remove toHighlight');
-		 mmm.text(function(d){return d.name + " (" + d.year + ")" ;}).style('color', function(d) {if (teamCol == 'None') return 'black';return isNewZealand[d.name] ? 'Blue': 'Red';})
+		 mmm.text(function(d){return d.name + " (" + d.year + ")" ;}).style('color', function(d) {if (teamCol == 'No Special Colouring') return 'black';return isNewZealand[d.name] ? 'Blue': 'Red';})
 		 .on('click', function(d) { sTeam = d.name; switchTo('team');});
 		 mmm.exit().remove();
 	 }
@@ -974,7 +974,7 @@ function graph2() {
 		 }
 	  node.selectAll('circle').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; }))
 	  .attr("r", 0)
-	  .style("fill", function(d) { return (teamCol === 'None' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato'));}).on('mouseover', function(e){ console.log(e); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";}).append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
+	  .style("fill", function(d) { return (teamCol === 'No Special Colouring' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato'));}).on('mouseover', function(e){ console.log(e); }).on('click', function(e) {sTeam = e.packageName; switchTo('team');}).attr('transform', function(d){return 'translate(' +  d.x + "," + d.y + ")";}).append('svg:title').text(function(d) { console.log((d.value <= 0.01 ? 'Insufficient data':format(d.value))); return d.className + " (" + d.data.year+ "): " + (d.value <= 0.01 ? 'Insufficient data':format(d.value))});
 
 	  node.selectAll('text').data(bubble.nodes(classes(tree)).filter(function(d) { return !d.children; }))
 	  .attr("dy", ".3em")
@@ -986,11 +986,11 @@ function graph2() {
 	 }
 
 	 function update3() {
-		 node.selectAll('circle')//.style('stroke', function(e) { return (teamCol === 'None' ? 'none' : (isNewZealand[e.packageName] ? 'blue':'red'));});
- .style("fill", function(d) {  return (teamCol === 'None' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato')) ; })
+		 node.selectAll('circle')//.style('stroke', function(e) { return (teamCol === 'No Special Colouring' ? 'none' : (isNewZealand[e.packageName] ? 'blue':'red'));});
+ .style("fill", function(d) {  return (teamCol === 'No Special Colouring' ? color(d.packageName) : (isNewZealand[d.packageName] ? 'PowderBlue':'Tomato')) ; })
 		 var mmm = d3.selectAll('#matchview').selectAll('p').data(infiniteWin);
 		 mmm.enter().append('p').attr('class','remove toHighlight');
-		 mmm.text(function(d){return d.name + " (" + d.year + ")" ;}).style('color', function(d) {if (teamCol == 'None') return 'black';return isNewZealand[d.name] ? 'Blue': 'Red';})
+		 mmm.text(function(d){return d.name + " (" + d.year + ")" ;}).style('color', function(d) {if (teamCol == 'No Special Colouring') return 'black';return isNewZealand[d.name] ? 'Blue': 'Red';})
 		 .on('click', function(d) { sTeam = d.name; switchTo('team');});
 		 mmm.exit().remove();
 	 }
@@ -1053,7 +1053,7 @@ function graph3() {
 		.attr("class", "slice").on('mouseout', function(){d3.select('#middletext').text(sVenue);d3.select('#middlevalue').text(sVenueTemp);});    //allow us to style things in the slices (like text)
 
 		arcs.append("svg:path").attr('class', 'paths')
-		.attr("fill", function(d, i) { if (teamCol ==='None') return color(i);return isNewZealand[allVenues[d.data.label][0]['Home Team']] ? "PowderBlue": "Tomato";} ) //set the color for each slice to be chosen from the color function defined above
+		.attr("fill", function(d, i) { if (teamCol ==='No Special Colouring') return color(i);return isNewZealand[allVenues[d.data.label][0]['Home Team']] ? "PowderBlue": "Tomato";} ) //set the color for each slice to be chosen from the color function defined above
 		.attr("d", arc).style("stroke", "#fff")
 		.on('mouseover', 
 			function(e){
@@ -1123,7 +1123,7 @@ function graph3() {
 			var selection = vis.selectAll('.listTeams').data(teamRank(games).sort(winRatio));
 			selection = selection.enter().append('g');
 
-			if (teamCol !== 'None') {selection.append('rect').style('fill',function(d) {return isNewZealand[d.name] ? 'steelblue' :'red'}).style('stroke','black').attr('y', function(d,i) {return 40 * i - h/4;}).attr('x', 0.5*w + 20)
+			if (teamCol !== 'No Special Colouring') {selection.append('rect').style('fill',function(d) {return isNewZealand[d.name] ? 'steelblue' :'red'}).style('stroke','black').attr('y', function(d,i) {return 40 * i - h/4;}).attr('x', 0.5*w + 20)
 			.attr('width', 6).attr('height', 6).attr('dy', '1em');
 			}
 
@@ -1435,7 +1435,7 @@ d3.csv('2008-Table1.csv', function(e){
 							select.node().addEventListener('change', function(e) {teamCol = this.value;});
 
 							select.selectAll('option')
-							.data(['None','Distinguish Country'])
+							.data(['No Special Colouring','Distinguish Country'])
 							.enter().append('option')
 							.attr('value', function(d) {return d;})
 							.text(function(d) {return d;});
@@ -2282,6 +2282,7 @@ function graph6() {
 	var titleDiv = d3.select('#chart').append('div').attr('class','remove').style('padding-top', '20px').style('text-align', 'center').html('<h2>Team: <span id="teamname">' + sTeam + '</span></h2>');
 	titleDiv.select('#teamname').style('color', isNewZealand[sTeam] ? 'Blue' : 'Red');
 	var select = titleDiv.append('div').attr('class','remove').append('select').on('change', function(e){sTeam = this.value;d3.select('#teamname').html(sTeam);titleDiv.select('#teamname').style('color', isNewZealand[sTeam] ? 'Blue' : 'Red');
+		graph5(sTeam);
 });
 
 	select.selectAll('option')
@@ -2385,7 +2386,7 @@ function graph6() {
 				if (r === 1) {rData.push(3); rData.push(2); rData.push(1);}
 			}
 		}	
-		console.log(rData);
+
 		var ctx = graph.selectAll('.dots').data([rData]);
 
 		ctx.enter().append('g').attr('class', 'line');
@@ -2394,7 +2395,7 @@ function graph6() {
 		.attr("class", "area")
 		//.attr("d", line)
 		.style('stroke', function(d) {return color(sTeam + "" + sYear);}).style('stroke-width', '2').style('fill', 'none')
-  .transition()
+		.transition()
     .duration(2000)
     .attrTween('d', function(data) {
 			var interpolate = d3.scale.quantile()
@@ -2413,13 +2414,12 @@ function graph6() {
 		.attr('cy', function (d) { return y(d); })
 		.attr('r', 3);
 		console.log(rData);
-		graph5(sTeam);
-		console.log('here');
 	}
 
 	update();
 
-	var select = d3.select('#chart').append('div').attr('class','remove').append('select').on('change', function(e){sTeam = this.value;});
+	var divvy = d3.select('#chart').append('div').attr('class','remove').style('text-align','center');
+	var select = divvy.append('select').on('change', function(e){sTeam = this.value;});
 
 	select.selectAll('option')
 	.data(listTeams).enter()
@@ -2427,8 +2427,9 @@ function graph6() {
 	.attr('value', function(e){ 
 		return e;})
 		.text(function(d){return d;});
+	select.property('value', sTeam);
 
-	var select = d3.select('#chart').append('div').attr('class', 'remove').append('select').on('change', function(e){sYear = this.value;});
+	var select = divvy.append('select').on('change', function(e){sYear = this.value;});
 
 	select.selectAll('option')
 	.data(listYears).enter()
@@ -2436,11 +2437,28 @@ function graph6() {
 	.attr('value', function(e){ 
 		return e;})
 		.text(function(d){return d;});
+	select.property('value', sYear);
 
-	var select = d3.select('#chart').append('div').attr('class', 'remove').append('input').attr('type', 'button').attr('value', 'Add line').on('click', function(e){update();});
+	var select = divvy.append('input').attr('type', 'button').attr('value', 'Add line').on('click', function(e){update();});
 
+
+
+	var select = divvy.append('input').attr('type', 'button').attr('value', 'Reset').on('click', function(e){
+	console.log(graph.selectAll('.area').remove());
+	console.log(graph.selectAll('circle').remove());
+	;});
+
+	var select = divvy.append('input').attr('type', 'button').attr('value', 'All Years For Team').on('click', function(e){
+		listYears.forEach(function(e) {sYear = e; update();});
+	;});
+
+	var select = divvy.append('input').attr('type', 'button').attr('value', 'All Teams For Year').on('click', function(e){
+		listTeams.forEach(function(e) {sTeam = e; update();});
+	;});
 
 	d3.selectAll('.picker').on('change', function(e){update();});
+
+	graph5(sTeam);
 }
 
 function sssssss() {

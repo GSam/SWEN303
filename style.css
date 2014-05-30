@@ -15,7 +15,7 @@ background-repeat:no-repeat;
   text-anchor: end;
 }
 
-#chart rect:hover {
+.first rect:hover {
 	opacity:0.2;
 }
 
